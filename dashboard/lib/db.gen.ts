@@ -1,0 +1,178 @@
+import { z } from "zod";
+
+export const TABLES = {
+  education: z.object({
+    id: z.number(),
+    degree: z.string(),
+    institution: z.string().nullable(),
+    finished: z.string().nullable(),
+    start: z.string().nullable(),
+  }),
+  employers: z.object({
+    id: z.number(),
+    name: z.string(),
+    title: z.string().nullable(),
+    start: z.string().nullable(),
+    finish: z.string().nullable(),
+    about: z.string().nullable(),
+    seq: z.number().nullable(),
+  }),
+  identity: z.object({
+    id: z.number(),
+    full_name: z.string().nullable(),
+    preferred_name: z.string().nullable(),
+    last_name: z.string().nullable(),
+    email: z.string().nullable(),
+    phone: z.string().nullable(),
+    location: z.string().nullable(),
+    street_address: z.string().nullable(),
+    linkedin: z.string().nullable(),
+    github: z.string().nullable(),
+    authorized_in_country_of_residence: z.number().nullable(),
+    legal_right_to_work_without_sponsorship: z.number().nullable(),
+    requires_sponsorship_now_or_future: z.number().nullable(),
+    over_18: z.number().nullable(),
+    gender: z.enum(["male", "female", "non_binary", "decline_to_say"]).nullable(),
+    race_ethnicity: z
+      .enum([
+        "american_indian_or_alaska_native",
+        "asian",
+        "black_or_african_american",
+        "hispanic_or_latino",
+        "native_hawaiian_or_pacific_islander",
+        "white",
+        "two_or_more_races",
+        "decline_to_say",
+      ])
+      .nullable(),
+    hispanic_or_latino: z.enum(["yes", "no", "decline_to_say"]).nullable(),
+    veteran_status: z.enum(["protected_veteran", "not_a_protected_veteran", "decline_to_say"]).nullable(),
+    disability_status: z.enum(["yes", "no", "decline_to_say"]).nullable(),
+    earliest_daily_start: z.string().nullable(),
+    notice_period: z.enum(["none", "1_week", "2_weeks", "3_weeks", "1_month", "2_months", "3_months"]).nullable(),
+    employment_type: z.enum(["full_time", "part_time", "contract", "internship", "temporary"]).nullable(),
+    remote_preference: z.enum(["remote", "hybrid", "on_site", "no_preference"]).nullable(),
+    willing_to_relocate: z.number().nullable(),
+    compensation_floor: z.number().nullable(),
+    compensation_currency: z.string().nullable(),
+  }),
+  instructions: z.object({
+    id: z.number(),
+    text: z.string().nullable(),
+  }),
+  postings: z.object({
+    key: z.string(),
+    source: z.string(),
+    company: z.string(),
+    title: z.string(),
+    url: z.string().nullable(),
+    location: z.string().nullable(),
+    remote: z.number().nullable(),
+    compensation: z.string().nullable(),
+    posted_at: z.string().nullable(),
+    description: z.string().nullable(),
+    first_fetched: z.string(),
+    last_fetched: z.string(),
+    ingested_on: z.string().nullable(),
+    last_updated: z.string().nullable(),
+    score: z.number().nullable(),
+    reason: z.string().nullable(),
+    resume: z.string().nullable(),
+    status: z
+      .enum(["new", "shortlisted", "skipped", "staged", "applied", "interviewing", "rejected", "passed"])
+      .nullable(),
+  }),
+  project_technologies: z.object({
+    project_id: z.number(),
+    technology: z.string(),
+  }),
+  projects: z.object({
+    id: z.number(),
+    employer_id: z.number(),
+    name: z.string(),
+    start: z.string().nullable(),
+    finish: z.string().nullable(),
+    seq: z.number().nullable(),
+    about: z.string().nullable(),
+  }),
+  settings: z.object({
+    key: z.string(),
+    value: z.string().nullable(),
+  }),
+  staged: z.object({
+    key: z.string(),
+    url: z.string().nullable(),
+    status: z.enum(["ready", "blocked"]).nullable(),
+    blocked_on: z.string().nullable(),
+  }),
+  summary: z.object({
+    id: z.number(),
+    text: z.string().nullable(),
+  }),
+};
+
+export const VIEWS = {
+  answers: z.object({
+    section: z.union([z.string(), z.number()]).nullable(),
+    field: z.union([z.string(), z.number()]).nullable(),
+    value: z.union([z.string(), z.number()]).nullable(),
+  }),
+  career: z.object({
+    employer: z.string(),
+    role: z.string().nullable(),
+    employer_start: z.string().nullable(),
+    employer_end: z.string().nullable(),
+    project_id: z.number(),
+    project: z.string(),
+    about: z.string().nullable(),
+    technologies: z.union([z.string(), z.number()]).nullable(),
+  }),
+  experience: z.object({
+    clock_starts: z.union([z.string(), z.number()]).nullable(),
+    years: z.union([z.string(), z.number()]).nullable(),
+    relevant_years: z.union([z.string(), z.number()]).nullable(),
+  }),
+  prospects: z.object({
+    key: z.string(),
+    company: z.string(),
+    title: z.string(),
+    url: z.string().nullable(),
+    location: z.string().nullable(),
+    remote: z.number().nullable(),
+    compensation: z.string().nullable(),
+    posted_at: z.string().nullable(),
+    last_updated: z.string().nullable(),
+    source: z.string(),
+    description: z.string().nullable(),
+    score: z.number().nullable(),
+    reason: z.string().nullable(),
+    resume: z.string().nullable(),
+    status: z
+      .enum(["new", "shortlisted", "skipped", "staged", "applied", "interviewing", "rejected", "passed"])
+      .nullable(),
+  }),
+  triage: z.object({
+    key: z.string(),
+    company: z.string(),
+    title: z.string(),
+    location: z.string().nullable(),
+    remote: z.number().nullable(),
+    compensation: z.string().nullable(),
+    posted_at: z.string().nullable(),
+    last_updated: z.string().nullable(),
+    source: z.string(),
+    score: z.number().nullable(),
+    status: z
+      .enum(["new", "shortlisted", "skipped", "staged", "applied", "interviewing", "rejected", "passed"])
+      .nullable(),
+    resume: z.string().nullable(),
+    url: z.string().nullable(),
+  }),
+  unanswered: z.object({
+    section: z.union([z.string(), z.number()]).nullable(),
+    field: z.union([z.string(), z.number()]).nullable(),
+  }),
+};
+
+export type Table = keyof typeof TABLES;
+export type View = keyof typeof VIEWS;

@@ -1,0 +1,56 @@
+import Database from "better-sqlite3";
+import type { z } from "zod";
+import fs from "node:fs";
+import path from "node:path";
+
+import { tables } from "./ddl.ts";
+import { DB, absolute } from "./paths.ts";
+import { ROOT } from "./root.ts";
+import { align } from "./schema.ts";
+
+export { absolute, CAREER, DB, DOWNLOADS, PATHS } from "./paths.ts";
+
+const held = globalThis as { db?: Database.Database; ddl?: string };
+
+export const ddl = () => (held.ddl ??= `${tables()}\n${fs.readFileSync(path.join(ROOT, "sql", "logic.sql"), "utf8")}`);
+
+export function connect(at: string = DB) {
+  fs.mkdirSync(path.dirname(at) || ".", { recursive: true });
+  const opened = new Database(at);
+  opened.pragma("foreign_keys = ON");
+  opened.exec(ddl());
+  align(opened);
+  return opened;
+}
+
+export function db() {
+  return (held.db ??= connect());
+}
+
+export function open(at?: string | null) {
+  if (!at) return db();
+  return (held.db = connect(absolute(at)));
+}
+
+const parsed = <T extends z.ZodType>(shape: T, sql: string, row: unknown): z.infer<T> => {
+  const read = shape.safeParse(row);
+  if (read.success) return read.data;
+  throw new Error(
+    `${sql}\nreturned a row its shape does not describe:\n` +
+      read.error.issues.map((issue) => `  ${issue.path.join(".")}: ${issue.message}`).join("\n"),
+  );
+};
+
+export const rows = <T extends z.ZodType>(shape: T, sql: string, args: unknown[] = []): z.infer<T>[] =>
+  (
+    db()
+      .prepare(sql)
+      .all(...args) as unknown[]
+  ).map((row) => parsed(shape, sql, row));
+
+export const one = <T extends z.ZodType>(shape: T, sql: string, args: unknown[] = []): z.infer<T> | null => {
+  const found = db()
+    .prepare(sql)
+    .get(...args);
+  return found === undefined || found === null ? null : parsed(shape, sql, found);
+};

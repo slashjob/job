@@ -1,0 +1,111 @@
+#!/usr/bin/env -S node --disable-warning=ExperimentalWarning
+import { printRows } from "../lib/core/table.ts";
+import { instructions, prospect, record, triage, unscored } from "../lib/score.ts";
+import { action } from "./kit.ts";
+
+const { program, runs } = action(
+  "cli/score.ts",
+  `Judge postings already stored, against the search profile.
+
+  cli/score.ts instructions         the work history, profile facts and prose to judge against
+  cli/score.ts triage               the cheap list: no descriptions, on purpose
+  cli/score.ts triage --status new
+  cli/score.ts show KEY [KEY ...]   full text, for survivors only
+  cli/score.ts set KEY --score 9 --reason "the JD language that drove it, quoted"
+  cli/score.ts pending              still unscored, and back again tomorrow
+
+A score sets the status by the threshold in settings, so the two cannot disagree.
+
+The search scores each posting as it reads it, so this is for what is already
+stored: re-judging after the instructions change, and the rows that arrived
+without a score.`,
+);
+
+program
+  .command("triage")
+  .description("the triage view: no descriptions, on purpose")
+  .option("--status <status>")
+  .option("--limit <n>", "", Number)
+  .option("--json")
+  .action(
+    runs((options) => {
+      printRows(triage(options), options.json);
+    }),
+  );
+
+program
+  .command("instructions")
+  .description("everything scoring reads: the work history, the standing profile facts, then the instructions")
+  .action(
+    runs(() => {
+      const { background, standing, text } = instructions();
+      if (background.length) {
+        console.log("What they have actually done:");
+        for (const line of background) console.log(line);
+        console.log("");
+      }
+      if (standing.length) {
+        console.log("From the profile, and not up for debate:");
+        for (const line of standing) console.log(`- ${line}`);
+        console.log("");
+      }
+      console.log(text ?? "(nothing written down)");
+    }),
+  );
+
+program
+  .command("show")
+  .description("full description for the prospects that survived triage")
+  .argument("<key...>")
+  .action(
+    runs((keys: string[]) => {
+      for (const key of keys) {
+        const row = prospect(key);
+        if (!row) {
+          console.error(`no prospect '${key}'`);
+          continue;
+        }
+        console.log(`${row.company} — ${row.title}  [${row.key}]`);
+        console.log(
+          `  ${row.location || "(no location)"}` +
+            `${row.remote ? "  remote" : ""}` +
+            `${row.compensation ? "  " + row.compensation : ""}`,
+        );
+        console.log(
+          `  posted ${row.posted_at || "unknown"}   ${row.status}` +
+            `${row.score !== null ? "  score " + row.score : ""}`,
+        );
+        console.log(`  ${row.url || ""}\n`);
+        console.log(row.description || "(no description — cli/score.ts set will refuse this one)");
+        console.log("\n" + "-".repeat(78) + "\n");
+      }
+    }),
+  );
+
+program
+  .command("set")
+  .description("record a score and the reason that drove it")
+  .argument("<key>")
+  .requiredOption("--score <n>", "", Number)
+  .requiredOption("--reason <text>")
+  .action(
+    runs((key: string, options) => {
+      const after = record(key, Number(options.score), options.reason);
+      console.log(`${key}  ${after.score}  ${after.status}`);
+    }),
+  );
+
+program
+  .command("pending")
+  .description("prospects with no score yet")
+  .option("--json")
+  .action(
+    runs((options) => {
+      const rows = unscored();
+      printRows(rows, options.json);
+      if (rows.length && !options.json)
+        console.log(`\n${rows.length} unscored — each one stays \`new\` and comes back tomorrow`);
+    }),
+  );
+
+program.parseAsync();

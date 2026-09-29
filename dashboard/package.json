@@ -1,0 +1,45 @@
+{
+  "name": "job-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A local web app over the job skill: browse what it found, edit the profile, and run its actions.",
+  "license": "SEE LICENSE IN ../LICENSE",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "next dev -p 8765",
+    "dev:web": "node --disable-warning=ExperimentalWarning scripts/web.ts",
+    "build": "next build",
+    "start": "next start -p 8765",
+    "gen:db": "node --disable-warning=ExperimentalWarning scripts/gen-db.ts && prettier --write lib/db.gen.ts",
+    "typecheck": "next typegen && tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "localtunnel": "^2.0.2",
+    "lucide-react": "^1.37.0",
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-markdown": "^10.1.0",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/localtunnel": "^2.0.4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "daisyui": "^5.7.22",
+    "prettier": "^3.9.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
