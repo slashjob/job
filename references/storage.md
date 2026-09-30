@@ -1,16 +1,19 @@
 # Storage
 
-One convention: `$CAREER/job.db` — postings, prospects, staged applications, and the user's whole
-profile are rows in it. The filesystem holds only built PDFs: `$CAREER/resumes/`.
+One convention: `job.db` — postings, prospects, staged applications, and the user's whole profile
+are rows in it. The filesystem holds only built PDFs, in `resumes/` beside it.
 
-**`$CAREER` is a fixed absolute directory, so `/job` runs identically from anywhere.** Ask the skill
-where it is rather than resolving against the working directory:
+**Both are fixed absolute paths, so `/job` runs identically from anywhere.** Ask the skill where they
+are rather than resolving against the working directory:
 
 ```bash
-CAREER=$(cli/paths.ts career)
+cli/paths.ts db resumes
 ```
 
-Default `~/data/job`; `JOB_CAREER_DIR` overrides it.
+**The user can keep several databases** — separate searches, each with its own profile — and
+`cli/database.ts` lists, switches and creates them. Every command reads the active one, so switching
+mid-task moves the rest of the task with it: switch only when the user asks, and say which one is
+now active.
 
 ## Queries
 

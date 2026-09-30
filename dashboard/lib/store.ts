@@ -2,9 +2,11 @@ import fs from "node:fs";
 import { z } from "zod";
 
 import { one } from "./db.ts";
-import { DB } from "./skill.ts";
+import { active, database, databases } from "./skill.ts";
 
 export type Store = {
+  name: string;
+  names: string[];
   path: string;
   bytes: number;
   logBytes: number;
@@ -28,11 +30,14 @@ const count = (table: "postings" | "staged") => one(COUNT, `SELECT count(*) AS t
 export function store(): Store {
   const postings = count("postings");
   const staged = count("staged");
-  const files = [DB, `${DB}-wal`, `${DB}-shm`].flatMap((file) => stat(file) ?? []);
+  const at = database();
+  const files = [at, `${at}-wal`, `${at}-shm`].flatMap((file) => stat(file) ?? []);
   return {
-    path: DB,
+    name: active(),
+    names: databases(),
+    path: at,
     bytes: files.reduce((sum, file) => sum + file.size, 0),
-    logBytes: stat(`${DB}-wal`)?.size ?? 0,
+    logBytes: stat(`${at}-wal`)?.size ?? 0,
     modified: Math.max(...files.map((file) => file.mtimeMs)),
     postings,
     staged,

@@ -9,7 +9,7 @@ import { z } from "zod";
 import { db, one } from "./db.ts";
 import { MODELS } from "./queries.ts";
 import { TABLES, bare, type Table } from "./schema.ts";
-import { CAREER, absolute, script } from "./skill.ts";
+import { CAREER, absolute } from "./skill.ts";
 
 const WRITABLE = new Set<Table>([
   "identity",

@@ -36,12 +36,7 @@ export default function Nav({
 }) {
   const here = usePathname();
   const router = useRouter();
-  useKey(
-    useMemo(
-      () => Object.fromEntries(SECTIONS.map(({ href, key }) => [key, () => router.push(href)])),
-      [router],
-    ),
-  );
+  useKey(useMemo(() => Object.fromEntries(SECTIONS.map(({ href, key }) => [key, () => router.push(href)])), [router]));
   const { shown, working, waiting, toggle } = useDeck();
   return (
     <nav aria-label="Sections" className="sticky top-0 z-40 bg-base-100">

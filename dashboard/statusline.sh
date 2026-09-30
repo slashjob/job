@@ -1,8 +1,7 @@
 #!/bin/sh
 set -eu
 
-career="${JOB_CAREER_DIR:-$HOME/data/job}"
-case $career in "~") career=$HOME ;; "~/"*) career=$HOME/${career#"~/"} ;; esac
+career="$HOME/data/job"
 
 snapshot=$(cat)
 

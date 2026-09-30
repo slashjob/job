@@ -6,8 +6,6 @@ export { TABLES, VIEWS, type Table };
 
 export type Status = NonNullable<z.infer<typeof TABLES.postings.shape.status>>;
 
-export const STATUSES = TABLES.postings.shape.status.unwrap().options;
-
 export const bare = (shape: z.ZodType): z.ZodType =>
   shape instanceof z.ZodNullable ? bare(shape.unwrap() as z.ZodType) : shape;
 

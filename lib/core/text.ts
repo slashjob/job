@@ -33,7 +33,7 @@ export function toIso(value: unknown): string | null {
   if (held) {
     let time = held[2] ?? "00:00:00";
     if (time.length === 5) time += ":00";
-    time = time.replace(/\.(\d+)$/, (whole, digits: string) =>
+    time = time.replace(/\.(\d+)$/, (_, digits: string) =>
       /^0+$/.test(digits) ? "" : `.${digits.padEnd(6, "0").slice(0, 6)}`,
     );
     return `${held[1]}T${time}${offset(held[3])}`;

@@ -237,11 +237,7 @@ export default function Deck({
         <div className="flex h-[var(--nav)] shrink-0 items-center gap-2 px-5 pt-1">
           {reading ? (
             <>
-              <Ghost
-                onClick={leave}
-                className="-ml-2 gap-1 text-mini"
-                icon={<Glyph icon={ChevronLeft} />}
-              >
+              <Ghost onClick={leave} className="-ml-2 gap-1 text-mini" icon={<Glyph icon={ChevronLeft} />}>
                 All
               </Ghost>
               <h2 className="min-w-0 flex-1 truncate text-mini font-medium">

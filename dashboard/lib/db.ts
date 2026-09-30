@@ -3,11 +3,11 @@ import type { z } from "zod";
 import fs from "node:fs";
 
 import { TABLES, VIEWS } from "./db.gen.ts";
-import { DB } from "./skill.ts";
+import { database } from "./skill.ts";
 
 type Held = { name: string; notnull: number; pk: number };
 
-const held = globalThis as { db?: Database.Database };
+const held = globalThis as { db?: Database.Database; at?: string };
 
 function matched(database: Database.Database) {
   const wrong: string[] = [];
@@ -38,16 +38,23 @@ function matched(database: Database.Database) {
     );
 }
 
-function connect() {
-  if (!fs.existsSync(DB)) throw new Error(`no job database at ${DB}; run /job setup in Claude Code first`);
-  const opened = new Database(DB, { fileMustExist: true });
+function connect(at: string) {
+  if (!fs.existsSync(at)) throw new Error(`no job database at ${at}; run /job setup in Claude Code first`);
+  const opened = new Database(at, { fileMustExist: true });
   opened.pragma("foreign_keys = ON");
   opened.pragma("busy_timeout = 5000");
   matched(opened);
   return opened;
 }
 
-export const db = () => (held.db ??= connect());
+export function db() {
+  const at = database();
+  if (held.db && held.at === at) return held.db;
+  const opened = connect(at);
+  held.db?.close();
+  Object.assign(held, { db: opened, at });
+  return opened;
+}
 
 const parsed = <T extends z.ZodType>(shape: T, sql: string, row: unknown): z.infer<T> => {
   const read = shape.safeParse(row);

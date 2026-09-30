@@ -36,7 +36,7 @@ framing and facts together.
 3. Select: roles reverse-chronological, most relevant project first within each role. Cut irrelevant
    projects entirely. A role with nothing relevant gets one summary bullet.
 4. Draft against **Writing**, then test every line against **The one-pass test**.
-5. Write the spec to `$CAREER/resumes/<company>-<role-slug>.json` and build.
+5. Write the spec to `<company>-<role-slug>.json` in `cli/paths.ts resumes` and build.
 6. Report gaps: JD requirements with no evidence in the tables; bullets a missing number would
    strengthen, named specifically; close-call cuts.
 

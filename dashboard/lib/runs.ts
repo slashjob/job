@@ -6,7 +6,7 @@ import path from "node:path";
 import { asked, browses, runnable, shown } from "@/lib/actions";
 import { BRIEFING } from "@/lib/briefing";
 import { heard, outermost, type Line } from "@/lib/claude";
-import { CAREER, installed, script } from "@/lib/skill";
+import { CAREER, MAIN, active, installed, script } from "@/lib/skill";
 import { CLOSING, DONE, WORKING } from "@/lib/standing";
 import { MODELS, model } from "./queries";
 
@@ -25,7 +25,7 @@ export type Run = {
 type Modelled = { kind: "model"; key: string };
 
 type Kept =
-  | { kind: "opened"; action: string; title: string; started: string; argument?: string }
+  | { kind: "opened"; action: string; title: string; started: string; argument?: string; database?: string }
   | { kind: "session"; id: string }
   | Modelled
   | Line;
@@ -79,6 +79,7 @@ export function listing(): Run[] {
     return [];
   }
 
+  const here = active();
   const runs = names
     .filter((name) => name.endsWith(".jsonl"))
     .map((name) => {
@@ -92,7 +93,7 @@ export function listing(): Run[] {
         return null;
       }
       const opened = kept.find((one) => one.kind === "opened");
-      if (!opened) return null;
+      if (!opened || ((opened.database ?? MAIN) !== here && !live().has(id))) return null;
       return {
         run: {
           id,
@@ -129,6 +130,7 @@ export async function begin({
   const kept = run ? held(run) : [];
   const opened = kept.find((one) => one.kind === "opened");
   const named = opened?.action ?? action;
+  const database = run ? (opened?.database ?? MAIN) : active();
 
   if (!runnable(named)) throw new Error(`no such action: ${named}`);
   if (run && live().has(run)) throw new Error("that conversation is still working");
@@ -143,7 +145,8 @@ export async function begin({
   if (browses(named)) await script("browser");
 
   const started = new Date().toISOString();
-  if (!run) append(id, { kind: "opened", action: named, title: shown(named, words), started, argument: words });
+  if (!run)
+    append(id, { kind: "opened", action: named, title: shown(named, words), started, argument: words, database });
   if (chosen !== was) append(id, { kind: "model", key: chosen });
   append(id, { kind: "asked", body: resume ? words : shown(named, words) });
 
@@ -163,7 +166,7 @@ export async function begin({
       "--permission-mode",
       "bypassPermissions",
     ],
-    { cwd: installed(), env: outermost(process.env), stdio: ["ignore", "pipe", "pipe"] },
+    { cwd: installed(), env: { ...outermost(process.env), JOB_DATABASE: database }, stdio: ["ignore", "pipe", "pipe"] },
   );
 
   const one: Live = { child, ended: DONE, hears: new Set() };

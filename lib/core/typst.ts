@@ -64,7 +64,7 @@ export const s = (text: unknown) =>
     .replace(/\\/g, "\\\\")
     .replace(/"/g, '\\"')}"`;
 
-export function inline(text: string | null | undefined) {
+function inline(text: string | null | undefined) {
   const held = text ?? "";
   const out: string[] = [];
   let last = 0;

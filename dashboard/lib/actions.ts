@@ -9,7 +9,7 @@ export type Action = {
   asks?: string;
 };
 
-export const ACTIONS: Action[] = [
+const ACTIONS: Action[] = [
   {
     id: "all",
     does: "Run all actions: search, resume, stage",

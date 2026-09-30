@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { tables } from "./ddl.ts";
-import { DB, absolute } from "./paths.ts";
+import { ACTIVE, DB, MAIN, absolute } from "./paths.ts";
 import { ROOT } from "./root.ts";
 import { align } from "./schema.ts";
 
@@ -24,6 +24,8 @@ export function connect(at: string = DB) {
 }
 
 export function db() {
+  if (!held.db && ACTIVE !== MAIN && !fs.existsSync(DB))
+    throw new Error(`no database named '${ACTIVE}'; cli/database.ts lists the ones there are`);
   return (held.db ??= connect());
 }
 

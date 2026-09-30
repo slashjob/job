@@ -171,6 +171,10 @@ export const SearchField = ({
   </label>
 );
 
+export const TextField = (props: Omit<ComponentPropsWithRef<"input">, "type" | "className">) => (
+  <input type="text" {...props} className="field hit py-1.5 text-xs" />
+);
+
 export const confirmDelete = (what: string) => confirm(`Delete ${what}? This cannot be undone.`);
 
 export const Empty = ({ children }: { children: ReactNode }) => (

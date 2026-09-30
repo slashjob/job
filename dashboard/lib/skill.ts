@@ -7,8 +7,31 @@ import { promisify } from "node:util";
 export const absolute = (held: string) => path.resolve(held.replace(/^~(?=$|\/)/, os.homedir()));
 
 const SKILL = path.join(os.homedir(), ".claude", "skills", "job");
-export const CAREER = absolute(process.env.JOB_CAREER_DIR || "~/data/job");
-export const DB = path.join(CAREER, "job.db");
+export const CAREER = path.join(os.homedir(), "data", "job");
+const CHOSEN = path.join(CAREER, "database");
+const DATABASES = path.join(CAREER, "databases");
+export const MAIN = "main";
+
+const home = (name: string) => (name === MAIN ? CAREER : path.join(DATABASES, name));
+const kept = (name: string) => /^[a-z0-9][a-z0-9-]{0,39}$/.test(name) && fs.existsSync(path.join(home(name), "job.db"));
+
+export function databases() {
+  let names: string[] = [];
+  try {
+    names = fs.readdirSync(DATABASES).filter((name) => name !== MAIN && kept(name));
+  } catch {}
+  return [MAIN, ...names.sort()];
+}
+
+export function active() {
+  let named = "";
+  try {
+    named = fs.readFileSync(CHOSEN, "utf8").trim();
+  } catch {}
+  return named && named !== MAIN && kept(named) ? named : MAIN;
+}
+
+export const database = () => path.join(home(active()), "job.db");
 
 export function installed() {
   if (!fs.existsSync(path.join(SKILL, "SKILL.md")))

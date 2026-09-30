@@ -5,7 +5,7 @@ import path from "node:path";
 
 import { ROOT } from "./core/root.ts";
 
-export const NEW_ISSUE = "https://github.com/slashjob/job/issues/new";
+const NEW_ISSUE = "https://github.com/slashjob/job/issues/new";
 
 const LONGEST = 7000;
 

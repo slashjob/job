@@ -43,7 +43,7 @@ Nothing below overrides these.
 | `/job dashboard [start\|stop\|status]` | Start the dashboard and open or focus its tab, or stop it | `cli/dashboard.ts --help` |
 | `/job help` | Run `cli/help.ts`, then reply with its output verbatim — the user cannot see tool output. No run, no queries, no commentary | |
 
-**If this skill's `node_modules` is missing, run install first; if `$CAREER` does not exist, setup**
+**If this skill's `node_modules` is missing, run install first; if `~/data/job` does not exist, setup**
 — `/job` before either is a no-op.
 
 Three files are not an action and are read when they apply:

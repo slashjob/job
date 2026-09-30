@@ -7,9 +7,9 @@ type Info = { name: string; type: string; notnull: number; pk: number };
 type Source = { name: string; table: string | null; column: string | null; type: string | null };
 
 const OUT = path.join(import.meta.dirname, "..", "lib", "db.gen.ts");
-const at = process.argv[2] ?? path.join(process.env.JOB_CAREER_DIR ?? path.join(os.homedir(), "data", "job"), "job.db");
+const at = process.argv[2] ?? path.join(os.homedir(), "data", "job", "job.db");
 
-if (!fs.existsSync(at)) throw new Error(`no database at ${at}; pass its path, or set JOB_CAREER_DIR`);
+if (!fs.existsSync(at)) throw new Error(`no database at ${at}; pass its path`);
 
 const db = new Database(at, { readonly: true, fileMustExist: true });
 
