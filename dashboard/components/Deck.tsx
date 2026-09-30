@@ -13,14 +13,15 @@ import {
 } from "react";
 import { flushSync } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronLeft, Plus } from "lucide-react";
+import { ChevronLeft, Plus, Volume2, VolumeX } from "lucide-react";
 
 import Glyph from "@/components/Glyph";
 import Named from "@/components/Named";
 import { DeleteMenu } from "@/components/Options";
 import { Conversation, useRun, type Asking } from "@/components/run";
-import { Dot, Empty, Flag, Ghost, Row } from "@/components/ui";
+import { Dot, Empty, Flag, Ghost, Row, Tip } from "@/components/ui";
 import { useKey } from "@/components/useKey";
+import { usePing } from "@/components/usePing";
 import { CHAT, asked, commanded } from "@/lib/actions";
 import { DONE, WAITING, WORKING } from "@/lib/standing";
 import type { Model } from "@/lib/queries";
@@ -101,6 +102,7 @@ export default function Deck({
   const waiting = runs.filter((held) => held.standing === WAITING).length;
   const here = runs.find((held) => held.id === run);
   const talking = picked ?? here?.model ?? model;
+  const { sounding, toggleSound } = usePing(runs);
 
   useEffect(() => {
     setShown(localStorage.getItem(KEPT) === "open");
@@ -252,6 +254,14 @@ export default function Deck({
           ) : (
             <>
               <h2 className="eyebrow flex-1">Conversations</h2>
+              <Tip tip={sounding ? "Mute the finish sound" : "Unmute the finish sound"}>
+                <Ghost
+                  onClick={toggleSound}
+                  aria-pressed={!sounding}
+                  aria-label="Mute the finish sound"
+                  icon={<Glyph icon={sounding ? Volume2 : VolumeX} size="sm" />}
+                />
+              </Tip>
               <Ghost onClick={() => fresh()} className="-mr-2 text-mini" icon={<Glyph icon={Plus} size="sm" />}>
                 New chat
               </Ghost>
