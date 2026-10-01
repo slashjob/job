@@ -21,10 +21,11 @@ Nothing below overrides these.
 3. **Answer to the truth, including when it costs the application.** A commitment in the profile is
    a ceiling, not an opening position.
 4. **Essays and screening answers are drafted, never auto-accepted.**
-5. **Chat output is minimal.** Only what blocks progress and needs the user belongs in chat — named
-   specifically, which role and which field. No progress narration, no action transitions, no
-   summaries; the database is the record. `/job help`, `/job install` and `/job setup` are the
-   exceptions.
+5. **Chat output is minimal, and the last message of a turn always opens the same way** — with one
+   sentence: what you need from the user, named specifically, which role and which field; or, when
+   nothing blocks, what the run came to. Under it, only what is left for them to do or decide, one
+   line each. No progress narration, no action transitions, no account of how you got there; the
+   database is the record. `/job help`, `/job install` and `/job setup` are the exceptions.
 6. **A captcha, or anything else asking for a human, stops the run the moment it appears** — a
    challenge, a "verify you are human" or press-and-hold page, a one-time code sent to their email or
    phone. Never attempt it or route around it: no reload, no new tab, no other copy of the form, no

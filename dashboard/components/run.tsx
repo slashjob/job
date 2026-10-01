@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, SendHorizontal, Square } from "lucide-react";
+import { ChevronDown, ChevronRight, SendHorizontal, Square } from "lucide-react";
 
 import { Command } from "@/components/act";
 import { MenuButton } from "@/components/Flyout";
@@ -10,7 +10,7 @@ import Glyph from "@/components/Glyph";
 import Markdown from "@/components/Markdown";
 import Models from "@/components/Models";
 import Named, { useLinked } from "@/components/Named";
-import { Button, Dot, Empty, Prose, Row, Stamp } from "@/components/ui";
+import { Button, Dot, Empty, Flag, Ghost, Prose, Row, Stamp } from "@/components/ui";
 import { asked, suggested, type Action } from "@/lib/actions";
 import { WAITING } from "@/lib/standing";
 import type { Model } from "@/lib/queries";
@@ -139,39 +139,80 @@ export function useRun() {
   };
 }
 
-const TONE: Record<string, string> = { wrong: "text-error", aside: "text-soft" };
+type Turn = { asked?: Line; steps: Line[]; reply?: Line; wrong: Line[]; end?: Line };
 
-const speaker = (line: Line) => (line.kind === "asked" || line.kind === "said" ? line.kind : null);
+function turns(lines: Line[]): Turn[] {
+  const all: Turn[] = [];
+  for (const line of lines) {
+    if (line.kind === "asked" || !all.length) all.push({ steps: [], wrong: [] });
+    const turn = all[all.length - 1];
+    if (line.kind === "asked") turn.asked = line;
+    else if (line.kind === "end") turn.end = line;
+    else if (line.kind === "wrong") turn.wrong.push(line);
+    else turn.steps.push(line);
+  }
+  return all.map((turn) => {
+    const last = turn.steps.findLastIndex((line) => line.kind === "said");
+    return last < 0 ? turn : { ...turn, reply: turn.steps[last], steps: turn.steps.filter((_, at) => at !== last) };
+  });
+}
 
-function Turn({ line, lead }: { line: Line; lead: boolean }) {
+function Steps({ steps }: { steps: Line[] }) {
   const linked = useLinked();
-
-  if (line.kind === "end")
-    return line.body === WAITING ? null : (
-      <div className="px-5 pb-2 pt-3">
-        <Stamp>{line.body}</Stamp>
-      </div>
-    );
-
-  if (line.kind === "asked")
-    return (
-      <div className={`flex justify-end px-4 ${lead ? "pt-5" : "pt-1.5"}`}>
-        <Prose className="max-w-[85%] rounded-sheet rounded-br-md bg-base-200 px-4 py-2.5">
-          <Named text={line.body} />
-        </Prose>
-      </div>
-    );
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className={`px-5 ${lead ? "pt-5" : "pt-2"}`}>
-      {line.kind === "said" ? (
-        <Markdown>{linked(line.body)}</Markdown>
-      ) : (
-        <Prose className={TONE[line.kind] ?? ""}>
-          <Named text={line.body} />
-        </Prose>
+    <div className="px-4 pt-3">
+      <Ghost
+        tight
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+        className="py-1 text-xs"
+        icon={<Glyph icon={ChevronRight} size="sm" className={`transition-transform ${open ? "rotate-90" : ""}`} />}
+      >
+        {steps.length} {steps.length === 1 ? "step" : "steps"}
+      </Ghost>
+      {open && (
+        <div className="ml-2.5 mt-1 flex flex-col gap-1.5 border-l border-base-300 pl-3">
+          {steps.map((step, at) => (
+            <Markdown key={at} className="text-soft">
+              {linked(step.body)}
+            </Markdown>
+          ))}
+        </div>
       )}
     </div>
+  );
+}
+
+function Exchange({ turn }: { turn: Turn }) {
+  const linked = useLinked();
+  const ended = turn.end?.body;
+
+  return (
+    <section>
+      {turn.asked && (
+        <div className="flex justify-end px-4 pt-5">
+          <Prose className="max-w-[85%] rounded-sheet rounded-br-md bg-base-200 px-4 py-2.5">
+            <Named text={turn.asked.body} />
+          </Prose>
+        </div>
+      )}
+      {turn.steps.length > 0 && <Steps steps={turn.steps} />}
+      {ended && <div className="px-5 pt-4">{ended === WAITING ? <Flag>{ended}</Flag> : <Stamp>{ended}</Stamp>}</div>}
+      {turn.reply && (
+        <div className={`px-5 ${ended ? "pt-1.5" : "pt-4"}`}>
+          <Markdown>{linked(turn.reply.body)}</Markdown>
+        </div>
+      )}
+      {turn.wrong.map((line, at) => (
+        <div key={at} className="px-5 pt-2">
+          <Prose className="text-error">
+            <Named text={line.body} />
+          </Prose>
+        </div>
+      ))}
+    </section>
   );
 }
 
@@ -407,8 +448,8 @@ export function Conversation({
           </div>
         ) : (
           <div className="pb-4">
-            {lines.map((line, at) => (
-              <Turn key={at} line={line} lead={speaker(line) !== speaker(lines[at - 1] ?? ({} as Line))} />
+            {turns(lines).map((turn, at) => (
+              <Exchange key={at} turn={turn} />
             ))}
             {working && (
               <div className="flex items-center gap-2 px-5 pb-2 pt-4 text-sm text-soft">
