@@ -30,6 +30,8 @@ import type { Run } from "@/lib/runs";
 const WATCH = 4000;
 const KEPT = "deck";
 
+export const FRESH_KEY = "n";
+
 const unchanging = () => () => {};
 
 function Clock({ at }: { at: string }) {
@@ -165,7 +167,7 @@ export default function Deck({
     useMemo(
       () => ({
         "/": toggle,
-        ...(shown && { n: () => fresh() }),
+        ...(shown && { [FRESH_KEY]: () => fresh() }),
         ...(shown && reading && !said && { arrowleft: leave }),
       }),
       [toggle, shown, reading, said, fresh, leave],

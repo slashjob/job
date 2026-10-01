@@ -86,6 +86,32 @@ export const TABLES = {
     blocked_on: z.string().nullable(),
   }),
 
+  contacts: z
+    .object({
+      company: z.string(),
+      url: col(z.string(), {
+        sql: url("url"),
+        takes: "a URL, starting http",
+      }),
+      name: col(z.string(), { sql: filled("name") }),
+      title: z.string().nullable(),
+      degree: z.enum(["1st", "2nd"]).nullable(),
+      introducer: z.string().nullable(),
+      shared_group: z.string().nullable(),
+      shared_school: z.string().nullable(),
+      found_on: col(z.string(), {
+        sql: "DEFAULT (date('now')) CHECK (found_on IS date(found_on))",
+        takes: "a date, as YYYY-MM-DD",
+      }),
+    })
+    .meta({
+      note:
+        "People the user can reach on LinkedIn at a company they hold a posting for.\n" +
+        "`company` is spelled as `postings.company` spells it, which is the only join.\n" +
+        "`introducer` is the mutual connection who makes a 2nd reachable.",
+      constraints: ["PRIMARY KEY (company, url)", "CHECK (COALESCE(degree, shared_group, shared_school) IS NOT NULL)"],
+    } satisfies Shape),
+
   identity: z
     .object({
       full_name: col(z.string().nullable(), { sql: filled("full_name") }),
@@ -263,6 +289,7 @@ export const ORDER: Table[] = [
   "settings",
   "postings",
   "staged",
+  "contacts",
   "identity",
   "education",
   "employers",

@@ -45,6 +45,12 @@ export const ACTIONS: Action[] = [
     accepts: ["new", "shortlisted", "skipped", "staged"],
   },
   {
+    id: "network",
+    does: "Find people at companies you applied to",
+    argument: "[company]",
+    accepts: [],
+  },
+  {
     id: "dashboard",
     does: "Start the local dashboard and open its tab, or stop it",
     argument: "[start|stop|status]",

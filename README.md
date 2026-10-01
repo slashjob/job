@@ -43,7 +43,8 @@ Type any of these into Claude Code and press <kbd>Enter</kbd>:
 | `/job`                     | find jobs, write resumes, and fill in applications, left open in the browser for you to check and submit |
 | `/job search`              | only find jobs                                                                                           |
 | `/job resume`              | only write resumes                                                                                       |
-| `/job apply`               | only fill in applications                                                                                |
+| `/job apply`               | fill in applications, then find people at those companies                                                |
+| `/job network`             | find people at companies you applied to                                                                  |
 | `/job dashboard`           | open the dashboard                                                                                       |
 | `/job install`             | update to the latest version                                                                             |
 | `/job help`                | list every command                                                                                       |

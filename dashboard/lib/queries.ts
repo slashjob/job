@@ -47,6 +47,7 @@ export const education = () => listing("education");
 const TRIAGE = VIEWS.triage.extend({
   reason: TABLES.postings.shape.reason,
   blocked_on: TABLES.staged.shape.blocked_on,
+  contacts: z.number(),
 });
 
 export type Job = z.infer<typeof TRIAGE>;
@@ -62,7 +63,9 @@ export const names = () =>
 export const jobs = () =>
   rows(
     TRIAGE,
-    "SELECT triage.*, postings.reason, staged.blocked_on FROM triage JOIN postings USING (key) LEFT JOIN staged USING (key)",
+    "SELECT triage.*, postings.reason, staged.blocked_on," +
+      "       (SELECT COUNT(*) FROM contacts WHERE contacts.company = triage.company) AS contacts " +
+      "FROM triage JOIN postings USING (key) LEFT JOIN staged USING (key)",
   );
 
 export function career(): Employer[] {
@@ -87,6 +90,7 @@ export type Posting = z.infer<typeof VIEWS.prospects>;
 export type Prospect = {
   posting: Posting;
   staged: z.infer<typeof STAGED> | null;
+  contacts: number;
 };
 
 export function prospect(key: string): Prospect | null {
@@ -95,5 +99,31 @@ export function prospect(key: string): Prospect | null {
   return {
     posting,
     staged: one(STAGED, "SELECT url, status, blocked_on FROM staged WHERE key=?", [key]),
+    contacts: rows(TABLES.contacts.pick({ url: true }), "SELECT url FROM contacts WHERE company=?", [posting.company])
+      .length,
   };
+}
+
+const ROLE = TABLES.postings.pick({ key: true, company: true, title: true });
+
+export type Contact = z.infer<typeof TABLES.contacts>;
+export type Circle = { company: string; roles: z.infer<typeof ROLE>[]; people: Contact[] };
+
+export function network(): Circle[] {
+  const people = rows(TABLES.contacts, "SELECT * FROM contacts ORDER BY degree IS NULL, degree, name");
+  const roles = rows(
+    ROLE,
+    "SELECT key, company, title FROM postings " +
+      "WHERE status IN ('shortlisted','staged','applied','interviewing') ORDER BY last_updated DESC",
+  );
+  const applied = roles.map((role) => role.company);
+  const recency = (company: string) => (applied.includes(company) ? applied.indexOf(company) : applied.length);
+
+  return [...new Set(people.map((person) => person.company))]
+    .sort((left, right) => recency(left) - recency(right) || left.localeCompare(right))
+    .map((company) => ({
+      company,
+      roles: roles.filter((role) => role.company === company),
+      people: people.filter((person) => person.company === company),
+    }));
 }

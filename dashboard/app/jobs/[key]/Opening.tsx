@@ -1,10 +1,12 @@
+import Link from "next/link";
 import { CircleAlert } from "lucide-react";
 import Actions from "@/components/Actions";
 import CopyKey from "./CopyKey";
 import Glyph from "@/components/Glyph";
 import { Badge, fitTone } from "@/components/Status";
 import { Back, Out, Sheet, Stack } from "@/components/ui";
-import { shortDate } from "@/lib/format";
+import { plural, shortDate } from "@/lib/format";
+import { companyHref } from "@/lib/links";
 import { actionsFor } from "@/lib/actions";
 import type { Prospect } from "@/lib/queries";
 
@@ -33,7 +35,7 @@ const Blocked = ({ on }: { on: string }) => (
 );
 
 export default function Opening({ found }: { found: Prospect }) {
-  const { posting, staged } = found;
+  const { posting, staged, contacts } = found;
   const { other } = actionsFor(posting.status);
 
   return (
@@ -57,6 +59,14 @@ export default function Opening({ found }: { found: Prospect }) {
                 { label: "Compensation", value: posting.compensation || "—" },
                 { label: "Posted", value: shortDate(posting.posted_at) },
                 { label: "Posting", value: <Out href={posting.url}>{posting.source || "open"}</Out> },
+                contacts > 0 && {
+                  label: "Network",
+                  value: (
+                    <Link href={companyHref(posting.company)} className="link">
+                      {plural(contacts, "contact")}
+                    </Link>
+                  ),
+                },
               ]}
             />
           </div>

@@ -39,6 +39,7 @@ export function heard(line: string): { lines: Line[]; session?: string; standing
 export const outermost = (env: NodeJS.ProcessEnv) =>
   Object.fromEntries([
     ...Object.entries(env).filter(([name]) => !name.startsWith("CLAUDE_CODE") && name !== "CLAUDECODE"),
+    ["CLAUDE_CODE_ENTRYPOINT", "claude-vscode"],
     [
       "PATH",
       env.PATH?.split(path.delimiter)

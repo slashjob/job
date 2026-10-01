@@ -2,8 +2,8 @@
 
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Briefcase, User, type LucideIcon } from "lucide-react";
-import { useDeck } from "./Deck";
+import { Briefcase, User, Users, type LucideIcon } from "lucide-react";
+import { FRESH_KEY, useDeck } from "./Deck";
 import Glyph from "./Glyph";
 import Store from "./Store";
 import ThemeToggle from "./ThemeToggle";
@@ -20,6 +20,7 @@ type Item = { href: string; label: string; icon: LucideIcon; key: string };
 
 const SECTIONS: Item[] = [
   { href: "/jobs", label: "Jobs", icon: Briefcase, key: "j" },
+  { href: "/network", label: "Network", icon: Users, key: "n" },
   { href: "/profile", label: "Profile", icon: User, key: "p" },
 ];
 
@@ -36,8 +37,19 @@ export default function Nav({
 }) {
   const here = usePathname();
   const router = useRouter();
-  useKey(useMemo(() => Object.fromEntries(SECTIONS.map(({ href, key }) => [key, () => router.push(href)])), [router]));
   const { shown, working, waiting, toggle } = useDeck();
+  useKey(
+    useMemo(
+      () =>
+        Object.fromEntries(
+          SECTIONS.filter(({ key }) => !(shown && key === FRESH_KEY)).map(({ href, key }) => [
+            key,
+            () => router.push(href),
+          ]),
+        ),
+      [router, shown],
+    ),
+  );
   return (
     <nav aria-label="Sections" className="sticky top-0 z-40 bg-base-100">
       <div className="mx-auto flex h-[var(--nav)] max-w-[104rem] items-center gap-1 px-2 sm:gap-4 sm:px-4 md:px-6">

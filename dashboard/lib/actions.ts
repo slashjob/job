@@ -39,6 +39,13 @@ const ACTIONS: Action[] = [
     accepts: ["new", "shortlisted", "skipped", "staged"],
     browses: true,
   },
+  {
+    id: "network",
+    does: "Find people at companies you applied to",
+    argument: "[company]",
+    accepts: [],
+    browses: true,
+  },
 ];
 
 export const CHAT: Action = {

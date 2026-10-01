@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { ChevronRight, CircleAlert, Copy, FileText, Search } from "lucide-react";
+import { ChevronRight, CircleAlert, Copy, FileText, Search, Users } from "lucide-react";
 import Actions, { ActionsMenu } from "@/components/Actions";
 import { Command, copyKey, useDiscard } from "@/components/act";
 import { useDeck } from "@/components/Deck";
@@ -11,8 +12,8 @@ import { OptionsButton, deleteOption, type Option } from "@/components/Options";
 import { Badge } from "@/components/Status";
 import { Card, Count, Empty, Heading, Invite, Measure, SearchField, Stamp } from "@/components/ui";
 import { describes, offered } from "@/lib/actions";
-import { places, shortDate, shortPay } from "@/lib/format";
-import { assetHref, jobHref } from "@/lib/links";
+import { places, plural, shortDate, shortPay } from "@/lib/format";
+import { assetHref, companyHref, jobHref } from "@/lib/links";
 import { SHELVES } from "@/lib/status";
 import type { Job } from "@/lib/queries";
 
@@ -44,6 +45,15 @@ function useMenu(): Menu {
       label: <Command id={id} />,
       onPick: () => draft(id, job.key),
     })),
+    ...(job.company
+      ? [
+          {
+            key: "network",
+            label: <Command id="network" />,
+            onPick: () => draft("network", job.company ?? undefined),
+          },
+        ]
+      : []),
     {
       key: "copy",
       label: "Copy job ID",
@@ -71,6 +81,19 @@ const Resume = ({ job, labelled }: { job: Job; labelled?: boolean }) =>
     </a>
   ) : null;
 
+const Known = ({ job, labelled }: { job: Job; labelled?: boolean }) =>
+  job.contacts ? (
+    <Link
+      href={companyHref(job.company)}
+      aria-label={`${plural(job.contacts, "contact")} at ${job.company}`}
+      title={`${plural(job.contacts, "contact")} at ${job.company}`}
+      className="tnum inline-flex items-center gap-1.5 text-xs text-soft transition-colors hover:text-base-content"
+    >
+      <Glyph icon={Users} />
+      {labelled ? plural(job.contacts, "contact") : job.contacts}
+    </Link>
+  ) : null;
+
 const More = ({ job, menu }: { job: Job; menu: Menu }) => <OptionsButton what={job.title} options={menu(job)} />;
 
 const Full = ({ job, menu, framed }: { job: Job; menu: Menu; framed?: boolean }) => {
@@ -87,6 +110,7 @@ const Full = ({ job, menu, framed }: { job: Job; menu: Menu; framed?: boolean })
           {place && <span>{place}</span>}
           {pay && <span className="tnum">{pay}</span>}
           <Resume job={job} labelled />
+          <Known job={job} labelled />
         </>
       }
       tools={
@@ -125,7 +149,8 @@ const Brief = ({ job, menu, why }: { job: Job; menu: Menu; why?: boolean }) => (
       </div>
       {job.status === "interviewing" && <Badge>{job.status}</Badge>}
       <span className="ml-auto flex shrink-0 items-center gap-2">
-        <Resume job={job} />
+        <Known job={job} />
+        {job.status !== "applied" && job.status !== "interviewing" && <Resume job={job} />}
         <Stamp>{shortDate(job.last_updated)}</Stamp>
         <More job={job} menu={menu} />
       </span>
@@ -162,8 +187,8 @@ function Shelves({ jobs }: { jobs: Job[] }) {
       <div className="mb-10 flex items-stretch gap-2">
         <SearchField
           icon={<Glyph icon={Search} />}
-          aria-label="Filter saved jobs"
-          placeholder="Filter saved jobs"
+          aria-label="Search saved jobs"
+          placeholder="Search saved jobs"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           className="flex-1"

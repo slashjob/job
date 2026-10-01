@@ -6,7 +6,7 @@ import Adder from "@/components/edit/Adder";
 import { COLUMNS } from "@/components/edit/columns";
 import { LinkCard } from "@/components/Linked";
 import { Empty } from "@/components/ui";
-import { lengthLabel, monthsBetween, spanLabel, today, when, type When } from "@/lib/format";
+import { lengthLabel, monthsBetween, plural, spanLabel, today, when, type When } from "@/lib/format";
 import { employerHref } from "@/lib/links";
 import type { Employer } from "@/lib/queries";
 import { EmployerMenu } from "../parts";
@@ -25,8 +25,6 @@ function covering(employers: Employer[], mark: When): When | null {
 }
 
 const GAP_MONTHS = 4;
-
-const plural = (count: number, one: string) => `${count} ${one}${count === 1 ? "" : "s"}`;
 
 export default function Employers({ employers }: { employers: Employer[] }) {
   const router = useRouter();

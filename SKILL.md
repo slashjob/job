@@ -1,7 +1,7 @@
 ---
 name: job
 description: Searches the job boards in the browser for new openings, scores them against the search profile, builds a tailored resume for each shortlist, and fills the application form for the user to submit in the browser. Use for anything about the user's job search: finding openings, tailoring a resume to a posting, applying, their profile, opening the dashboard, the local web app over it, or anything in it that seems broken. `/job install`, then `/job setup`, on first use; `/job help` for the command list.
-argument-hint: [install|setup|search|resume [JD|url|key]|apply [key|url]|dashboard [start|stop|status]|help]
+argument-hint: [install|setup|search|resume [JD|url|key]|apply [key|url]|network [company]|dashboard [start|stop|status]|help]
 ---
 
 # Job routine
@@ -37,10 +37,11 @@ Nothing below overrides these.
 | ---------- | ---- | ---------- |
 | `/job install` | Dependencies, browser tools, and the browser | `references/install.md` |
 | `/job setup` | First-run setup | `references/setup.md` |
-| `/job` | Every action, in order | each action's file, as it starts |
+| `/job` | Search, resume, then stage | each action's file, as it starts |
 | `/job search` | Search the boards in the browser, scoring each opening as it is read | `references/boards.md`, then `references/searching.md` |
 | `/job resume [JD, URL, or key]` | Build a resume for every `shortlisted` posting, or the one named | `references/resume.md` |
-| `/job apply [key or URL]` | Resume, then stage, every `shortlisted` posting, or the one named | `references/applying.md` |
+| `/job apply [key or URL]` | Resume, then stage, every `shortlisted` posting, or the one named; then network at the companies staged | `references/applying.md`, then `references/network.md` |
+| `/job network [company]` | Find people the user can reach on LinkedIn at every company they applied to, or the one named | `references/network.md` |
 | `/job dashboard [start\|stop\|status]` | Start the dashboard and open or focus its tab, or stop it | `cli/dashboard.ts --help` |
 | `/job help` | Run `cli/help.ts`, then reply with its output verbatim — the user cannot see tool output. No run, no queries, no commentary | |
 

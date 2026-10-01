@@ -54,6 +54,8 @@ export function places(raw: string | null | undefined) {
   return { full: list.join(" | "), lead: list[0] ?? "", more: list.length - 1 };
 }
 
+export const plural = (count: number, one: string) => `${count} ${one}${count === 1 ? "" : "s"}`;
+
 export function shortList(items: string[], shown = 4) {
   const more = items.length - shown;
   return more > 0 ? `${items.slice(0, shown).join(", ")} +${more}` : items.join(", ");

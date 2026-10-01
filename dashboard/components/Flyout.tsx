@@ -18,7 +18,7 @@ const WIDTHS = { narrow: 200, wide: 360 };
 
 type Corner = { top: number; bottom: number; left: number };
 
-function useAnchored(wide?: boolean) {
+function useAnchored(wide?: boolean, leading?: boolean) {
   const width = WIDTHS[wide ? "wide" : "narrow"];
   const anchor = useRef<HTMLButtonElement>(null);
   const [from, setFrom] = useState<Corner | null>(null);
@@ -29,9 +29,11 @@ function useAnchored(wide?: boolean) {
     (event: Clicked<HTMLButtonElement>) => {
       event.stopPropagation();
       const held = event.currentTarget.getBoundingClientRect();
-      setFrom((open) => (open ? null : { top: held.top, bottom: held.bottom, left: held.right - width }));
+      setFrom((open) =>
+        open ? null : { top: held.top, bottom: held.bottom, left: leading ? held.left : held.right - width },
+      );
     },
-    [width],
+    [width, leading],
   );
 
   return { anchor, from, toggle, close };
@@ -114,15 +116,17 @@ export function MenuButton({
   legend,
   quiet,
   wide,
+  leading,
   children,
 }: {
   trigger: ReactNode;
   legend: string;
   quiet?: boolean;
   wide?: boolean;
+  leading?: boolean;
   children: ReactNode;
 }) {
-  const { anchor, from, toggle, close } = useAnchored(wide);
+  const { anchor, from, toggle, close } = useAnchored(wide, leading);
   const opens = {
     ref: anchor,
     onClick: toggle,
