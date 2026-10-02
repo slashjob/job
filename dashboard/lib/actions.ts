@@ -46,6 +46,13 @@ const ACTIONS: Action[] = [
     accepts: [],
     browses: true,
   },
+  {
+    id: "contact",
+    does: "Ask a contact for a referral",
+    argument: "[person] [key]",
+    accepts: [],
+    browses: true,
+  },
 ];
 
 export const CHAT: Action = {

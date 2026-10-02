@@ -116,6 +116,17 @@ export async function discard(key: string): Promise<Dropped> {
   }
 }
 
+export async function forget(company: string, url: string): Promise<Dropped> {
+  try {
+    if (!db().prepare("DELETE FROM contacts WHERE company=? AND url=?").run(company, url).changes)
+      return { error: `no contact ${url} at ${company}` };
+    revalidatePath("/", "layout");
+    return { gone: url };
+  } catch (error) {
+    return failed(error);
+  }
+}
+
 export async function chooseModel(key: string): Promise<{ model: string } | { error: string }> {
   try {
     if (!MODELS.some((model) => model.key === key)) return { error: `no such model: ${key}` };

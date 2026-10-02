@@ -45,6 +45,7 @@ Type any of these into Claude Code and press <kbd>Enter</kbd>:
 | `/job resume`              | only write resumes                                                                                       |
 | `/job apply`               | fill in applications, then find people at those companies                                                |
 | `/job network`             | find people at companies you applied to                                                                  |
+| `/job contact`             | write a referral request to one of those people, left in LinkedIn for you to send                        |
 | `/job dashboard`           | open the dashboard                                                                                       |
 | `/job install`             | update to the latest version                                                                             |
 | `/job help`                | list every command                                                                                       |

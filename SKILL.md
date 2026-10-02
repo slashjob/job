@@ -1,7 +1,7 @@
 ---
 name: job
 description: Searches the job boards in the browser for new openings, scores them against the search profile, builds a tailored resume for each shortlist, and fills the application form for the user to submit in the browser. Use for anything about the user's job search: finding openings, tailoring a resume to a posting, applying, their profile, opening the dashboard, the local web app over it, or anything in it that seems broken. `/job install`, then `/job setup`, on first use; `/job help` for the command list.
-argument-hint: [install|setup|search|resume [JD|url|key]|apply [key|url]|network [company]|dashboard [start|stop|status]|help]
+argument-hint: [install|setup|search|resume [JD|url|key]|apply [key|url]|network [company]|contact [person] [key]|dashboard [start|stop|status]|help]
 ---
 
 # Job routine
@@ -13,7 +13,8 @@ browser for the user to review and submit.
 
 Nothing below overrides these.
 
-1. **Never click submit.** The user submits every application themselves, in the browser.
+1. **Never click submit or send.** The user submits every application, and sends every message,
+   themselves, in the browser.
 2. **Never write an answer the profile does not support.** `NULL` is a hard stop: leave the field
    empty and report it. Never infer a phone number, a salary, or a demographic answer, and never let
    a value they would have chosen come from a fallback — ask. A fact they tell you goes into the
@@ -42,6 +43,7 @@ Nothing below overrides these.
 | `/job resume [JD, URL, or key]` | Build a resume for every `shortlisted` posting, or the one named | `references/resume.md` |
 | `/job apply [key or URL]` | Resume, then stage, every `shortlisted` posting, or the one named; then network at the companies staged | `references/applying.md`, then `references/network.md` |
 | `/job network [company]` | Find people the user can reach on LinkedIn at every company they applied to, or the one named | `references/network.md` |
+| `/job contact [person] [key]` | Write a referral request to one contact about one role, typed into LinkedIn for the user to send | `references/contact.md`, then `references/writing.md` |
 | `/job dashboard [start\|stop\|status]` | Start the dashboard and open or focus its tab, or stop it | `cli/dashboard.ts --help` |
 | `/job help` | Run `cli/help.ts`, then reply with its output verbatim — the user cannot see tool output. No run, no queries, no commentary | |
 
@@ -52,7 +54,7 @@ Three files are not an action and are read when they apply:
 
 | File | Read before |
 | ---- | ----------- |
-| `references/writing.md` | Writing anything a person reads — resume bullets, cover letter, screening answers |
+| `references/writing.md` | Writing anything a person reads — resume bullets, cover letter, screening answers, a message to a contact |
 | `references/storage.md` | Any query, any write to the profile, anything the user asks about their search |
 | `references/architecture.md` | Changing the code |
 

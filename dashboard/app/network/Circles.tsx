@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { ListFilter } from "lucide-react";
 import Actions from "@/components/Actions";
+import { Command, useForget } from "@/components/act";
+import { useDeck } from "@/components/Deck";
 import { MenuButton } from "@/components/Flyout";
+import { OptionsButton, deleteOption } from "@/components/Options";
 import Glyph from "@/components/Glyph";
 import { Card, Count, Dot, Empty, Heading, Invite, Measure, Out, Row } from "@/components/ui";
 import { describes } from "@/lib/actions";
@@ -31,19 +34,43 @@ const reached = (person: Contact) =>
     .filter(Boolean)
     .join(" · ");
 
-const Person = ({ person }: { person: Contact }) => (
-  <div className="flex flex-col gap-x-3 px-3 py-2.5 sm:flex-row sm:items-center">
-    <span className="min-w-0 truncate font-medium sm:shrink-0">
-      <Out href={person.url}>{person.name}</Out>
-    </span>
-    <span title={person.title ?? undefined} className="min-w-0 flex-1 truncate text-sm text-soft">
-      {person.title}
-    </span>
-    <span title={reached(person)} className="min-w-0 truncate text-xs text-soft sm:max-w-72">
-      {reached(person)}
-    </span>
-  </div>
-);
+const named = (person: Contact, roles: Circle["roles"]) =>
+  roles.length === 1 ? `${person.url} ${roles[0].key}` : person.url;
+
+function Person({ person, roles }: { person: Contact; roles: Circle["roles"] }) {
+  const { draft } = useDeck();
+  const drop = useForget();
+  return (
+    <div className="flex items-center gap-3 px-3 py-2.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-x-3 sm:flex-row sm:items-center">
+        <span className="min-w-0 truncate font-medium sm:shrink-0">
+          <Out href={person.url}>{person.name}</Out>
+        </span>
+        <span title={person.title ?? undefined} className="min-w-0 flex-1 truncate text-sm text-soft">
+          {person.title}
+        </span>
+        <span title={reached(person)} className="min-w-0 truncate text-xs text-soft sm:max-w-72">
+          {reached(person)}
+        </span>
+      </div>
+      <OptionsButton
+        what={person.name}
+        options={[
+          ...(roles.length > 0
+            ? [
+                {
+                  key: "contact",
+                  label: <Command id="contact" />,
+                  onPick: () => draft("contact", named(person, roles)),
+                },
+              ]
+            : []),
+          deleteOption("Delete contact", () => drop(person.company, person.url)),
+        ]}
+      />
+    </div>
+  );
+}
 
 export default function Circles({ circles }: { circles: Circle[] }) {
   if (circles.length === 0)
@@ -137,7 +164,7 @@ function Filtered({ circles }: { circles: Circle[] }) {
 
           <Card soft tight>
             {circle.people.map((person) => (
-              <Person key={person.url} person={person} />
+              <Person key={person.url} person={person} roles={circle.roles} />
             ))}
           </Card>
         </section>

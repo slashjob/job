@@ -51,6 +51,12 @@ export const ACTIONS: Action[] = [
     accepts: [],
   },
   {
+    id: "contact",
+    does: "Ask a contact for a referral",
+    argument: "[person] [key]",
+    accepts: [],
+  },
+  {
     id: "dashboard",
     does: "Start the local dashboard and open its tab, or stop it",
     argument: "[start|stop|status]",

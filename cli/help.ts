@@ -5,7 +5,7 @@ const ELSEWHERE = [{ id: "help", argument: "", does: "this message" }];
 
 const NOTES = [
   "run `/job install`, then `/job setup` — every other command is a no-op until both have run",
-  "nothing is submitted — you review the filled form and submit it in the browser",
+  "nothing is submitted or sent — you review the filled form, or the drafted message, and send it yourself in the browser",
   "a field your profile does not answer is left empty and reported, never guessed",
   "everything lives in ~/data/job/job.db",
   "keep a separate search with its own profile in another database — create or switch one from the dashboard's database menu",

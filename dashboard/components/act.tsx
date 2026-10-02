@@ -6,7 +6,7 @@ import { useCallback } from "react";
 import { answered, reported } from "@/components/edit/answered";
 import { asked } from "@/lib/actions";
 import { say } from "@/components/Toaster";
-import { discard } from "@/lib/edit";
+import { discard, forget } from "@/lib/edit";
 
 export const copyKey = (key: string) =>
   navigator.clipboard.writeText(key).then(
@@ -26,6 +26,19 @@ export function useDiscard() {
   return useCallback(
     async (key: string) => {
       const result = await answered(discard(key));
+      if (reported(result)) return;
+      say("deleted");
+      router.refresh();
+    },
+    [router],
+  );
+}
+
+export function useForget() {
+  const router = useRouter();
+  return useCallback(
+    async (company: string, url: string) => {
+      const result = await answered(forget(company, url));
       if (reported(result)) return;
       say("deleted");
       router.refresh();
