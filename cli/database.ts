@@ -8,6 +8,7 @@ import { ACTIVE, CHOSEN, NAME, databases, home } from "../lib/core/paths.ts";
 import { fail, guard } from "./kit.ts";
 
 const choose = (name: string) => {
+  connect(path.join(home(name), "job.db")).close();
   fs.mkdirSync(path.dirname(CHOSEN), { recursive: true });
   fs.writeFileSync(CHOSEN, `${name}\n`);
   console.log(`now using ${name}`);
@@ -43,7 +44,6 @@ program
     guard((name: string) => {
       if (!NAME.test(name)) fail("a name is lowercase letters, digits and dashes, at most 40");
       if (databases().includes(name)) fail(`there is already a database named '${name}'`);
-      connect(path.join(home(name), "job.db")).close();
       choose(name);
     }),
   );
