@@ -26,8 +26,8 @@ function ping() {
   tone.stop(now + LASTS);
 }
 
-export function usePing(runs: Run[]) {
-  const working = useRef<Set<string> | null>(null);
+export function usePing(run: Run | null) {
+  const working = useRef<string | null>(null);
   const [sounding, setSounding] = useState(true);
 
   useEffect(() => {
@@ -50,10 +50,9 @@ export function usePing(runs: Run[]) {
   }, []);
 
   useEffect(() => {
-    const was = working.current;
-    if (sounding && was && runs.some((held) => was.has(held.id) && held.standing !== WORKING)) ping();
-    working.current = new Set(runs.filter((held) => held.standing === WORKING).map((held) => held.id));
-  }, [runs, sounding]);
+    if (sounding && run && run.id === working.current && run.standing !== WORKING) ping();
+    working.current = run?.standing === WORKING ? run.id : null;
+  }, [run, sounding]);
 
   return { sounding, toggleSound };
 }

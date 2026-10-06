@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ListFilter } from "lucide-react";
 import Actions from "@/components/Actions";
 import { Command, useForget } from "@/components/act";
-import { useDeck } from "@/components/Deck";
+import { useDock } from "@/components/Dock";
 import { MenuButton } from "@/components/Flyout";
 import { OptionsButton, deleteOption } from "@/components/Options";
 import Glyph from "@/components/Glyph";
@@ -38,7 +38,7 @@ const named = (person: Contact, roles: Circle["roles"]) =>
   roles.length === 1 ? `${person.url} ${roles[0].key}` : person.url;
 
 function Person({ person, roles }: { person: Contact; roles: Circle["roles"] }) {
-  const { draft } = useDeck();
+  const { draft } = useDock();
   const drop = useForget();
   return (
     <div className="flex items-center gap-3 px-3 py-2.5">

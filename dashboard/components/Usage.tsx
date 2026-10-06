@@ -101,7 +101,7 @@ export default function Usage({ usage, models, model }: { usage: Usage | null; m
       )}
 
       <div className="mt-1 border-t border-base-300 pt-2">
-        <Models models={models} model={model} note="Default for new chats." onPick={pick} />
+        <Models models={models} model={model} note="Default for new runs." onPick={pick} />
       </div>
     </MenuButton>
   );

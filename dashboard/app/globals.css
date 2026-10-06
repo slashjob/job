@@ -119,7 +119,7 @@ html {
   --rule: var(--color-base-200);
   --label: 13rem;
   --nav: 2.75rem;
-  --deck: 30rem;
+  --dock-tall: 40rem;
   --float: 0.75rem;
   --hit: 2.5rem;
 }
@@ -254,12 +254,6 @@ html {
   .tooltip::before,
   .tooltip::after {
     display: none;
-  }
-}
-
-html:has([data-sheet="open"]) {
-  @variant max-xl {
-    overflow: hidden;
   }
 }
 

@@ -1,12 +1,14 @@
+import { Caret } from "@/components/ui";
+
 export default function Wordmark({
   size = 17,
   working = false,
-  waiting = 0,
+  waiting = false,
   className = "",
 }: {
   size?: number;
   working?: boolean;
-  waiting?: number;
+  waiting?: boolean;
   className?: string;
 }) {
   return (
@@ -19,18 +21,16 @@ export default function Wordmark({
       <span className="font-semibold text-base-content">job</span>
       {waiting ? (
         <span
-          key={waiting}
           className="ml-[0.14em] inline-flex h-[0.95em] min-w-[0.5em] animate-arrive items-center
-            justify-center px-[0.16em] bg-mark font-semibold text-mark-content tabular-nums"
+            justify-center px-[0.16em] bg-mark font-semibold text-mark-content"
           style={{ fontSize: "0.8em" }}
         >
-          {waiting}
+          ?
         </span>
       ) : (
-        <span
-          aria-hidden
-          className={`ml-[0.14em] inline-block h-[0.95em] w-[0.5em] rounded-[0.12em] bg-mark ${working ? "animate-blink" : ""}`}
-        />
+        <span className="ml-[0.14em] inline-flex">
+          <Caret blink={working} />
+        </span>
       )}
     </span>
   );

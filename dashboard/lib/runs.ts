@@ -20,6 +20,7 @@ export type Run = {
   started: string;
   standing: string;
   model: string | null;
+  doing: string;
 };
 
 type Modelled = { kind: "model"; key: string };
@@ -31,6 +32,7 @@ type Kept =
   | Line;
 
 const LONGEST = 8000;
+const GIST = 200;
 const RUNS = path.join(CAREER, "runs");
 const ID = /^[0-9a-fA-F-]{36}$/;
 
@@ -52,12 +54,12 @@ function append(id: string, kept: Kept) {
 }
 
 function held(id: string): Kept[] {
-  if (!ID.test(id)) throw new Error("not a conversation id");
+  if (!ID.test(id)) throw new Error("not a run id");
   let text: string;
   try {
     text = fs.readFileSync(file(id), "utf8");
   } catch {
-    throw new Error(`no such conversation: ${id}`);
+    throw new Error(`no such run: ${id}`);
   }
   return text
     .split("\n")
@@ -65,18 +67,32 @@ function held(id: string): Kept[] {
     .map((line) => JSON.parse(line) as Kept);
 }
 
+const gist = (kept: Kept[]) => {
+  for (const one of [...kept].reverse()) {
+    if (one.kind === "asked") return "";
+    if (one.kind !== "said" && one.kind !== "wrong") continue;
+    const opening = one.body.split("\n").find((line) => line.trim()) ?? "";
+    return opening
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+      .replace(/[*`#>]/g, "")
+      .trim()
+      .slice(0, GIST);
+  }
+  return "";
+};
+
 const standing = (id: string, kept: Kept[]) => {
   if (live().has(id)) return WORKING;
   const ended = [...kept].reverse().find((one): one is Line => spoken(one) && one.kind === "end");
   return ended ? ended.body : "Stopped";
 };
 
-export function listing(): Run[] {
+export function current(): Run | null {
   let names: string[];
   try {
     names = fs.readdirSync(RUNS);
   } catch {
-    return [];
+    return null;
   }
 
   const here = active();
@@ -103,13 +119,14 @@ export function listing(): Run[] {
           started: opened.started,
           standing: standing(id, kept),
           model: modelled(kept) ?? null,
+          doing: gist(kept),
         },
         touched,
       };
     })
     .filter((one) => one !== null);
 
-  return runs.sort((one, two) => two.touched - one.touched).map(({ run }) => run);
+  return runs.sort((one, two) => two.touched - one.touched)[0]?.run ?? null;
 }
 
 export async function begin({
@@ -133,15 +150,16 @@ export async function begin({
   const database = run ? (opened?.database ?? MAIN) : active();
 
   if (!runnable(named)) throw new Error(`no such action: ${named}`);
-  if (run && live().has(run)) throw new Error("that conversation is still working");
+  if (run && live().has(run)) throw new Error("that run is still working");
 
   const resume = [...kept].reverse().find((one) => one.kind === "session")?.id;
-  if (run && !resume) throw new Error("that conversation cannot be continued");
+  if (run && !resume) throw new Error("that run cannot be continued");
 
   const was = modelled(kept);
   const chosen = picked ?? was ?? model();
   if (!MODELS.some(({ key }) => key === chosen)) throw new Error(`no such model: ${chosen}`);
 
+  if (!run) clear();
   if (browses(named)) await script("browser");
 
   const started = new Date().toISOString();
@@ -171,6 +189,9 @@ export async function begin({
 
   const one: Live = { child, ended: DONE, hears: new Set() };
   live().set(id, one);
+  const keep = (kept: Kept) => {
+    if (live().get(id) === one) append(id, kept);
+  };
 
   let rest = "";
   let seen = resume;
@@ -184,38 +205,47 @@ export async function begin({
       if (standing && one.ended !== "Stopped") one.ended = standing;
       if (session && !seen) {
         seen = session;
-        append(id, { kind: "session", id: session });
+        keep({ kind: "session", id: session });
       }
       for (const line of lines) {
         if (line.kind === "wrong") one.ended = "Failed";
-        append(id, line);
+        keep(line);
       }
     }
   });
 
-  child.stderr.on("data", (chunk: Buffer) => append(id, { kind: "aside", body: chunk.toString().trim() }));
+  child.stderr.on("data", (chunk: Buffer) => keep({ kind: "aside", body: chunk.toString().trim() }));
 
   child.on("error", (error) => {
     one.ended = "Failed";
-    append(id, { kind: "wrong", body: error.message });
+    keep({ kind: "wrong", body: error.message });
   });
 
   child.on("close", (code) => {
     if (code && one.ended !== "Stopped") {
       one.ended = "Failed";
-      append(id, { kind: "wrong", body: `claude exited ${code}` });
+      keep({ kind: "wrong", body: `claude exited ${code}` });
     }
-    append(id, { kind: "end", body: one.ended });
-    live().delete(id);
+    keep({ kind: "end", body: one.ended });
+    if (live().get(id) === one) live().delete(id);
   });
 
   return id;
 }
 
-export function erase(id: string) {
-  if (!ID.test(id)) throw new Error("not a conversation id");
-  if (live().has(id)) throw new Error("that conversation is still working");
-  fs.rmSync(file(id), { force: true });
+export function clear() {
+  for (const [id, one] of live()) {
+    live().delete(id);
+    for (const hears of one.hears) hears({ kind: "end", body: "Stopped" });
+    one.child.kill("SIGTERM");
+  }
+  let names: string[];
+  try {
+    names = fs.readdirSync(RUNS);
+  } catch {
+    return;
+  }
+  for (const name of names) if (name.endsWith(".jsonl")) fs.rmSync(path.join(RUNS, name), { force: true });
 }
 
 export function halt(id: string) {

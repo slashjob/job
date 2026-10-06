@@ -28,7 +28,7 @@ export default function Toaster() {
 
   if (!note) return null;
   return (
-    <div className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
+    <div className="fixed inset-x-0 top-[calc(var(--nav)+var(--float))] z-50 flex justify-center px-4">
       <div
         role="status"
         className={`rounded-box border px-3 py-2 text-sm ${

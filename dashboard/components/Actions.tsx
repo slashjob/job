@@ -2,14 +2,14 @@
 
 import { ChevronDown } from "lucide-react";
 import { Command } from "@/components/act";
-import { useDeck } from "@/components/Deck";
+import { useDock } from "@/components/Dock";
 import Glyph from "@/components/Glyph";
 import { MenuButton } from "@/components/Flyout";
 import { Button, Row, Tip } from "@/components/ui";
 import { describes } from "@/lib/actions";
 
 export default function Actions({ ids, argument = "" }: { ids: string[]; argument?: string }) {
-  const { draft } = useDeck();
+  const { draft } = useDock();
 
   if (ids.length === 0) return null;
 
@@ -27,7 +27,7 @@ export default function Actions({ ids, argument = "" }: { ids: string[]; argumen
 }
 
 export function ActionsMenu({ ids }: { ids: string[] }) {
-  const { draft } = useDeck();
+  const { draft } = useDock();
 
   return (
     <MenuButton

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Briefcase, User, Users, type LucideIcon } from "lucide-react";
-import { FRESH_KEY, useDeck } from "./Deck";
+import { useDock } from "./Dock";
 import Glyph from "./Glyph";
 import Store from "./Store";
 import ThemeToggle from "./ThemeToggle";
@@ -11,7 +11,7 @@ import TurnOff from "./TurnOff";
 import { useKey } from "./useKey";
 import Usage from "./Usage";
 import Wordmark from "./Wordmark";
-import { Divider, Ghost, GhostLink, NavGroup } from "@/components/ui";
+import { Divider, GhostLink, NavGroup } from "@/components/ui";
 import type { Model } from "@/lib/queries";
 import type { Store as Facts } from "@/lib/store";
 import type { Usage as Limits } from "@/lib/usage";
@@ -37,29 +37,14 @@ export default function Nav({
 }) {
   const here = usePathname();
   const router = useRouter();
-  const { shown, working, waiting, toggle } = useDeck();
-  useKey(
-    useMemo(
-      () =>
-        Object.fromEntries(
-          SECTIONS.filter(({ key }) => !(shown && key === FRESH_KEY)).map(({ href, key }) => [
-            key,
-            () => router.push(href),
-          ]),
-        ),
-      [router, shown],
-    ),
-  );
+  const { working, waiting } = useDock();
+  useKey(useMemo(() => Object.fromEntries(SECTIONS.map(({ href, key }) => [key, () => router.push(href)])), [router]));
   return (
     <nav aria-label="Sections" className="sticky top-0 z-40 bg-base-100">
-      <div className="mx-auto flex h-[var(--nav)] max-w-[104rem] items-center gap-1 px-2 sm:gap-4 sm:px-4 md:px-6">
-        <Ghost
-          onClick={toggle}
-          aria-expanded={shown}
-          aria-label={waiting ? `Conversations, ${waiting} waiting on you` : "Conversations"}
-          icon={<Wordmark size={17} working={working} waiting={waiting} />}
-        />
-
+      <div
+        className="mx-auto flex h-[var(--nav)] max-w-[104rem] items-center gap-1 px-2 sm:gap-4 sm:px-4
+          md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:px-6"
+      >
         <NavGroup fill>
           {SECTIONS.map(({ href, label, icon }) => {
             const active = here.startsWith(href);
@@ -79,21 +64,31 @@ export default function Nav({
           })}
         </NavGroup>
 
-        <NavGroup>
-          <li>
-            <ThemeToggle />
-          </li>
-          <li>
-            <Usage usage={limits} models={models} model={model} />
-          </li>
-          <li>
-            <Store store={store} />
-          </li>
-        </NavGroup>
+        <span
+          role="img"
+          aria-label={waiting ? "Job, waiting on you" : "Job"}
+          className="inline-flex p-1.5 max-md:hidden"
+        >
+          <Wordmark size={17} working={working} waiting={waiting} />
+        </span>
 
-        <Divider />
+        <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-4">
+          <NavGroup>
+            <li>
+              <ThemeToggle />
+            </li>
+            <li>
+              <Usage usage={limits} models={models} model={model} />
+            </li>
+            <li>
+              <Store store={store} />
+            </li>
+          </NavGroup>
 
-        <TurnOff />
+          <Divider />
+
+          <TurnOff />
+        </div>
       </div>
     </nav>
   );

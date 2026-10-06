@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { Figtree, IBM_Plex_Mono } from "next/font/google";
-import Deck from "@/components/Deck";
+import Dock from "@/components/Dock";
 import { NamesProvider } from "@/components/Named";
 import Nav from "@/components/Nav";
 import Toaster from "@/components/Toaster";
 import { MODELS, model, names } from "@/lib/queries";
-import { listing } from "@/lib/runs";
+import { current } from "@/lib/runs";
 import { store } from "@/lib/store";
 import { usage } from "@/lib/usage";
 import "./globals.css";
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const chosen = (await cookies()).get("theme")?.value;
   const theme = chosen === "readout" || chosen === "night" ? chosen : undefined;
-  const runs = listing();
+  const run = current();
   const preferred = model();
 
   return (
@@ -50,7 +50,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${figtree.variable} ${plexMono.variable}
             h-full antialiased`}
     >
-      <body className="min-h-full bg-base-200 text-base-content" suppressHydrationWarning>
+      <body className="flex min-h-full flex-col bg-base-200 text-base-content" suppressHydrationWarning>
         <a
           href="#content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50
@@ -59,16 +59,16 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         <NamesProvider names={names()}>
-          <Deck
-            runs={runs}
+          <Dock
+            run={run}
             models={MODELS}
             model={preferred}
             nav={<Nav key="nav" store={store()} limits={usage()} models={MODELS} model={preferred} />}
           >
-            <main id="content" className="mx-auto min-w-0 max-w-[104rem] px-4 py-6 pb-24 md:px-6 md:py-7">
+            <main id="content" className="mx-auto w-full min-w-0 max-w-[104rem] flex-1 px-4 py-6 md:px-6 md:py-7">
               {children}
             </main>
-          </Deck>
+          </Dock>
         </NamesProvider>
         <Toaster />
       </body>

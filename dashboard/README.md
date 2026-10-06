@@ -38,8 +38,8 @@ resume for each one, and fill in the applications.
     <img alt="The profile, with unanswered questions flagged" src="docs/profile-light.png">
   </picture>
 
-- **Answer questions on the page.** When a run needs something from you, it asks in the chat beside
-  your jobs and waits.
+- **Answer questions on the page.** When a run needs something from you, it asks at the bottom of
+  the page and waits.
 - **Runs on your computer.** No account needed. It uses the same data as the skill.
 
 ## Getting started

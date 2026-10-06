@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ChevronRight, CircleAlert, Copy, FileText, Search, Users } from "lucide-react";
 import Actions, { ActionsMenu } from "@/components/Actions";
 import { Command, copyKey, useDiscard } from "@/components/act";
-import { useDeck } from "@/components/Deck";
+import { useDock } from "@/components/Dock";
 import Glyph from "@/components/Glyph";
 import Linked, { LinkCard, TitleLink } from "@/components/Linked";
 import { OptionsButton, deleteOption, type Option } from "@/components/Options";
@@ -37,7 +37,7 @@ const byFit = (left: Job, right: Job) =>
 const byRecent = (left: Job, right: Job) => (right.last_updated ?? "").localeCompare(left.last_updated ?? "");
 
 function useMenu(): Menu {
-  const { draft } = useDeck();
+  const { draft } = useDock();
   const drop = useDiscard();
   return (job) => [
     ...offered(job.status).map(({ id }) => ({

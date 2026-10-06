@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, ChevronRight, SendHorizontal, Square } from "lucide-react";
+import { ChevronDown, ChevronRight, SendHorizontal, Square, Volume2, VolumeX } from "lucide-react";
 
 import { Command } from "@/components/act";
 import { MenuButton } from "@/components/Flyout";
@@ -10,7 +10,8 @@ import Glyph from "@/components/Glyph";
 import Markdown from "@/components/Markdown";
 import Models from "@/components/Models";
 import Named, { useLinked } from "@/components/Named";
-import { Button, Dot, Empty, Flag, Ghost, Prose, Row, Stamp } from "@/components/ui";
+import { say } from "@/components/Toaster";
+import { Button, Dot, Flag, Ghost, Prose, Row, Stamp, Tip } from "@/components/ui";
 import { asked, suggested, type Action } from "@/lib/actions";
 import { WAITING } from "@/lib/standing";
 import type { Model } from "@/lib/queries";
@@ -108,18 +109,15 @@ export function useRun() {
     setLines([]);
   }, []);
 
-  const forget = useCallback(
-    async (id: string, open: boolean) => {
-      try {
-        await ask({ erase: id });
-      } catch (error) {
-        return setLines((standing) => [...standing, { kind: "wrong", body: (error as Error).message }]);
-      }
-      if (open) detach();
-      router.refresh();
-    },
-    [detach, router],
-  );
+  const clear = useCallback(async () => {
+    detach();
+    try {
+      await ask({ clear: true });
+    } catch (error) {
+      say((error as Error).message, true);
+    }
+    router.refresh();
+  }, [detach, router]);
 
   return {
     lines,
@@ -132,10 +130,7 @@ export function useRun() {
     stop: () => {
       if (run) void told({ stop: run });
     },
-    erase: (id?: string) => {
-      const held = id ?? run;
-      if (held) void forget(held, held === run);
-    },
+    clear: () => void clear(),
   };
 }
 
@@ -221,11 +216,12 @@ export type Asking = {
   said: string;
   onSaid: (said: string) => void;
   onSay: (said: string) => void;
-  onLeave?: () => void;
   input?: RefObject<HTMLTextAreaElement | null>;
   models: Model[];
   model: string;
   onModel: (key: string) => void;
+  sounding: boolean;
+  onSound: () => void;
 };
 
 function Picker({ models, model, onPick }: { models: Model[]; model: string; onPick: (key: string) => void }) {
@@ -269,7 +265,7 @@ function Menu({
       ref={box}
       role="listbox"
       aria-label="Actions"
-      className="mb-2 flex max-h-64 flex-col gap-0.5 overflow-auto rounded-box bg-base-100 p-1 shadow-lg shadow-base-content/5"
+      className="-mx-2.5 mb-2 flex max-h-64 flex-col gap-0.5 overflow-auto"
     >
       {actions.map((action, index) => (
         <Row
@@ -295,19 +291,23 @@ function Menu({
 function Composer({
   asks,
   onSay,
-  onLeave,
   input,
   said,
   onSaid,
   models,
   model,
   onModel,
+  sounding,
+  onSound,
+  alone,
   working,
   waiting,
   onStop,
-}: Asking & { working?: boolean; waiting?: boolean; onStop?: () => void }) {
+}: Asking & { alone?: boolean; working?: boolean; waiting?: boolean; onStop?: () => void }) {
   const [at, setAt] = useState(0);
   const [shut, setShut] = useState(false);
+  const [awake, setAwake] = useState(false);
+  const form = useRef<HTMLFormElement>(null);
   const ready = said.trim().length > 0 && !working;
   const menu = shut ? [] : suggested(said);
   const chosen = menu[Math.min(at, menu.length - 1)];
@@ -315,6 +315,19 @@ function Composer({
   useEffect(() => {
     if (waiting) input?.current?.focus({ preventScroll: true });
   }, [waiting, input]);
+
+  useEffect(() => {
+    if (!awake) return;
+    const outside = (event: PointerEvent) => {
+      const target = event.target as Element;
+      if (form.current?.contains(target) || target.closest("[role=menu]")) return;
+      setAwake(false);
+    };
+    document.addEventListener("pointerdown", outside);
+    return () => document.removeEventListener("pointerdown", outside);
+  }, [awake]);
+
+  const full = awake || said.length > 0 || working || waiting;
 
   const write = (words: string) => {
     setAt(0);
@@ -330,8 +343,9 @@ function Composer({
 
   return (
     <form
-      className={`m-3 mt-2 rounded-sheet bg-base-200 px-4 pb-2.5 pt-3 ring-1 transition-shadow
-        ${waiting ? "ring-mark" : "ring-transparent focus-within:ring-base-300"}`}
+      ref={form}
+      onFocus={() => setAwake(true)}
+      className={`shrink-0 px-4 ${full ? "pb-2.5 pt-3" : "py-3"} ${alone ? "" : "border-t border-rule"}`}
       onSubmit={(event) => {
         event.preventDefault();
         if (!ready) return;
@@ -353,7 +367,7 @@ function Composer({
         rows={1}
         aria-label={asks}
         placeholder={asks}
-        className="max-h-40 w-full resize-none border-0 bg-transparent p-0 text-sm leading-relaxed
+        className="block max-h-40 w-full resize-none border-0 bg-transparent p-0 text-sm leading-relaxed
           placeholder:text-soft focus:outline-none"
         style={{ fieldSizing: "content" } as React.CSSProperties}
         value={said}
@@ -365,10 +379,9 @@ function Composer({
             return setAt((menu.indexOf(chosen) + step) % menu.length);
           }
           if (chosen && event.key === "Escape") return setShut(true);
-          if (event.key === "Escape") return event.currentTarget.blur();
-          if (onLeave && !said && event.key === "ArrowLeft") {
-            event.preventDefault();
-            return onLeave();
+          if (event.key === "Escape") {
+            setAwake(false);
+            return event.currentTarget.blur();
           }
           if (event.key !== "Enter" && event.key !== "Tab") return;
           if (event.shiftKey) return;
@@ -379,9 +392,17 @@ function Composer({
         }}
       />
 
-      <div className="mt-2 flex items-center justify-between gap-4">
+      <div className={`mt-2 items-center justify-between gap-4 ${full ? "flex" : "hidden"}`}>
         <p className="text-xs text-soft pointer-coarse:invisible">Shift + Enter for a new line</p>
         <div className="flex items-center gap-1">
+          <Tip tip={sounding ? "Mute the finish sound" : "Unmute the finish sound"}>
+            <Ghost
+              onClick={onSound}
+              aria-pressed={!sounding}
+              aria-label="Mute the finish sound"
+              icon={<Glyph icon={sounding ? Volume2 : VolumeX} size="sm" />}
+            />
+          </Tip>
           <Picker models={models} model={model} onPick={onModel} />
           {working ? (
             <Button onClick={onStop} icon={<Glyph icon={Square} size="sm" className="fill-current" />}>
@@ -417,14 +438,12 @@ function Elapsed() {
 
 export function Conversation({
   lines,
-  empty,
   working,
   asking,
   onStop,
   className = "",
 }: {
   lines: Line[];
-  empty: string;
   working?: boolean;
   asking?: Asking | null;
   onStop?: () => void;
@@ -433,6 +452,7 @@ export function Conversation({
   const tail = useRef<HTMLDivElement | null>(null);
   const last = lines.at(-1);
   const waiting = !working && last?.kind === "end" && last.body === WAITING;
+  const alone = !lines.length && !working;
 
   useEffect(() => {
     const held = tail.current;
@@ -442,11 +462,7 @@ export function Conversation({
   return (
     <div className={`flex flex-col ${className}`}>
       <div ref={tail} className="flex min-h-0 flex-1 flex-col overflow-auto overscroll-contain" aria-live="polite">
-        {lines.length === 0 && !working ? (
-          <div className="flex flex-1 items-center justify-center">
-            <Empty>{empty}</Empty>
-          </div>
-        ) : (
+        {(lines.length > 0 || working) && (
           <div className="pb-4">
             {turns(lines).map((turn, at) => (
               <Exchange key={at} turn={turn} />
@@ -466,7 +482,7 @@ export function Conversation({
         )}
       </div>
 
-      {asking && <Composer {...asking} working={working} waiting={waiting} onStop={onStop} />}
+      {asking && <Composer {...asking} alone={alone} working={working} waiting={waiting} onStop={onStop} />}
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { turnOff } from "@/lib/power";
 
 export default function TurnOff() {
   const off = async () => {
-    if (!confirm("Turn off the dashboard? Running conversations stop too.")) return;
+    if (!confirm("Turn off the dashboard? Anything still running stops too.")) return;
     await turnOff();
     say("Dashboard turned off");
   };

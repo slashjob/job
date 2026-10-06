@@ -216,6 +216,19 @@ export const Dot = ({
   />
 );
 
+const CARET_TONES = {
+  mark: "bg-mark",
+  rest: "bg-base-300",
+};
+
+export const Caret = ({ tone = "mark", blink }: { tone?: keyof typeof CARET_TONES; blink?: boolean }) => (
+  <span
+    aria-hidden
+    className={`inline-block h-[0.95em] w-[0.5em] shrink-0 rounded-[0.12em] ${CARET_TONES[tone]}
+      ${blink ? "animate-blink" : ""}`}
+  />
+);
+
 export const Flag = ({ children }: { children: ReactNode }) => (
   <span className="tnum inline-flex items-center rounded-selector bg-mark px-1.5 py-px text-micro font-semibold text-mark-content">
     {children}
