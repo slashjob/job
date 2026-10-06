@@ -70,3 +70,6 @@ Under the opening sentence, one line per company with someone in it, strongest p
 
 What LinkedIn turned out to need — where a filter lives, what a list page hides — earns a line
 here once it is driven.
+
+- **The People tab's highlight cards ("1 employee attended …") link to that person's profile**, not
+  to a filtered list. Read the name off the card and never click it.

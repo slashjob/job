@@ -78,3 +78,6 @@ same box.
 
 What LinkedIn turned out to need — where Connect hides, what the note box refuses — earns a line
 here once it is driven.
+
+- **The note box's label says 300 characters; its counter, and the real cap on a free account, is
+  200.** Write to the counter. Newlines count.
