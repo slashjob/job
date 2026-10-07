@@ -14,7 +14,7 @@ const BAND = `flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y
   border-base-300 px-3 py-2 md:border-b`;
 
 const Description = ({ posting }: { posting: Posting }) => (
-  <Card>
+  <Card className="reader md:overflow-auto">
     {posting.description ? (
       <Prose>{posting.description}</Prose>
     ) : (
