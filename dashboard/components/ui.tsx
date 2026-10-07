@@ -1,10 +1,20 @@
 import Link from "next/link";
-import type { CSSProperties, ComponentPropsWithRef, ReactNode } from "react";
+import type { CSSProperties, ComponentPropsWithRef, ReactNode, Ref } from "react";
 import { ChevronLeft } from "lucide-react";
 import Glyph from "@/components/Glyph";
 
-export const Measure = ({ children, className = "" }: { children: ReactNode; className?: string }) => (
-  <div className={`mx-auto max-w-4xl ${className}`}>{children}</div>
+export const Measure = ({
+  children,
+  className = "",
+  ref,
+}: {
+  children: ReactNode;
+  className?: string;
+  ref?: Ref<HTMLDivElement>;
+}) => (
+  <div ref={ref} className={`mx-auto max-w-4xl ${className}`}>
+    {children}
+  </div>
 );
 
 export const Card = ({

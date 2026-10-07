@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
-import { ChevronDown, X } from "lucide-react";
+import { X } from "lucide-react";
 
 import Glyph from "@/components/Glyph";
 import Named from "@/components/Named";
@@ -58,7 +58,7 @@ export default function Dock({
   const [picked, setPicked] = useState<string | null>(null);
   const [gone, setGone] = useState<string | null>(null);
   const input = useRef<HTMLTextAreaElement>(null);
-  const dock = useRef<HTMLElement>(null);
+  const dock = useRef<HTMLDivElement>(null);
 
   const chat = held && held.id !== gone ? held : null;
   const opened = run !== null;
@@ -161,13 +161,13 @@ export default function Dock({
       {children}
 
       <aside
-        ref={dock}
         aria-label="Chat"
         className="sticky bottom-0 z-30 bg-base-200 px-4 pb-4 before:pointer-events-none before:absolute
           before:inset-x-0 before:bottom-full before:h-8 before:bg-linear-to-t before:from-base-200
           md:px-6 md:pb-6"
       >
         <Measure
+          ref={dock}
           className={`relative flex max-h-[min(var(--dock-tall),calc(100dvh-var(--nav)-3rem))] flex-col overflow-hidden
             rounded-box bg-base-100 shadow-[0_0_2.5rem_-0.75rem_color-mix(in_oklab,var(--color-mark)_45%,transparent)]
             border ${waiting ? "border-mark" : "border-mark/30"}`}
@@ -177,18 +177,17 @@ export default function Dock({
               <div className="flex shrink-0 items-center gap-1 p-1.5">
                 <Row
                   roomy
-                  onClick={opened ? detach : unfold}
+                  onClick={opened ? undefined : unfold}
                   aria-expanded={opened}
-                  className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-x-2.5 gap-y-0.5"
+                  className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-0.5"
                 >
                   <Mark standing={chat?.standing} />
                   <span className="truncate text-mini font-medium">
                     {chat ? <Named text={chat.title} plain /> : "New chat"}
                   </span>
                   {chat ? <Standing standing={chat.standing} /> : <span />}
-                  <Glyph icon={ChevronDown} className={`text-soft ${opened ? "" : "rotate-180"}`} />
                   {!opened && chat?.doing && (
-                    <span className="col-span-3 col-start-2 truncate text-xs text-soft">
+                    <span className="col-span-2 col-start-2 truncate text-xs text-soft">
                       <Named text={chat.doing} plain />
                     </span>
                   )}
