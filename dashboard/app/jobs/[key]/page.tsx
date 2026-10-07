@@ -1,10 +1,10 @@
 import Actions from "@/components/Actions";
 import Opening from "./Opening";
-import { held } from "./held";
-import { Card, Out, Prose, Stack, Stamp } from "@/components/ui";
+import { Card, Measure, Out, Prose, Stack, Stamp } from "@/components/ui";
 import { actionsFor } from "@/lib/actions";
 import { assetHref } from "@/lib/links";
-import type { Posting } from "@/lib/queries";
+import { prospect, type Posting } from "@/lib/queries";
+import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ const BAND = `flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y
   border-base-300 px-3 py-2 md:border-b`;
 
 const Description = ({ posting }: { posting: Posting }) => (
-  <Card className="reader md:overflow-auto">
+  <Card>
     {posting.description ? (
       <Prose>{posting.description}</Prose>
     ) : (
@@ -30,7 +30,7 @@ const Resume = ({ posting }: { posting: Posting }) => {
   const { resume: build } = actionsFor(posting.status);
 
   return (
-    <Stack className={`flex flex-col ${posting.resume ? "reader" : "xl:reader"}`}>
+    <Stack className={`flex flex-col ${posting.resume ? "reader" : ""}`}>
       <div className={BAND}>
         {posting.resume ? (
           <Stamp>{posting.resume.split("/").pop()}</Stamp>
@@ -60,17 +60,19 @@ const Resume = ({ posting }: { posting: Posting }) => {
 };
 
 export default async function JobPage({ params }: PageProps<"/jobs/[key]">) {
-  const found = await held(params);
+  const { key } = await params;
+  const found = prospect(decodeURIComponent(key));
+  if (!found) notFound();
   const { posting } = found;
 
   return (
-    <>
+    <Measure>
       <Opening found={found} />
 
-      <div className="grid items-start gap-6 xl:grid-cols-2">
+      <div className="flex flex-col gap-6">
         <Description posting={posting} />
         <Resume posting={posting} />
       </div>
-    </>
+    </Measure>
   );
 }
