@@ -9,7 +9,7 @@ import { useDock } from "@/components/Dock";
 import { MenuButton } from "@/components/Flyout";
 import { OptionsButton, deleteOption } from "@/components/Options";
 import Glyph from "@/components/Glyph";
-import { Card, Count, Dot, Empty, Heading, Invite, Measure, Out, Row } from "@/components/ui";
+import { Card, Count, Dot, Empty, Group, Invite, Measure, Out, Row } from "@/components/ui";
 import { describes } from "@/lib/actions";
 import { jobHref } from "@/lib/links";
 import type { Circle, Contact } from "@/lib/queries";
@@ -34,8 +34,10 @@ const reached = (person: Contact) =>
     .filter(Boolean)
     .join(" · ");
 
-const named = (person: Contact, roles: Circle["roles"]) =>
-  roles.length === 1 ? `${person.url} ${roles[0].key}` : person.url;
+const purpose = (person: Contact, roles: Circle["roles"]) => {
+  if (roles.length === 0) return `${person.url} `;
+  return `${person.url} ask for a referral${roles.length === 1 ? ` to ${roles[0].key}` : ""}`;
+};
 
 function Person({ person, roles }: { person: Contact; roles: Circle["roles"] }) {
   const { draft } = useDock();
@@ -56,15 +58,11 @@ function Person({ person, roles }: { person: Contact; roles: Circle["roles"] }) 
       <OptionsButton
         what={person.name}
         options={[
-          ...(roles.length > 0
-            ? [
-                {
-                  key: "contact",
-                  label: <Command id="contact" />,
-                  onPick: () => draft("contact", named(person, roles)),
-                },
-              ]
-            : []),
+          {
+            key: "message",
+            label: <Command id="message" />,
+            onPick: () => draft("message", purpose(person, roles)),
+          },
           deleteOption("Delete contact", () => drop(person.company, person.url)),
         ]}
       />
@@ -146,28 +144,29 @@ function Filtered({ circles }: { circles: Circle[] }) {
       {found.length === 0 && <Empty>No contacts match that filter.</Empty>}
 
       {found.map((circle) => (
-        <section key={circle.company} id={circle.company} className="mb-12 scroll-mt-[calc(var(--nav)+1rem)] last:mb-0">
-          <Heading className={circle.roles.length ? "mb-1" : ""}>
-            {circle.company}
-            <Count of={circle.people.length} />
-          </Heading>
-
-          {circle.roles.length > 0 && (
-            <p className="mb-3 flex flex-wrap gap-x-4 text-sm text-soft">
-              {circle.roles.map((role) => (
-                <Link key={role.key} href={jobHref(role.key)} className="hover:text-base-content">
-                  {role.title}
-                </Link>
-              ))}
-            </p>
-          )}
-
+        <Group
+          key={circle.company}
+          id={circle.company}
+          heading={circle.company}
+          count={circle.people.length}
+          sub={
+            circle.roles.length > 0 && (
+              <span className="flex flex-wrap gap-x-4">
+                {circle.roles.map((role) => (
+                  <Link key={role.key} href={jobHref(role.key)} className="hover:text-base-content">
+                    {role.title}
+                  </Link>
+                ))}
+              </span>
+            )
+          }
+        >
           <Card soft tight>
             {circle.people.map((person) => (
               <Person key={person.url} person={person} roles={circle.roles} />
             ))}
           </Card>
-        </section>
+        </Group>
       ))}
     </Measure>
   );

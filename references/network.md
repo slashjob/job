@@ -1,6 +1,6 @@
 # Networking
 
-People the user can reach on LinkedIn at the companies they applied to, most of whom they have never
+People the user can reach on LinkedIn at the companies they applied to, or that `/job news` found, most of whom they have never
 met: 1st and 2nd-degree connections, members of groups they are in, and people who went to a
 school they went to. The deliverable is a list of people and the path to each; whether to reach out,
 and to whom, is theirs.
@@ -23,9 +23,9 @@ every run: people join, leave and connect between runs.
 
 Search LinkedIn for the company and open its page. **A name alone matches several companies**, and
 the wrong one returns real people who work somewhere else — nothing about the result looks wrong.
-Confirm it against the posting: the website on the LinkedIn page and the employer the posting's URL
-or description names. Where the two cannot be matched, report the company as not found rather than
-choosing the nearest.
+Confirm it against the website on the LinkedIn page and the employer the posting names — or, for a
+news lead, the article. Where the two cannot be matched, report the company as not found rather
+than choosing the nearest.
 
 **Where the posting came through a staffing firm, the company to look up is the client**, if the
 description names one. The firm's own staff are not a way in.

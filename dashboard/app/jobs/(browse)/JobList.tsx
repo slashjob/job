@@ -10,7 +10,7 @@ import Glyph from "@/components/Glyph";
 import Linked, { LinkCard, TitleLink } from "@/components/Linked";
 import { OptionsButton, deleteOption, type Option } from "@/components/Options";
 import { Badge } from "@/components/Status";
-import { Card, Count, Empty, Heading, Invite, Measure, SearchField, Stamp } from "@/components/ui";
+import { Card, Count, Empty, Group, Invite, Measure, SearchField, Stamp } from "@/components/ui";
 import { describes, offered } from "@/lib/actions";
 import { places, plural, shortDate, shortPay } from "@/lib/format";
 import { assetHref, companyHref, jobHref } from "@/lib/links";
@@ -201,9 +201,10 @@ function Shelves({ jobs }: { jobs: Job[] }) {
       {shelves.map((shelf) => {
         const shut = shelf.folded && !sought && !unfolded.includes(shelf.name);
         return (
-          <section key={shelf.name} className="mb-12 last:mb-0">
-            {shelf.folded ? (
-              <Heading>
+          <Group
+            key={shelf.name}
+            heading={
+              shelf.folded ? (
                 <button
                   type="button"
                   aria-expanded={!shut}
@@ -218,14 +219,12 @@ function Shelves({ jobs }: { jobs: Job[] }) {
                   {shelf.name}
                   <Count of={shelf.jobs.length} />
                 </button>
-              </Heading>
-            ) : (
-              <Heading>
-                {shelf.name}
-                <Count of={shelf.jobs.length} />
-              </Heading>
-            )}
-
+              ) : (
+                shelf.name
+              )
+            }
+            count={shelf.folded ? undefined : shelf.jobs.length}
+          >
             {!shut &&
               (shelf.brief ? (
                 <Card soft tight>
@@ -246,7 +245,7 @@ function Shelves({ jobs }: { jobs: Job[] }) {
                   ))}
                 </div>
               ))}
-          </section>
+          </Group>
         );
       })}
     </Measure>

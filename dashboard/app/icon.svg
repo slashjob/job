@@ -1,10 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32"
-     fill="none" stroke="#171b20" stroke-width="2.75" stroke-linecap="round">
-  <style>
-    @media (prefers-color-scheme: dark) {
-      :root { stroke: #e2e5e8 }
-    }
-  </style>
-  <path d="M5 19.5 12.5 4.5" />
-  <rect x="14.8" y="3.6" width="6.7" height="16.9" fill="#fa5f2f" stroke="none" />
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><defs><linearGradient id="lit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ec8a60"/><stop offset="1" stop-color="#cc5f38"/></linearGradient><filter id="halo" x="-150%" y="-100%" width="400%" height="300%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="14.40" result="b0"/><feFlood flood-color="#e27042" flood-opacity="0.55"/><feComposite in2="b0" operator="in" result="g0"/><feGaussianBlur in="SourceAlpha" stdDeviation="5.76" result="b1"/><feFlood flood-color="#e27042" flood-opacity="0.7"/><feComposite in2="b1" operator="in" result="g1"/><feGaussianBlur in="SourceAlpha" stdDeviation="1.92" result="b2"/><feFlood flood-color="#e27042" flood-opacity="0.5"/><feComposite in2="b2" operator="in" result="g2"/><feMerge><feMergeNode in="g0"/><feMergeNode in="g1"/><feMergeNode in="g2"/></feMerge></filter></defs><rect width="256" height="256" rx="56" fill="#f6f3ee"/><rect x="142.08" y="68.16" width="52.36" height="119.24" rx="8.80" fill="#e27042" filter="url(#halo)"/><polygon points="102.92,68.16 127.12,68.16 86.20,187.40 62.00,187.40" fill="#2a261f"/><rect x="142.08" y="68.16" width="52.36" height="119.24" rx="8.80" fill="url(#lit)"/></svg>

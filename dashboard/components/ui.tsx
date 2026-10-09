@@ -36,11 +36,37 @@ export const Card = ({
   </div>
 );
 
-export const Heading = ({ className = "", children }: { className?: string; children: ReactNode }) => (
-  <h2 className={`mb-3 flex items-center gap-2 font-display text-base font-semibold ${className}`}>{children}</h2>
-);
-
 export const Count = ({ of }: { of: number }) => <span className="tnum text-sm font-normal text-soft">{of}</span>;
+
+export const Group = ({
+  heading,
+  count,
+  sub,
+  tools,
+  id,
+  className = "",
+  children,
+}: {
+  heading: ReactNode;
+  count?: number;
+  sub?: ReactNode;
+  tools?: ReactNode;
+  id?: string;
+  className?: string;
+  children: ReactNode;
+}) => (
+  <section id={id} className={`mb-12 scroll-mt-[calc(var(--nav)+1rem)] last:mb-0 ${className}`}>
+    <div className={`flex items-center gap-2 ${sub ? "mb-1" : "mb-3"}`}>
+      <h2 className="flex min-w-0 items-center gap-2 font-display text-base font-semibold">
+        {heading}
+        {count !== undefined && <Count of={count} />}
+      </h2>
+      {tools && <span className="ml-auto shrink-0">{tools}</span>}
+    </div>
+    {sub && <div className="on-page mb-3 text-sm text-soft">{sub}</div>}
+    {children}
+  </section>
+);
 
 export const Back = ({ href, children }: { href: string; children: ReactNode }) => (
   <GhostLink href={href} className="-ml-2 mb-1 text-sm" icon={<Glyph icon={ChevronLeft} />}>
@@ -227,7 +253,7 @@ export const Dot = ({
 );
 
 const CARET_TONES = {
-  mark: "bg-mark",
+  mark: "lit",
   rest: "bg-base-300",
 };
 
@@ -267,13 +293,11 @@ export const Out = ({ href, children }: { href: string | null; children?: ReactN
 export type Note = { label: ReactNode; value: ReactNode; mark?: boolean };
 
 export const Sheet = ({
-  title,
   notes,
   flush,
   label,
   children,
 }: {
-  title?: string;
   notes?: (Note | false | null | undefined)[];
   flush?: boolean;
   label?: string;
@@ -286,7 +310,6 @@ export const Sheet = ({
       style={label ? ({ "--label": label } as CSSProperties) : undefined}
       className={flush ? "" : "rounded-box bg-base-100 p-2"}
     >
-      {title && <h3 className="eyebrow px-3 pb-1 pt-2">{title}</h3>}
       <dl className={flush ? "divide-y divide-rule" : ""}>
         {kept.map((note, index) => (
           <div key={index} className={`sheetrow px-3 ${flush ? "py-1.5" : "py-1"}`}>

@@ -122,6 +122,9 @@ html {
   --dock-tall: 40rem;
   --float: 0.75rem;
   --hit: 2.5rem;
+  --lit-hi: #ec8a60;
+  --lit-lo: #cc5f38;
+  --glow: #e27042;
 }
 
 [data-theme="night"] {
@@ -217,6 +220,13 @@ html {
   font-variant-numeric: tabular-nums;
 }
 
+@utility lit {
+  background: linear-gradient(var(--lit-hi), var(--lit-lo));
+  box-shadow:
+    0 0 0.35em -0.05em color-mix(in oklab, var(--glow) 70%, transparent),
+    0 0 1.4em 0 color-mix(in oklab, var(--glow) 35%, transparent);
+}
+
 @utility link {
   text-decoration-line: underline;
   text-decoration-color: var(--color-base-300);
@@ -266,6 +276,10 @@ html {
   }
 }
 
+@utility on-page {
+  --quiet-hover: var(--color-base-100);
+}
+
 @utility quietbox {
   width: 100%;
   border: 1px solid transparent;
@@ -278,7 +292,7 @@ html {
     border-color 0.12s ease;
 
   &:hover {
-    background: var(--color-base-200);
+    background: var(--quiet-hover, var(--color-base-200));
   }
 
   &:focus {

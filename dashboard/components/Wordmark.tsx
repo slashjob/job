@@ -22,7 +22,7 @@ export default function Wordmark({
       {waiting ? (
         <span
           className="ml-[0.14em] inline-flex h-[0.95em] min-w-[0.5em] animate-arrive items-center
-            justify-center px-[0.16em] bg-mark font-semibold text-mark-content"
+            justify-center px-[0.16em] lit font-semibold text-mark-content"
           style={{ fontSize: "0.8em" }}
         >
           ?

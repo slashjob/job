@@ -17,6 +17,7 @@ const WRITABLE = new Set<Table>([
   "employers",
   "projects",
   "project_technologies",
+  "news_topics",
   "instructions",
   "summary",
 ]);
@@ -122,6 +123,38 @@ export async function forget(company: string, url: string): Promise<Dropped> {
       return { error: `no contact ${url} at ${company}` };
     revalidatePath("/", "layout");
     return { gone: url };
+  } catch (error) {
+    return failed(error);
+  }
+}
+
+export async function pass(article_id: string): Promise<Dropped> {
+  try {
+    if (
+      !db()
+        .prepare("UPDATE news SET status='passed' WHERE article_id=? AND status IN ('lead','messaged')")
+        .run(article_id).changes
+    )
+      return { error: `no news lead ${article_id}` };
+    revalidatePath("/", "layout");
+    return { gone: article_id };
+  } catch (error) {
+    return failed(error);
+  }
+}
+
+export async function dropTopic(project_id: number): Promise<Dropped> {
+  try {
+    db().transaction(() => {
+      if (
+        !db().prepare("UPDATE news_topics SET query=NULL WHERE project_id=? AND query IS NOT NULL").run(project_id)
+          .changes
+      )
+        throw new Error(`no news search for project ${project_id}`);
+      db().prepare("UPDATE news SET status='passed' WHERE project_id=? AND status='lead'").run(project_id);
+    })();
+    revalidatePath("/", "layout");
+    return { gone: String(project_id) };
   } catch (error) {
     return failed(error);
   }

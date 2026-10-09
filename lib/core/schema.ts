@@ -106,8 +106,8 @@ export const TABLES = {
     })
     .meta({
       note:
-        "People the user can reach on LinkedIn at a company they hold a posting for.\n" +
-        "`company` is spelled as `postings.company` spells it, which is the only join.\n" +
+        "People the user can reach on LinkedIn at a company they hold a posting or a news lead for.\n" +
+        "`company` is spelled as `postings.company` or `news.company` spells it, which is the only join.\n" +
         "`introducer` is the mutual connection who makes a 2nd reachable.",
       constraints: ["PRIMARY KEY (company, url)", "CHECK (COALESCE(degree, shared_group, shared_school) IS NOT NULL)"],
     } satisfies Shape),
@@ -269,6 +269,53 @@ export const TABLES = {
         "flatten the slopes it describes into walls.",
     } satisfies Shape),
 
+  news_topics: z
+    .object({
+      project_id: col(z.number(), { sql: "PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE" }),
+      query: col(z.string().nullable(), { sql: filled("query") }),
+      basis: z.string(),
+      written_on: col(z.string(), {
+        sql: "DEFAULT (date('now')) CHECK (written_on IS date(written_on))",
+        takes: "a date, as YYYY-MM-DD",
+      }),
+      paused: col(z.number(), { sql: "DEFAULT 0 CHECK (paused IN (0,1))", takes: "0 or 1" }),
+    })
+    .meta({
+      note:
+        "The NewsData query each project is searched by. `basis` hashes the project's name,\n" +
+        "about and technologies as the query was written from them. A NULL query is a project the user\n" +
+        "removed from the search, and stays removed; a paused one keeps its query and is skipped.",
+    } satisfies Shape),
+
+  news: z
+    .object({
+      article_id: col(z.string(), { sql: "PRIMARY KEY" }),
+      title: col(z.string(), { sql: filled("title") }),
+      url: col(z.string(), { sql: url("url"), takes: "a URL, starting http" }),
+      source: z.string().nullable(),
+      published: col(z.string().nullable(), {
+        sql: "CHECK (published IS NULL OR datetime(published) IS NOT NULL)",
+        takes: "a timestamp",
+      }),
+      summary: z.string().nullable(),
+      found_on: col(z.string(), {
+        sql: "DEFAULT (date('now')) CHECK (found_on IS date(found_on))",
+        takes: "a date, as YYYY-MM-DD",
+      }),
+      status: col(z.enum(["new", "lead", "noise", "messaged", "passed"]), { sql: "DEFAULT 'new'" }),
+      company: z.string().nullable(),
+      project_id: col(z.number().nullable(), { sql: "REFERENCES projects(id) ON DELETE SET NULL" }),
+      reason: z.string().nullable(),
+    })
+    .meta({
+      note:
+        "Articles fetched from NewsData, each judged once. A lead is a company building\n" +
+        "what one of the user's projects already built: `project_id` is that project and\n" +
+        "`reason` says why, in a line.",
+      constraints: ["CHECK (status IN ('new','noise') OR (company IS NOT NULL AND reason IS NOT NULL))"],
+      indexes: ["idx_news_status ON news(status)"],
+    } satisfies Shape),
+
   summary: z
     .object({
       text: col(z.string().nullable(), { sql: filled("text") }),
@@ -295,6 +342,8 @@ export const ORDER: Table[] = [
   "employers",
   "projects",
   "project_technologies",
+  "news_topics",
+  "news",
   "instructions",
   "summary",
 ];

@@ -19,7 +19,7 @@ const { program, runs } = action(
   `Store who the user can reach on LinkedIn at companies they applied to.
 
   cli/network.ts companies             every company applied to
-  cli/network.ts companies "Acme"      one company, at any status
+  cli/network.ts companies "Acme"      one company, at any status, or a news lead
   cli/network.ts insert --company "Acme" --file - <<'EOF'
                                        replace everyone held for that company
 

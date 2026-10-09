@@ -16,6 +16,15 @@ Keep judgment the code cannot make, and anything whose failure is silent rather 
 Found one instance? Sweep every prompt file for its class before calling it done, including the
 file just edited.
 
+## Code that cannot say it
+
+Job boards are browsed by the model, never called: no module knows a board's payload shape, and a
+new board needs no code.
+
+Dropping a column or a table loses what it holds, and no connect migrates an existing database.
+Save the rows first and tell the user what was saved and where — whether they are worth keeping is
+theirs to judge.
+
 ## Code Comments
 
 Don't ever add code comments. Write code that is self documenting.

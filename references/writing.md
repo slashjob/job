@@ -1,7 +1,7 @@
 # Voice
 
 Everything that goes out under the user's name and is read by a person: resume bullets and summary,
-cover letters, screening-question answers, any free-text field on a form, a message to a contact. The facts come from the
+cover letters, screening-question answers, any free-text field on a form, a LinkedIn message. The facts come from the
 profile tables; this file is how they are said.
 
 ## The candidate, describing their own work to someone who could hire them

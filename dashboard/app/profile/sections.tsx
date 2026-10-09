@@ -1,6 +1,6 @@
 import Field from "@/components/edit/Field";
 import { YES_NO, title, type Column } from "@/components/edit/columns";
-import { Card, Sheet, type Note } from "@/components/ui";
+import { Card, Group, Sheet, type Note } from "@/components/ui";
 import { identity, instructions, options, summary } from "@/lib/queries";
 import { grouped, hint } from "./identity";
 
@@ -45,19 +45,23 @@ const SUMMARY: Column = {
 };
 
 export const Summary = () => (
-  <Sheet title="Summary">
-    <Field table="summary" rowid={1} column={SUMMARY} value={summary().text} />
-  </Sheet>
+  <Group heading="Summary">
+    <Card soft>
+      <Field table="summary" rowid={1} column={SUMMARY} value={summary().text} />
+    </Card>
+  </Group>
 );
 
 export function Identity() {
   const note = noted(held());
   return (
-    <div className="flex flex-col gap-4">
+    <>
       {grouped().map((group) => (
-        <Sheet key={group.label} label="10rem" title={group.label} notes={group.names.map(asked).map(note)} />
+        <Group key={group.label} heading={group.label}>
+          <Sheet label="10rem" notes={group.names.map(asked).map(note)} />
+        </Group>
       ))}
-    </div>
+    </>
   );
 }
 

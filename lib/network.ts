@@ -44,14 +44,21 @@ export function companies(named?: string): Company[] {
       `FROM postings ${named ? "" : "WHERE status IN ('applied','interviewing')"} ` +
       "GROUP BY company ORDER BY MAX(last_updated) DESC",
   );
-  return named ? held.filter((row) => normCompany(row.company) === normCompany(named)) : held;
+  if (!named) return held;
+  const leads = rows(
+    Company,
+    "SELECT company, '' AS roles," +
+      "       (SELECT MAX(found_on) FROM contacts WHERE contacts.company = news.company) AS checked " +
+      "FROM news WHERE status IN ('lead','messaged') GROUP BY company",
+  );
+  return [...held, ...leads].filter((row) => normCompany(row.company) === normCompany(named));
 }
 
 export function insert(company: string, payload: unknown) {
   const people = z.array(Person).parse(payload);
   const spelled = companies(company).map((row) => row.company);
   if (!spelled.length)
-    throw new Error(`no posting is held for '${company}'; cli/network.ts companies lists the ones applied to`);
+    throw new Error(`no posting or news lead is held for '${company}'; cli/network.ts companies lists the ones applied to`);
 
   const drop = db().prepare("DELETE FROM contacts WHERE company=?");
   const add = db().prepare(

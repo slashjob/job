@@ -127,3 +127,37 @@ export function network(): Circle[] {
       people: people.filter((person) => person.company === company),
     }));
 }
+
+const STORY = TABLES.news
+  .pick({ article_id: true, title: true, url: true, source: true, published: true, status: true, reason: true })
+  .extend({ company: z.string(), project_id: z.number().nullable(), contacts: z.number() });
+
+export type Story = z.infer<typeof STORY>;
+
+export const news = (): Story[] =>
+  rows(
+    STORY,
+    "SELECT news.article_id, news.title, news.url, news.source, news.published, news.status, news.reason," +
+      "       news.company, news.project_id," +
+      "       (SELECT COUNT(*) FROM contacts WHERE contacts.company = news.company) AS contacts " +
+      "FROM news " +
+      "WHERE news.status IN ('lead','messaged') ORDER BY news.published IS NULL, news.published DESC",
+  );
+
+const TOPIC = z.object({
+  project_id: z.number(),
+  name: z.string(),
+  employer_id: z.number(),
+  query: z.string(),
+  paused: z.number(),
+});
+
+export type Topic = z.infer<typeof TOPIC>;
+
+export const topics = (): Topic[] =>
+  rows(
+    TOPIC,
+    "SELECT news_topics.project_id, projects.name, projects.employer_id, news_topics.query, news_topics.paused " +
+      "FROM news_topics JOIN projects ON projects.id = news_topics.project_id " +
+      "WHERE news_topics.query IS NOT NULL ORDER BY projects.employer_id, projects.seq",
+  );

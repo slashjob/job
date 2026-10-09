@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/wordmark-dark.svg">
-    <img src="assets/wordmark-light.svg" alt="/job" width="220">
+    <img src="assets/wordmark-light.svg" alt="/job" width="229">
   </picture>
 </p>
 
@@ -37,7 +37,8 @@ Type any of these into Claude Code and press <kbd>Enter</kbd>:
 | `/job resume`              | only write resumes                                                                                       |
 | `/job apply`               | fill in applications, then find people at those companies                                                |
 | `/job network`             | find people at companies you applied to                                                                  |
-| `/job contact`             | write a referral request to one of those people, left in LinkedIn for you to send                        |
+| `/job news`                | find companies in the news building what you have built, before they post a role                         |
+| `/job message`             | write anyone on LinkedIn — a referral request, say — left there for you to send                          |
 | `/job dashboard`           | open the dashboard                                                                                       |
 | `/job install`             | update to the latest version                                                                             |
 | `/job help`                | list every command                                                                                       |

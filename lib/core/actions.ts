@@ -51,9 +51,15 @@ export const ACTIONS: Action[] = [
     accepts: [],
   },
   {
-    id: "contact",
-    does: "Ask a contact for a referral",
-    argument: "[person] [key]",
+    id: "news",
+    does: "Find companies in the news building what you have built",
+    argument: "[project]",
+    accepts: [],
+  },
+  {
+    id: "message",
+    does: "Write anyone on LinkedIn, for any purpose",
+    argument: "[person] [purpose]",
     accepts: [],
   },
   {

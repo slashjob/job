@@ -3,6 +3,7 @@ import { Identity, Instructions, Summary } from "./sections";
 import Degrees from "./education/Degrees";
 import { career, education } from "@/lib/queries";
 import type { ReactNode } from "react";
+import { Group } from "@/components/ui";
 import { BriefcaseBusiness, GraduationCap, IdCard, NotebookPen, type LucideIcon } from "lucide-react";
 
 type Panel = {
@@ -23,12 +24,17 @@ export const PANELS: Record<string, Panel> = {
     tab: "Work history",
     covers: ["career", "experience"],
     icon: BriefcaseBusiness,
-    body: () => (
-      <div className="flex flex-col gap-4">
-        <Summary />
-        <Employers employers={career()} />
-      </div>
-    ),
+    body: () => {
+      const employers = career();
+      return (
+        <>
+          <Summary />
+          <Group heading="Employers" count={employers.length}>
+            <Employers employers={employers} />
+          </Group>
+        </>
+      );
+    },
   },
   education: {
     tab: "Education",
