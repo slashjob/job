@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "A Claude Code skill that scans job boards, scores openings, tailors resumes, and applies.",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "MIT",
   "engines": {
     "node": ">=22.18"
   },

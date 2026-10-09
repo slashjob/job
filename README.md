@@ -5,14 +5,6 @@
   </picture>
 </p>
 
-## Watch the walkthrough
-
-New to /job? This video walks through installing it, setting it up, and your first run.
-
-<a href="https://youtu.be/vcAzFuTEs1s">
-  <img src="https://img.youtube.com/vi/vcAzFuTEs1s/maxresdefault.jpg" alt="Watch the /job walkthrough on YouTube" width="640">
-</a>
-
 ## Before you start
 
 Make sure you have the following:
@@ -66,11 +58,6 @@ The dashboard is a more convenient way to interface with `/job`. To run it, type
 every one, and the sooner I hear about a problem, the sooner I can fix it for you.
 - **Want something changed?** Tell Claude in plain words, e.g. "too many senior roles" or "the summary oversells my Postgres work". It changes your profile, search instructions or resume writing to match.
 
-## Interview guarantee
-
-Run /job for 30 days. No interview? Email me at [faizififita1@gmail.com](mailto:faizififita1@gmail.com) and I'll
-refund you. No questions, no proving you did the work.
-
 ## Your data
 
 Everything stays on your computer.
@@ -82,4 +69,4 @@ you submit and for following the rules of the sites it uses.
 
 ## License
 
-For your personal use only. See [LICENSE](LICENSE).
+Free and open source under the [MIT License](LICENSE).

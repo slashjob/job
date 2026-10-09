@@ -89,4 +89,4 @@ you submit and for following the rules of the sites it uses.
 
 ## License
 
-For your personal use only. See [LICENSE](../LICENSE).
+Free and open source under the [MIT License](../LICENSE).

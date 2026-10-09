@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "A local web app over the job skill: browse what it found, edit the profile, and run its actions.",
-  "license": "SEE LICENSE IN ../LICENSE",
+  "license": "MIT",
   "engines": {
     "node": ">=22.18"
   },
