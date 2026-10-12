@@ -6,7 +6,7 @@ export const TABLES = {
     url: z.string(),
     name: z.string(),
     title: z.string().nullable(),
-    degree: z.enum(["1st", "2nd"]).nullable(),
+    degree: z.enum(["1st", "2nd", "3rd"]).nullable(),
     introducer: z.string().nullable(),
     shared_group: z.string().nullable(),
     shared_school: z.string().nullable(),
@@ -83,6 +83,7 @@ export const TABLES = {
     company: z.string().nullable(),
     project_id: z.number().nullable(),
     reason: z.string().nullable(),
+    image: z.string().nullable(),
   }),
   news_topics: z.object({
     project_id: z.number(),

@@ -16,7 +16,7 @@ const read = (named: string) => {
 
 const { program, runs } = action(
   "cli/network.ts",
-  `Store who the user can reach on LinkedIn at companies they applied to.
+  `Store who the user can reach on LinkedIn at companies they applied to, or news leads.
 
   cli/network.ts companies             every company applied to
   cli/network.ts companies "Acme"      one company, at any status, or a news lead
@@ -24,7 +24,7 @@ const { program, runs } = action(
                                        replace everyone held for that company
 
 A contact is {name, url, title, degree, introducer, shared_group,
-shared_school}. \`url\` is their LinkedIn profile. \`degree\` is 1st or 2nd.
+shared_school}. \`url\` is their LinkedIn profile. \`degree\` is 1st, 2nd or 3rd.
 \`introducer\` is the mutual connection a 2nd is reached through.
 \`shared_group\` is a LinkedIn group the user is in too.
 \`shared_school\` is a school the user went to too.

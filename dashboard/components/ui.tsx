@@ -17,6 +17,13 @@ export const Measure = ({
   </div>
 );
 
+export const Page = ({ toolbar, children }: { toolbar?: ReactNode; children: ReactNode }) => (
+  <Measure>
+    {toolbar && <div className="mb-10 flex items-stretch justify-end gap-3">{toolbar}</div>}
+    {children}
+  </Measure>
+);
+
 export const Card = ({
   children,
   soft,
@@ -43,6 +50,7 @@ export const Group = ({
   count,
   sub,
   tools,
+  items,
   id,
   className = "",
   children,
@@ -51,6 +59,7 @@ export const Group = ({
   count?: number;
   sub?: ReactNode;
   tools?: ReactNode;
+  items?: "cards" | "rows";
   id?: string;
   className?: string;
   children: ReactNode;
@@ -64,7 +73,13 @@ export const Group = ({
       {tools && <span className="ml-auto shrink-0">{tools}</span>}
     </div>
     {sub && <div className="on-page mb-3 text-sm text-soft">{sub}</div>}
-    {children}
+    {items === "cards" && <div className="space-y-3">{children}</div>}
+    {items === "rows" && (
+      <Card soft tight>
+        {children}
+      </Card>
+    )}
+    {!items && children}
   </section>
 );
 

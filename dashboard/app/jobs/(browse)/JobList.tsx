@@ -10,7 +10,7 @@ import Glyph from "@/components/Glyph";
 import Linked, { LinkCard, TitleLink } from "@/components/Linked";
 import { OptionsButton, deleteOption, type Option } from "@/components/Options";
 import { Badge } from "@/components/Status";
-import { Card, Count, Empty, Group, Invite, Measure, SearchField, Stamp } from "@/components/ui";
+import { Count, Empty, Group, Invite, Page, SearchField, Stamp } from "@/components/ui";
 import { describes, offered } from "@/lib/actions";
 import { places, plural, shortDate, shortPay } from "@/lib/format";
 import { assetHref, companyHref, jobHref } from "@/lib/links";
@@ -183,19 +183,21 @@ function Shelves({ jobs }: { jobs: Job[] }) {
   })).filter((shelf) => shelf.jobs.length > 0);
 
   return (
-    <Measure>
-      <div className="mb-10 flex items-stretch gap-2">
-        <SearchField
-          icon={<Glyph icon={Search} />}
-          aria-label="Search saved jobs"
-          placeholder="Search saved jobs"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          className="flex-1"
-        />
-        <ActionsMenu ids={["search", "resume", "apply"]} />
-      </div>
-
+    <Page
+      toolbar={
+        <>
+          <SearchField
+            icon={<Glyph icon={Search} />}
+            aria-label="Search saved jobs"
+            placeholder="Search saved jobs"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className="flex-1"
+          />
+          <ActionsMenu ids={["search", "resume", "apply", "network"]} />
+        </>
+      }
+    >
       {shelves.length === 0 && <Empty>No jobs match that search.</Empty>}
 
       {shelves.map((shelf) => {
@@ -224,30 +226,25 @@ function Shelves({ jobs }: { jobs: Job[] }) {
               )
             }
             count={shelf.folded ? undefined : shelf.jobs.length}
+            items={shut ? undefined : shelf.brief ? "rows" : "cards"}
           >
             {!shut &&
-              (shelf.brief ? (
-                <Card soft tight>
-                  {shelf.jobs.map((job) => (
-                    <Linked
-                      key={job.key}
-                      href={jobHref(job.key)}
-                      className="rounded-field px-3 py-2.5 transition-colors hover:bg-base-200"
-                    >
-                      <Brief job={job} menu={menu} why={shelf.folded} />
-                    </Linked>
-                  ))}
-                </Card>
-              ) : (
-                <div className="space-y-3">
-                  {shelf.jobs.map((job) => (
-                    <Full key={job.key} job={job} menu={menu} framed={shelf.framed} />
-                  ))}
-                </div>
-              ))}
+              shelf.jobs.map((job) =>
+                shelf.brief ? (
+                  <Linked
+                    key={job.key}
+                    href={jobHref(job.key)}
+                    className="rounded-field px-3 py-2.5 transition-colors hover:bg-base-200"
+                  >
+                    <Brief job={job} menu={menu} why={shelf.folded} />
+                  </Linked>
+                ) : (
+                  <Full key={job.key} job={job} menu={menu} framed={shelf.framed} />
+                ),
+              )}
           </Group>
         );
       })}
-    </Measure>
+    </Page>
   );
 }

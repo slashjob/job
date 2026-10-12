@@ -9,12 +9,12 @@ import { useDock } from "@/components/Dock";
 import { MenuButton } from "@/components/Flyout";
 import { OptionsButton, deleteOption } from "@/components/Options";
 import Glyph from "@/components/Glyph";
-import { Card, Count, Dot, Empty, Group, Invite, Measure, Out, Row } from "@/components/ui";
+import { Count, Dot, Empty, Group, Invite, Out, Page, Row } from "@/components/ui";
 import { describes } from "@/lib/actions";
 import { jobHref } from "@/lib/links";
 import type { Circle, Contact } from "@/lib/queries";
 
-const DEGREES = ["1st", "2nd"].map((degree) => ({
+const DEGREES = ["1st", "2nd", "3rd"].map((degree) => ({
   name: degree,
   holds: (person: Contact) => person.degree === degree,
 }));
@@ -34,12 +34,13 @@ const reached = (person: Contact) =>
     .filter(Boolean)
     .join(" · ");
 
-const purpose = (person: Contact, roles: Circle["roles"]) => {
-  if (roles.length === 0) return `${person.url} `;
-  return `${person.url} ask for a referral${roles.length === 1 ? ` to ${roles[0].key}` : ""}`;
+const purpose = (person: Contact, { roles, articles }: Circle) => {
+  if (roles.length > 0) return `${person.url} ask for a referral${roles.length === 1 ? ` to ${roles[0].key}` : ""}`;
+  if (articles.length > 0) return `${person.url} about ${articles[0].url}`;
+  return `${person.url} `;
 };
 
-function Person({ person, roles }: { person: Contact; roles: Circle["roles"] }) {
+function Person({ person, circle }: { person: Contact; circle: Circle }) {
   const { draft } = useDock();
   const drop = useForget();
   return (
@@ -61,7 +62,7 @@ function Person({ person, roles }: { person: Contact; roles: Circle["roles"] }) 
           {
             key: "message",
             label: <Command id="message" />,
-            onPick: () => draft("message", purpose(person, roles)),
+            onPick: () => draft("message", purpose(person, circle)),
           },
           deleteOption("Delete contact", () => drop(person.company, person.url)),
         ]}
@@ -100,8 +101,8 @@ function Filtered({ circles }: { circles: Circle[] }) {
     .filter((circle) => circle.people.length > 0);
 
   return (
-    <Measure>
-      <div className="-ml-1.5 mb-10 flex items-center justify-between gap-2">
+    <Page
+      toolbar={
         <MenuButton
           quiet
           leading
@@ -138,9 +139,8 @@ function Filtered({ circles }: { circles: Circle[] }) {
             </div>
           ))}
         </MenuButton>
-        <Actions ids={["network"]} />
-      </div>
-
+      }
+    >
       {found.length === 0 && <Empty>No contacts match that filter.</Empty>}
 
       {found.map((circle) => (
@@ -149,25 +149,29 @@ function Filtered({ circles }: { circles: Circle[] }) {
           id={circle.company}
           heading={circle.company}
           count={circle.people.length}
+          items="rows"
           sub={
-            circle.roles.length > 0 && (
+            (circle.roles.length > 0 || circle.articles.length > 0) && (
               <span className="flex flex-wrap gap-x-4">
                 {circle.roles.map((role) => (
                   <Link key={role.key} href={jobHref(role.key)} className="hover:text-base-content">
                     {role.title}
                   </Link>
                 ))}
+                {circle.articles.map((article) => (
+                  <Out key={article.article_id} href={article.url}>
+                    {article.title}
+                  </Out>
+                ))}
               </span>
             )
           }
         >
-          <Card soft tight>
-            {circle.people.map((person) => (
-              <Person key={person.url} person={person} roles={circle.roles} />
-            ))}
-          </Card>
+          {circle.people.map((person) => (
+            <Person key={person.url} person={person} circle={circle} />
+          ))}
         </Group>
       ))}
-    </Measure>
+    </Page>
   );
 }

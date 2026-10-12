@@ -30,7 +30,7 @@ const Person = z
     shared_school: maybeText,
   })
   .refine((held) => held.degree || held.shared_group || held.shared_school, {
-    message: "a contact is a 1st or 2nd connection, or shares a group or a school",
+    message: "a contact has a degree, or shares a group or a school",
     path: ["degree"],
   });
 
@@ -49,7 +49,7 @@ export function companies(named?: string): Company[] {
     Company,
     "SELECT company, '' AS roles," +
       "       (SELECT MAX(found_on) FROM contacts WHERE contacts.company = news.company) AS checked " +
-      "FROM news WHERE status IN ('lead','messaged') GROUP BY company",
+      "FROM news WHERE status = 'lead' GROUP BY company",
   );
   return [...held, ...leads].filter((row) => normCompany(row.company) === normCompany(named));
 }

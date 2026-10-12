@@ -45,6 +45,7 @@ export function Control({
     placeholder: column.placeholder ?? title(column),
     "aria-label": title(column),
     autoFocus,
+    maxLength: column.maxLength,
     value,
     onChange: (event: { target: { value: string } }) => onValue(event.target.value),
     onBlur: (event: { currentTarget: Entry }) => onCommit?.(value, event.currentTarget),

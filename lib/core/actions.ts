@@ -46,7 +46,7 @@ export const ACTIONS: Action[] = [
   },
   {
     id: "network",
-    does: "Find people at companies you applied to",
+    does: "Find people you can message",
     argument: "[company]",
     accepts: [],
   },

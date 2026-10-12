@@ -46,7 +46,9 @@ returns the unfiltered list.
 **A person reached two ways is one contact carrying both** — a 2nd who is also an alum has the
 introducer and the school.
 
-**3rd-degree connections are not tracked**: not stored, not counted.
+**3rd-degree connections are not tracked**: not stored, not counted. **Except at a news lead**,
+which has no posting and so no recruiter: take its founders, or whoever leads engineering, at
+whatever degree LinkedIn shows. Knowing nobody there does not make it an empty company.
 
 **Closest to the role means the team the role sits in and the people who hire for it** — the same
 function, its managers, recruiters. At a large employer a 2nd-degree or alumni list can run to a
@@ -73,3 +75,8 @@ here once it is driven.
 
 - **The People tab's highlight cards ("1 employee attended …") link to that person's profile**, not
   to a filtered list. Read the name off the card and never click it.
+- **The People tab's Schools facet lists only the employees' top schools, and its "Add a school" box
+  suggests nothing.** Check the user's schools from the tab's "Search more employees" link instead:
+  All filters → Schools → Add a school there suggests every school, and Show results applies it.
+- **A group's member list cannot be narrowed to a company.** Report shared groups as not checked
+  rather than paging through the members.

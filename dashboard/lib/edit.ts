@@ -132,7 +132,7 @@ export async function pass(article_id: string): Promise<Dropped> {
   try {
     if (
       !db()
-        .prepare("UPDATE news SET status='passed' WHERE article_id=? AND status IN ('lead','messaged')")
+        .prepare("UPDATE news SET status='passed' WHERE article_id=? AND status = 'lead'")
         .run(article_id).changes
     )
       return { error: `no news lead ${article_id}` };

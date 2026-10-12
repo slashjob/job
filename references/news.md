@@ -2,7 +2,7 @@
 
 Companies in the news building something the user has already built, found before they post a
 role. The deliverable is a list of leads: the company, what it is building, and the project of the
-user's that did the same. Whether to reach out is theirs.
+user's that did the same, and the people there to write to. Whether to reach out is theirs.
 
 ## Queries
 
@@ -38,21 +38,21 @@ for it. Everything else is noise:
 **The match is the most specific project**, and `reason` is one line: what the company is building,
 and what in the project did the same.
 
+## Who is there
+
+**Each lead's company is looked up by `references/network.md`, once judging is done**, so the user
+has someone to message without a second run. Only companies `cli/network.ts companies <name>` shows
+as never checked: a lead already looked up is not opened again.
+
 ## Hand them over
 
-Under the opening sentence, one line per lead: the company, what it is building, and the project.
-The next step is theirs to choose: `/job network` for the company, then `/job message` to a person
-there.
+Under the opening sentence, one line per lead: the company, what it is building, the project, and
+who is there to write to. The next step is `/job message` to one of them.
 
 ## Writing to a lead
 
 Read by `references/message.md` when the purpose is a company in the news.
 
-**There is no posting, so there is no recruiter to write to.** At a small company, a founder or
-whoever leads engineering.
-
 **The purpose**: what the article reported they are building, the project of the user's that built
 the same, and the one thing in its row that shows it — then ask whether they are hiring for it, or
 would talk. Never imply an opening exists.
-
-**Once the message is typed, `cli/news.ts mark <article_id> messaged`**, so the lead stops coming back.

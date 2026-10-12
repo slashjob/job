@@ -105,16 +105,27 @@ export function prospect(key: string): Prospect | null {
 }
 
 const ROLE = TABLES.postings.pick({ key: true, company: true, title: true });
+const ARTICLE = TABLES.news.pick({ article_id: true, title: true, url: true }).extend({ company: z.string() });
 
 export type Contact = z.infer<typeof TABLES.contacts>;
-export type Circle = { company: string; roles: z.infer<typeof ROLE>[]; people: Contact[] };
+export type Circle = {
+  company: string;
+  roles: z.infer<typeof ROLE>[];
+  articles: z.infer<typeof ARTICLE>[];
+  people: Contact[];
+};
 
-export function network(): Circle[] {
+export function contacts(): Circle[] {
   const people = rows(TABLES.contacts, "SELECT * FROM contacts ORDER BY degree IS NULL, degree, name");
   const roles = rows(
     ROLE,
     "SELECT key, company, title FROM postings " +
       "WHERE status IN ('shortlisted','staged','applied','interviewing') ORDER BY last_updated DESC",
+  );
+  const articles = rows(
+    ARTICLE,
+    "SELECT article_id, title, url, company FROM news " +
+      "WHERE status = 'lead' ORDER BY published IS NULL, published DESC",
   );
   const applied = roles.map((role) => role.company);
   const recency = (company: string) => (applied.includes(company) ? applied.indexOf(company) : applied.length);
@@ -124,12 +135,13 @@ export function network(): Circle[] {
     .map((company) => ({
       company,
       roles: roles.filter((role) => role.company === company),
+      articles: articles.filter((article) => article.company === company),
       people: people.filter((person) => person.company === company),
     }));
 }
 
 const STORY = TABLES.news
-  .pick({ article_id: true, title: true, url: true, source: true, published: true, status: true, reason: true })
+  .pick({ article_id: true, title: true, url: true, image: true, source: true, published: true, reason: true })
   .extend({ company: z.string(), project_id: z.number().nullable(), contacts: z.number() });
 
 export type Story = z.infer<typeof STORY>;
@@ -137,11 +149,11 @@ export type Story = z.infer<typeof STORY>;
 export const news = (): Story[] =>
   rows(
     STORY,
-    "SELECT news.article_id, news.title, news.url, news.source, news.published, news.status, news.reason," +
+    "SELECT news.article_id, news.title, news.url, news.image, news.source, news.published, news.reason," +
       "       news.company, news.project_id," +
       "       (SELECT COUNT(*) FROM contacts WHERE contacts.company = news.company) AS contacts " +
       "FROM news " +
-      "WHERE news.status IN ('lead','messaged') ORDER BY news.published IS NULL, news.published DESC",
+      "WHERE news.status = 'lead' ORDER BY news.published IS NULL, news.published DESC",
   );
 
 const TOPIC = z.object({

@@ -14,6 +14,7 @@ const Article = z.object({
   pubDate: z.string().nullable().optional(),
   source_name: z.string().nullable().optional(),
   source_id: z.string().nullable().optional(),
+  image_url: z.string().nullable().optional(),
 });
 
 const Reply = z.discriminatedUnion("status", [
@@ -101,17 +102,24 @@ export function topics(stale: boolean) {
   }));
 }
 
+const LONGEST = 100;
+
+const spaced = (query: string) => query.replace(/\s+/g, " ").trim();
+
 export function write(project: number | string, query: string, restore: boolean) {
   const id = projectId(project);
   const topic = held().find((row) => row.project_id === id)!;
   if (topic.basis !== null && topic.query === null && !restore)
     throw new Error(`the user removed '${topic.name}' from the news search; --restore only if they asked for it back`);
+  const sent = spaced(query);
+  if (sent.length > LONGEST)
+    throw new Error(`NewsData takes a query of at most ${LONGEST} characters; this one is ${sent.length}`);
   db()
     .prepare(
       "INSERT INTO news_topics(project_id,query,basis) VALUES(?,?,?) ON CONFLICT(project_id) DO UPDATE " +
         "SET query=excluded.query, basis=excluded.basis, written_on=date('now')",
     )
-    .run(id, query.trim(), basis(topic));
+    .run(id, sent, basis(topic));
   return topic.name;
 }
 
@@ -153,7 +161,7 @@ const apikey = () => {
 
 async function latest(query: string, search: Search, page?: string) {
   const params = new URLSearchParams({ apikey: apikey(), language: "en", removeduplicate: "1" });
-  params.set(search.title ? "qInTitle" : "q", query.replace(/\s+/g, " ").trim());
+  params.set(search.title ? "qInTitle" : "q", spaced(query));
   if (search.hours) params.set("timeframe", String(search.hours));
   if (page) params.set("page", page);
   const answered = await fetch(`${LATEST}?${params}`);
@@ -181,7 +189,7 @@ export async function search(search: Search) {
       : [queried(searched, search.project)];
   if (!queries.length) throw new Error("the user has paused every project's search");
   const add = db().prepare(
-    "INSERT OR IGNORE INTO news(article_id,title,url,source,published,summary) VALUES(?,?,?,?,?,?)",
+    "INSERT OR IGNORE INTO news(article_id,title,url,source,published,summary,image) VALUES(?,?,?,?,?,?,?)",
   );
   const found: string[] = [];
   for (const query of queries) {
@@ -197,6 +205,7 @@ export async function search(search: Search) {
           article.source_name ?? article.source_id ?? null,
           article.pubDate ?? null,
           article.description?.trim() || null,
+          /^http[^:]*:\/\/.*\./.test(article.image_url ?? "") ? article.image_url : null,
         );
         if (stored.changes) found.push(article.article_id);
       }
@@ -244,12 +253,5 @@ export const leads = (all: boolean) =>
     Lead,
     "SELECT news.article_id, company, projects.name AS project, reason, title, url, published, status " +
       "FROM news LEFT JOIN projects ON projects.id = news.project_id " +
-      `WHERE status ${all ? "IN ('lead','messaged','passed')" : "= 'lead'"} ORDER BY published DESC`,
+      `WHERE status ${all ? "IN ('lead','passed')" : "= 'lead'"} ORDER BY published DESC`,
   );
-
-export function mark(article_id: string, status: "messaged" | "passed") {
-  const changed = db()
-    .prepare("UPDATE news SET status=? WHERE article_id=? AND status IN ('lead','messaged','passed')")
-    .run(status, article_id);
-  if (!changed.changes) throw new Error(`${article_id} is not a lead`);
-}

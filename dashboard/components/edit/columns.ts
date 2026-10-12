@@ -5,6 +5,7 @@ export type Column = {
   type?: "email" | "tel" | "url" | "time" | "number";
   pattern?: string;
   min?: number;
+  maxLength?: number;
   step?: number;
   options?: (string | [string, string])[];
   required?: boolean;

@@ -2,7 +2,7 @@
 import fs from "node:fs";
 
 import { printRows } from "../lib/core/table.ts";
-import { drop, judge, leads, mark, pause, pending, remember, search, topics, write } from "../lib/news.ts";
+import { drop, judge, leads, pause, pending, remember, search, topics, write } from "../lib/news.ts";
 import { action, fail } from "./kit.ts";
 
 const read = (named: string) => {
@@ -32,7 +32,6 @@ const { program, runs } = action(
   cli/news.ts pending                  every article not yet judged
   cli/news.ts judge --file - <<'EOF'   record a verdict on each
   cli/news.ts leads                    the leads not yet acted on
-  cli/news.ts mark <article_id> messaged
 
 A query takes AND, OR, NOT, quotes and parentheses. Each page of results
 costs one NewsData credit.
@@ -135,22 +134,9 @@ program
 
 program
   .command("leads")
-  .description("leads not yet messaged or passed")
-  .option("--all", "messaged and passed too")
+  .description("leads not yet passed")
+  .option("--all", "passed too")
   .option("--json")
   .action(runs((options) => printRows(leads(Boolean(options.all)), options.json)));
-
-program
-  .command("mark")
-  .description("record what became of a lead")
-  .argument("<article_id>")
-  .argument("<status>", "messaged or passed")
-  .action(
-    runs((article_id: string, status: string) => {
-      if (status !== "messaged" && status !== "passed") fail("status is messaged or passed");
-      mark(article_id, status);
-      console.log(`${article_id}  ${status}`);
-    }),
-  );
 
 program.parseAsync();

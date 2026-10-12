@@ -21,7 +21,7 @@ type Item = { href: string; label: string; icon: LucideIcon; key: string };
 const SECTIONS: Item[] = [
   { href: "/jobs", label: "Jobs", icon: Briefcase, key: "j" },
   { href: "/news", label: "News", icon: Newspaper, key: "w" },
-  { href: "/network", label: "Network", icon: Users, key: "n" },
+  { href: "/contacts", label: "Contacts", icon: Users, key: "c" },
   { href: "/profile", label: "Profile", icon: User, key: "p" },
 ];
 

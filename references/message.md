@@ -48,7 +48,7 @@ unanswered ask for the same thing, stop and say so rather than adding a second.
 1. **Why this person** — the path: the mutual connection by name, the school, the group, as the
    `contacts` row or the profile shows it. It is the reason a stranger reads the second sentence.
    Never claim an acquaintance the row, the profile and the thread do not show; a 1st with a history
-   needs no path at all.
+   needs no path at all, and a stranger with none opens on the purpose instead.
 2. **The purpose**, and what in the user's record makes it worth their time.
 3. **One ask**, with a no that costs them nothing.
 

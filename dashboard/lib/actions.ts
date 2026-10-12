@@ -41,7 +41,7 @@ const ACTIONS: Action[] = [
   },
   {
     id: "network",
-    does: "Find people at companies you applied to",
+    does: "Find people you can message",
     argument: "[company]",
     accepts: [],
     browses: true,
@@ -51,7 +51,7 @@ const ACTIONS: Action[] = [
     does: "Find companies in the news building what you have built",
     argument: "[project]",
     accepts: [],
-    browses: false,
+    browses: true,
   },
   {
     id: "message",

@@ -4,9 +4,9 @@ export const assetHref = (kind: string, key: string) => `/asset/${kind}/${encode
 
 export const newsHref = "/news";
 
-export const networkHref = "/network";
+export const contactsHref = "/contacts";
 
-export const companyHref = (company: string) => `${networkHref}#${encodeURIComponent(company)}`;
+export const companyHref = (company: string) => `${contactsHref}#${encodeURIComponent(company)}`;
 
 export const careerHref = "/profile/career";
 

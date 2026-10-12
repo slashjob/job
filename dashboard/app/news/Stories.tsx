@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Pause, Play, Trash2, Users } from "lucide-react";
+import { useState } from "react";
+import { Newspaper, Pause, Play, Users } from "lucide-react";
 import Actions from "@/components/Actions";
 import { Command, useDropTopic, usePass, usePause } from "@/components/act";
 import { useDock } from "@/components/Dock";
 import Field from "@/components/edit/Field";
 import type { Column } from "@/components/edit/columns";
 import Glyph from "@/components/Glyph";
-import { OptionsButton, deleteOption } from "@/components/Options";
-import { Button, Card, Group, Invite, Measure, Out, Stamp } from "@/components/ui";
+import { DeleteMenu, OptionsButton, deleteOption } from "@/components/Options";
+import { Card, Group, Invite, Out, Page, Stamp } from "@/components/ui";
 import { describes } from "@/lib/actions";
 import { plural, shortDate } from "@/lib/format";
 import { companyHref, projectHref } from "@/lib/links";
@@ -21,22 +22,21 @@ const QUERY: Column = {
   kind: "area",
   rows: 1,
   required: true,
+  maxLength: 100,
   className: "-my-1 -ml-1.5 block font-mono text-xs text-soft focus:text-base-content",
 };
 
 function Delete({ story }: { story: Story }) {
   const passOn = usePass();
-  return (
-    <Button tone="grave" icon={<Glyph icon={Trash2} size="sm" />} onClick={() => passOn(story.article_id)}>
-      Delete
-    </Button>
-  );
+  return <DeleteMenu what={story.title} label="Delete article" onPick={() => passOn(story.article_id)} />;
 }
 
 const Known = ({ story }: { story: Story }) =>
   story.contacts ? (
     <Link
       href={companyHref(story.company)}
+      aria-label={`${plural(story.contacts, "contact")} at ${story.company}`}
+      title={`${plural(story.contacts, "contact")} at ${story.company}`}
       className="tnum inline-flex items-center gap-1.5 text-xs text-soft transition-colors hover:text-base-content"
     >
       <Glyph icon={Users} />
@@ -44,39 +44,59 @@ const Known = ({ story }: { story: Story }) =>
     </Link>
   ) : null;
 
+function Photo({ story }: { story: Story }) {
+  const [broken, setBroken] = useState(false);
+  return (
+    <a
+      href={story.url}
+      target="_blank"
+      rel="noreferrer"
+      tabIndex={-1}
+      aria-hidden
+      className="relative grid aspect-[4/3] w-20 shrink-0 place-items-center overflow-hidden rounded-field bg-base-200
+        text-soft sm:w-28 after:absolute after:inset-0 after:rounded-field after:ring-1 after:ring-base-content/10
+        after:ring-inset"
+    >
+      {story.image && !broken ? (
+        <img
+          src={story.image}
+          alt=""
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={() => setBroken(true)}
+          className="size-full object-cover"
+        />
+      ) : (
+        <Newspaper size={28} strokeWidth={1.25} />
+      )}
+    </a>
+  );
+}
+
 const Lead = ({ story }: { story: Story }) => (
-  <article className="py-3 first:pt-0 last:pb-0">
-    <h3 className="truncate font-display font-medium">{story.company}</h3>
-    <p className="mt-0.5 line-clamp-2 text-sm">
-      <Out href={story.url}>{story.title}</Out>
-    </p>
+  <Card soft>
+    <div className="flex gap-4">
+      <Photo story={story} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-3">
+          <h3 className="min-w-0 flex-1 truncate font-display font-medium">{story.company}</h3>
+          <Delete story={story} />
+        </div>
+        <p className="mt-0.5 line-clamp-2 text-sm">
+          <Out href={story.url}>{story.title}</Out>
+        </p>
+      </div>
+    </div>
     {story.reason && <p className="mt-2 leading-relaxed">{story.reason}</p>}
     <div className="mt-3 flex items-center gap-5 text-sm text-soft">
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-2">
-        <Known story={story} />
         {story.source && <span>{story.source}</span>}
         <Stamp>{shortDate(story.published)}</Stamp>
+        <Known story={story} />
       </div>
-      <span className="flex shrink-0 items-center gap-1.5">
-        <Actions ids={story.contacts ? [] : ["network"]} argument={story.company} />
-        <Delete story={story} />
-      </span>
+      <Actions ids={story.contacts ? [] : ["network"]} argument={story.company} />
     </div>
-  </article>
-);
-
-const Messaged = ({ story }: { story: Story }) => (
-  <div className="flex items-center gap-3 py-2 text-sm first:pt-0 last:pb-0">
-    <span className="min-w-0 shrink-0 truncate font-medium sm:max-w-48">{story.company}</span>
-    <span title={story.title} className="hidden min-w-0 flex-1 truncate text-soft sm:block">
-      <Out href={story.url}>{story.title}</Out>
-    </span>
-    <span className="ml-auto flex shrink-0 items-center gap-2">
-      <Known story={story} />
-      <Stamp>{shortDate(story.published)}</Stamp>
-      <Delete story={story} />
-    </span>
-  </div>
+  </Card>
 );
 
 function TopicMenu({ topic }: { topic: Topic }) {
@@ -132,29 +152,17 @@ const Quiet = ({ topic }: { topic: Topic }) => (
 );
 
 function Experience({ topic, stories }: { topic: Topic; stories: Story[] }) {
-  const fresh = stories.filter((story) => story.status === "lead");
-  const messaged = stories.filter((story) => story.status === "messaged");
   return (
     <Group
       heading={<Name topic={topic} />}
-      count={fresh.length || undefined}
+      count={stories.length}
       tools={<TopicMenu topic={topic} />}
       sub={<Query topic={topic} />}
+      items="cards"
     >
-      <Card soft>
-        <div className="divide-y divide-base-200">
-          {fresh.map((story) => (
-            <Lead key={story.article_id} story={story} />
-          ))}
-          {messaged.length > 0 && (
-            <div className="py-3 first:pt-0 last:pb-0">
-              {messaged.map((story) => (
-                <Messaged key={story.article_id} story={story} />
-              ))}
-            </div>
-          )}
-        </div>
-      </Card>
+      {stories.map((story) => (
+        <Lead key={story.article_id} story={story} />
+      ))}
     </Group>
   );
 }
@@ -185,26 +193,25 @@ export default function Stories({ topics, stories }: { topics: Topic[]; stories:
     .sort((left, right) => left.topic.paused - right.topic.paused);
 
   return (
-    <Measure>
-      <div className="mb-10 flex justify-end">
-        <Actions ids={["news"]} />
-      </div>
-
+    <Page
+      toolbar={
+        <>
+          <span className="flex items-center text-sm text-soft">{describes("news")}</span>
+          <Actions ids={["news"]} />
+        </>
+      }
+    >
       {found.map(({ topic, stories }) => (
         <Experience key={topic.project_id} topic={topic} stories={stories} />
       ))}
 
       {quiet.length > 0 && (
-        <Group heading="No news yet" count={quiet.length}>
-          <Card soft tight>
-            <div className="divide-y divide-base-200">
-              {quiet.map(({ topic }) => (
-                <Quiet key={topic.project_id} topic={topic} />
-              ))}
-            </div>
-          </Card>
+        <Group heading="No news yet" count={quiet.length} items="rows">
+          {quiet.map(({ topic }) => (
+            <Quiet key={topic.project_id} topic={topic} />
+          ))}
         </Group>
       )}
-    </Measure>
+    </Page>
   );
 }
