@@ -1,33 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { ListFilter } from "lucide-react";
 import Actions from "@/components/Actions";
 import { Command, useForget } from "@/components/act";
 import { useDock } from "@/components/Dock";
-import { MenuButton } from "@/components/Flyout";
 import { OptionsButton, deleteOption } from "@/components/Options";
-import Glyph from "@/components/Glyph";
-import { Count, Dot, Empty, Group, Invite, Out, Page, Row } from "@/components/ui";
+import { Group, Invite, Out, Page, Section } from "@/components/ui";
 import { describes } from "@/lib/actions";
-import { jobHref } from "@/lib/links";
+import { type Lead, companyAnchor, jobHref } from "@/lib/links";
 import type { Circle, Contact } from "@/lib/queries";
-
-const DEGREES = ["1st", "2nd", "3rd"].map((degree) => ({
-  name: degree,
-  holds: (person: Contact) => person.degree === degree,
-}));
-
-const SHARED = [
-  { name: "School", holds: (person: Contact) => Boolean(person.shared_school) },
-  { name: "Group", holds: (person: Contact) => Boolean(person.shared_group) },
-];
-
-const FACETS = [
-  { title: "Connection", traits: DEGREES },
-  { title: "Shared", traits: SHARED },
-];
 
 const reached = (person: Contact) =>
   [person.degree, person.introducer && `via ${person.introducer}`, person.shared_group, person.shared_school]
@@ -78,100 +59,54 @@ export default function Circles({ circles }: { circles: Circle[] }) {
         <Actions ids={["network"]} />
       </Invite>
     );
-  return <Filtered circles={circles} />;
-}
-
-function Filtered({ circles }: { circles: Circle[] }) {
-  const [picked, setPicked] = useState<string[]>([]);
-
-  const everyone = circles.flatMap((circle) => circle.people);
-  const facets = FACETS.map((facet) => ({
-    ...facet,
-    traits: facet.traits.filter((trait) => everyone.some(trait.holds)),
-  })).filter((facet) => facet.traits.length > 0);
-
-  const degrees = DEGREES.filter((degree) => picked.includes(degree.name));
-  const shared = SHARED.filter((trait) => picked.includes(trait.name));
-
-  const matches = (person: Contact) =>
-    (!degrees.length || degrees.some((degree) => degree.holds(person))) && shared.every((trait) => trait.holds(person));
-
-  const found = circles
-    .map((circle) => ({ ...circle, people: circle.people.filter(matches) }))
-    .filter((circle) => circle.people.length > 0);
-
+  const jobs = circles.filter((circle) => circle.roles.length > 0).map((circle) => ({ ...circle, articles: [] }));
+  const news = circles.filter((circle) => circle.articles.length > 0).map((circle) => ({ ...circle, roles: [] }));
   return (
-    <Page
-      toolbar={
-        <MenuButton
-          quiet
-          leading
-          legend="Filter contacts"
-          trigger={
-            <>
-              <Glyph icon={ListFilter} />
-              <span className="text-sm">Filter</span>
-              {picked.length > 0 && <Count of={picked.length} />}
-            </>
-          }
-        >
-          {facets.map((facet) => (
-            <div key={facet.title} className="pb-1 last:pb-0">
-              <h2 className="eyebrow px-3 pb-1 pt-1">{facet.title}</h2>
-              {facet.traits.map(({ name }) => {
-                const on = picked.includes(name);
-                return (
-                  <Row
-                    key={name}
-                    role="menuitemcheckbox"
-                    aria-checked={on}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setPicked((names) => (on ? names.filter((held) => held !== name) : [...names, name]));
-                    }}
-                    className={`flex items-center gap-2 ${on ? "font-medium text-base-content" : "text-soft"}`}
-                  >
-                    <Dot tone={on ? "signal" : "none"} />
-                    {name}
-                  </Row>
-                );
-              })}
-            </div>
-          ))}
-        </MenuButton>
-      }
-    >
-      {found.length === 0 && <Empty>No contacts match that filter.</Empty>}
-
-      {found.map((circle) => (
-        <Group
-          key={circle.company}
-          id={circle.company}
-          heading={circle.company}
-          count={circle.people.length}
-          items="rows"
-          sub={
-            (circle.roles.length > 0 || circle.articles.length > 0) && (
-              <span className="flex flex-wrap gap-x-4">
-                {circle.roles.map((role) => (
-                  <Link key={role.key} href={jobHref(role.key)} className="hover:text-base-content">
-                    {role.title}
-                  </Link>
-                ))}
-                {circle.articles.map((article) => (
-                  <Out key={article.article_id} href={article.url}>
-                    {article.title}
-                  </Out>
-                ))}
-              </span>
-            )
-          }
-        >
-          {circle.people.map((person) => (
-            <Person key={person.url} person={person} circle={circle} />
-          ))}
-        </Group>
-      ))}
+    <Page>
+      <Part lead="jobs" heading="Jobs" circles={jobs} />
+      <Part lead="news" heading="News" circles={news} />
     </Page>
   );
 }
+
+const people = (circles: Circle[]) => circles.reduce((sum, circle) => sum + circle.people.length, 0);
+
+function Part({ lead, heading, circles }: { lead?: Lead; heading: string; circles: Circle[] }) {
+  if (circles.length === 0) return null;
+  return (
+    <Section heading={heading} count={people(circles)}>
+      {circles.map((circle) => (
+        <Company key={circle.company} id={lead && companyAnchor(lead, circle.company)} circle={circle} />
+      ))}
+    </Section>
+  );
+}
+
+const Company = ({ id, circle }: { id?: string; circle: Circle }) => (
+  <Group
+    id={id}
+    heading={circle.company}
+    count={circle.people.length}
+    items="rows"
+    sub={
+      (circle.roles.length > 0 || circle.articles.length > 0) && (
+        <span className="flex flex-wrap gap-x-4">
+          {circle.roles.map((role) => (
+            <Link key={role.key} href={jobHref(role.key)} className="hover:text-base-content">
+              {role.title}
+            </Link>
+          ))}
+          {circle.articles.map((article) => (
+            <Out key={article.article_id} href={article.url}>
+              {article.title}
+            </Out>
+          ))}
+        </span>
+      )
+    }
+  >
+    {circle.people.map((person) => (
+      <Person key={person.url} person={person} circle={circle} />
+    ))}
+  </Group>
+);

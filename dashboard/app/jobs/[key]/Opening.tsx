@@ -62,7 +62,7 @@ export default function Opening({ found }: { found: Prospect }) {
                 contacts > 0 && {
                   label: "Network",
                   value: (
-                    <Link href={companyHref(posting.company)} className="link">
+                    <Link href={companyHref("jobs", posting.company)} className="link">
                       {plural(contacts, "contact")}
                     </Link>
                   ),

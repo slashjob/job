@@ -34,7 +34,7 @@ function Delete({ story }: { story: Story }) {
 const Known = ({ story }: { story: Story }) =>
   story.contacts ? (
     <Link
-      href={companyHref(story.company)}
+      href={companyHref("news", story.company)}
       aria-label={`${plural(story.contacts, "contact")} at ${story.company}`}
       title={`${plural(story.contacts, "contact")} at ${story.company}`}
       className="tnum inline-flex items-center gap-1.5 text-xs text-soft transition-colors hover:text-base-content"
@@ -53,9 +53,9 @@ function Photo({ story }: { story: Story }) {
       rel="noreferrer"
       tabIndex={-1}
       aria-hidden
-      className="relative grid aspect-[4/3] w-20 shrink-0 place-items-center overflow-hidden rounded-field bg-base-200
-        text-soft sm:w-28 after:absolute after:inset-0 after:rounded-field after:ring-1 after:ring-base-content/10
-        after:ring-inset"
+      className="relative grid aspect-[4/3] w-20 shrink-0 place-items-center self-start overflow-hidden rounded-field
+        bg-base-200 text-soft sm:w-28 after:absolute after:inset-0 after:rounded-field after:ring-1
+        after:ring-base-content/10 after:ring-inset"
     >
       {story.image && !broken ? (
         <img
@@ -73,28 +73,28 @@ function Photo({ story }: { story: Story }) {
   );
 }
 
+const Source = ({ story }: { story: Story }) => (
+  <p className="mt-3 flex items-center gap-4 text-sm text-soft">
+    <Out href={story.url}>Read article</Out>
+    {story.source && <span>{story.source}</span>}
+    <Stamp>{shortDate(story.published)}</Stamp>
+  </p>
+);
+
 const Lead = ({ story }: { story: Story }) => (
   <Card soft>
     <div className="flex gap-4">
       <Photo story={story} />
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <h3 className="min-w-0 flex-1 truncate font-display font-medium">{story.company}</h3>
+          <Known story={story} />
+          <Actions ids={story.contacts ? [] : ["network"]} argument={story.company} />
           <Delete story={story} />
         </div>
-        <p className="mt-0.5 line-clamp-2 text-sm">
-          <Out href={story.url}>{story.title}</Out>
-        </p>
+        {story.reason && <p className="mt-1.5 leading-relaxed">{story.reason}</p>}
+        <Source story={story} />
       </div>
-    </div>
-    {story.reason && <p className="mt-2 leading-relaxed">{story.reason}</p>}
-    <div className="mt-3 flex items-center gap-5 text-sm text-soft">
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-2">
-        {story.source && <span>{story.source}</span>}
-        <Stamp>{shortDate(story.published)}</Stamp>
-        <Known story={story} />
-      </div>
-      <Actions ids={story.contacts ? [] : ["network"]} argument={story.company} />
     </div>
   </Card>
 );
@@ -124,19 +124,31 @@ function TopicMenu({ topic }: { topic: Topic }) {
   );
 }
 
+const Paused = () => (
+  <span className="inline-flex shrink-0 items-center gap-1 rounded-selector bg-base-200 px-1.5 py-0.5 font-sans text-xs font-medium text-soft">
+    <Glyph icon={Pause} size="sm" />
+    Paused
+  </span>
+);
+
 const Name = ({ topic }: { topic: Topic }) => (
-  <Link
-    href={projectHref(topic.employer_id, topic.project_id)}
-    title={topic.name}
-    className={`min-w-0 truncate decoration-base-300 underline-offset-4 hover:underline
-      ${topic.paused ? "text-soft" : ""}`}
-  >
-    {topic.name}
-  </Link>
+  <>
+    <Link
+      href={projectHref(topic.employer_id, topic.project_id)}
+      title={topic.name}
+      className={`min-w-0 truncate decoration-base-300 underline-offset-4 hover:underline
+        ${topic.paused ? "text-soft" : ""}`}
+    >
+      {topic.name}
+    </Link>
+    {topic.paused ? <Paused /> : null}
+  </>
 );
 
 const Query = ({ topic }: { topic: Topic }) => (
-  <Field table="news_topics" rowid={topic.project_id} column={QUERY} value={topic.query} />
+  <div className={topic.paused ? "opacity-60 focus-within:opacity-100" : ""}>
+    <Field table="news_topics" rowid={topic.project_id} column={QUERY} value={topic.query} />
+  </div>
 );
 
 const Quiet = ({ topic }: { topic: Topic }) => (

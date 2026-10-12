@@ -104,6 +104,8 @@ export function prospect(key: string): Prospect | null {
   };
 }
 
+export const PURSUED = "status IN ('shortlisted','staged','applied','interviewing')";
+
 const ROLE = TABLES.postings.pick({ key: true, company: true, title: true });
 const ARTICLE = TABLES.news.pick({ article_id: true, title: true, url: true }).extend({ company: z.string() });
 
@@ -117,11 +119,7 @@ export type Circle = {
 
 export function contacts(): Circle[] {
   const people = rows(TABLES.contacts, "SELECT * FROM contacts ORDER BY degree IS NULL, degree, name");
-  const roles = rows(
-    ROLE,
-    "SELECT key, company, title FROM postings " +
-      "WHERE status IN ('shortlisted','staged','applied','interviewing') ORDER BY last_updated DESC",
-  );
+  const roles = rows(ROLE, `SELECT key, company, title FROM postings WHERE ${PURSUED} ORDER BY last_updated DESC`);
   const articles = rows(
     ARTICLE,
     "SELECT article_id, title, url, company FROM news " +

@@ -84,7 +84,7 @@ const Resume = ({ job, labelled }: { job: Job; labelled?: boolean }) =>
 const Known = ({ job, labelled }: { job: Job; labelled?: boolean }) =>
   job.contacts ? (
     <Link
-      href={companyHref(job.company)}
+      href={companyHref("jobs", job.company)}
       aria-label={`${plural(job.contacts, "contact")} at ${job.company}`}
       title={`${plural(job.contacts, "contact")} at ${job.company}`}
       className="tnum inline-flex items-center gap-1.5 text-xs text-soft transition-colors hover:text-base-content"
