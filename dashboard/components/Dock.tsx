@@ -25,6 +25,9 @@ type Dock = {
   draft: (action: string, argument?: string) => void;
 };
 
+const HEADING =
+  "grid min-w-0 flex-1 grid-cols-[auto_minmax(0,max-content)_minmax(0,1fr)_auto] items-baseline gap-x-2.5";
+
 const DockContext = createContext<Dock | null>(null);
 
 export const useDock = () => {
@@ -156,6 +159,17 @@ export default function Dock({
     },
   };
 
+  const heading = (
+    <>
+      <span className="flex self-center">
+        <Mark standing={chat?.standing} />
+      </span>
+      <span className="truncate text-mini font-medium">{chat ? <Named text={chat.title} plain /> : "New chat"}</span>
+      <span className="truncate text-xs text-soft">{!opened && chat?.doing && <Named text={chat.doing} plain />}</span>
+      {chat ? <Standing standing={chat.standing} /> : <span />}
+    </>
+  );
+
   return (
     <DockContext.Provider value={{ working: busy || working, waiting, draft }}>
       {nav}
@@ -176,27 +190,16 @@ export default function Dock({
             {chat || opened ? (
               <>
                 <div className="flex shrink-0 items-center gap-1 p-1.5">
-                  <Row
-                    roomy
-                    onClick={opened ? undefined : unfold}
-                    aria-expanded={opened}
-                    className="grid min-w-0 grid-cols-[auto_minmax(0,max-content)_minmax(0,1fr)_auto] items-baseline
-                      gap-x-2.5"
-                  >
-                    <span className="flex self-center">
-                      <Mark standing={chat?.standing} />
-                    </span>
-                    <span className="truncate text-mini font-medium">
-                      {chat ? <Named text={chat.title} plain /> : "New chat"}
-                    </span>
-                    <span className="truncate text-xs text-soft">
-                      {!opened && chat?.doing && <Named text={chat.doing} plain />}
-                    </span>
-                    {chat ? <Standing standing={chat.standing} /> : <span />}
-                  </Row>
+                  {opened ? (
+                    <div className={`${HEADING} px-3 py-2 text-sm`}>{heading}</div>
+                  ) : (
+                    <Row roomy onClick={unfold} aria-expanded={false} className={HEADING}>
+                      {heading}
+                    </Row>
+                  )}
                   {opened && (
                     <Tip tip="Clear chat">
-                      <Ghost onClick={wipe} aria-label="Clear chat" icon={<Glyph icon={X} />} />
+                      <Ghost tone="grave" onClick={wipe} aria-label="Clear chat" icon={<Glyph icon={X} />} />
                     </Tip>
                   )}
                 </div>
