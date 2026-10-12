@@ -15,12 +15,14 @@ import { createPortal } from "react-dom";
 import { Button, Ghost } from "@/components/ui";
 
 const GAP = 8;
-const WIDTHS = { narrow: 200, wide: 360 };
+const WIDTHS = { narrow: 200, wide: 360, broad: 480 };
+
+type Width = keyof typeof WIDTHS;
 
 type Corner = { top: number; bottom: number; left: number };
 
-function useAnchored(wide?: boolean, leading?: boolean) {
-  const width = WIDTHS[wide ? "wide" : "narrow"];
+function useAnchored(size: Width, leading?: boolean, clears?: RefObject<HTMLElement | null>) {
+  const width = WIDTHS[size];
   const anchor = useRef<HTMLButtonElement>(null);
   const [from, setFrom] = useState<Corner | null>(null);
 
@@ -30,11 +32,12 @@ function useAnchored(wide?: boolean, leading?: boolean) {
     (event: Clicked<HTMLButtonElement>) => {
       event.stopPropagation();
       const held = event.currentTarget.getBoundingClientRect();
+      const top = Math.min(held.top, clears?.current?.getBoundingClientRect().top ?? held.top);
       setFrom((open) =>
-        open ? null : { top: held.top, bottom: held.bottom, left: leading ? held.left : held.right - width },
+        open ? null : { top, bottom: held.bottom, left: leading ? held.left : held.right - width },
       );
     },
-    [width, leading],
+    [width, leading, clears],
   );
 
   return { anchor, from, toggle, close };
@@ -43,19 +46,19 @@ function useAnchored(wide?: boolean, leading?: boolean) {
 function Flyout({
   from,
   keep,
-  wide,
+  size,
   marked,
   onClose,
   children,
 }: {
   from: Corner;
-  wide?: boolean;
+  size: Width;
   marked?: boolean;
   keep?: RefObject<HTMLElement | null>;
   onClose: () => void;
   children: ReactNode;
 }) {
-  const width = WIDTHS[wide ? "wide" : "narrow"];
+  const width = WIDTHS[size];
   const sheet = useRef<HTMLDivElement>(null);
   const [at, setAt] = useState<{ top: number; left: number } | null>(null);
 
@@ -119,8 +122,9 @@ export function MenuButton({
   trigger,
   legend,
   quiet,
-  wide,
+  size = "narrow",
   leading,
+  clears,
   tone,
   className,
   children,
@@ -128,13 +132,14 @@ export function MenuButton({
   trigger: ReactNode;
   legend: string;
   quiet?: boolean;
-  wide?: boolean;
+  size?: Width;
   leading?: boolean;
+  clears?: RefObject<HTMLElement | null>;
   tone?: ComponentProps<typeof Button>["tone"];
   className?: string;
   children: ReactNode;
 }) {
-  const { anchor, from, toggle, close } = useAnchored(wide, leading);
+  const { anchor, from, toggle, close } = useAnchored(size, leading, clears);
   const opens = {
     ref: anchor,
     onClick: toggle,
@@ -150,7 +155,7 @@ export function MenuButton({
       {quiet ? <Ghost {...opens} /> : <Button roomy tone={tone} className={className} {...opens} />}
 
       {from && (
-        <Flyout from={from} keep={anchor} wide={wide} marked={tone === "mark"} onClose={close}>
+        <Flyout from={from} keep={anchor} size={size} marked={tone === "mark"} onClose={close}>
           {children}
         </Flyout>
       )}

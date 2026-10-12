@@ -180,22 +180,25 @@ export default function Dock({
                     roomy
                     onClick={opened ? undefined : unfold}
                     aria-expanded={opened}
-                    className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-0.5"
+                    className="grid min-w-0 grid-cols-[auto_minmax(0,max-content)_minmax(0,1fr)_auto] items-baseline
+                      gap-x-2.5"
                   >
-                    <Mark standing={chat?.standing} />
+                    <span className="flex self-center">
+                      <Mark standing={chat?.standing} />
+                    </span>
                     <span className="truncate text-mini font-medium">
                       {chat ? <Named text={chat.title} plain /> : "New chat"}
                     </span>
+                    <span className="truncate text-xs text-soft">
+                      {!opened && chat?.doing && <Named text={chat.doing} plain />}
+                    </span>
                     {chat ? <Standing standing={chat.standing} /> : <span />}
-                    {!opened && chat?.doing && (
-                      <span className="col-span-2 col-start-2 truncate text-xs text-soft">
-                        <Named text={chat.doing} plain />
-                      </span>
-                    )}
                   </Row>
-                  <Tip tip="Clear chat">
-                    <Ghost onClick={wipe} aria-label="Clear chat" icon={<Glyph icon={X} />} />
-                  </Tip>
+                  {opened && (
+                    <Tip tip="Clear chat">
+                      <Ghost onClick={wipe} aria-label="Clear chat" icon={<Glyph icon={X} />} />
+                    </Tip>
+                  )}
                 </div>
                 {opened && (
                   <Conversation
@@ -211,7 +214,7 @@ export default function Dock({
               <Conversation lines={lines} asking={asking} />
             )}
           </div>
-          <ActionsMenu working={busy || working} waiting={waiting} onPick={(id) => draft(id)} />
+          <ActionsMenu working={busy || working} waiting={waiting} clears={dock} onPick={(id) => draft(id)} />
         </Measure>
       </aside>
     </DockContext.Provider>

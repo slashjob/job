@@ -85,7 +85,7 @@ export default function Store({ store }: { store: Facts }) {
   return (
     <MenuButton
       quiet
-      wide
+      size="wide"
       legend={`Database ${store.name}, ${store.path}`}
       trigger={<Glyph icon={Database} size="lg" />}
     >

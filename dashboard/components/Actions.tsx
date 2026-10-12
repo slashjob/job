@@ -1,5 +1,7 @@
 "use client";
 
+import type { RefObject } from "react";
+
 import { Command } from "@/components/act";
 import { useDock } from "@/components/Dock";
 import { MenuButton } from "@/components/Flyout";
@@ -28,26 +30,38 @@ export default function Actions({ ids, argument = "" }: { ids: string[]; argumen
 export function ActionsMenu({
   working,
   waiting,
+  clears,
   onPick,
 }: {
   working: boolean;
   waiting: boolean;
+  clears: RefObject<HTMLElement | null>;
   onPick: (id: string) => void;
 }) {
   return (
     <MenuButton
-      wide
+      size="broad"
+      clears={clears}
       tone="mark"
       className="h-[var(--dock-row)] shrink-0"
       legend={waiting ? "Job actions, waiting on you" : "Job actions"}
       trigger={<Wordmark size={15} working={working} waiting={waiting} />}
     >
-      {ACTIONS.map(({ id, does }) => (
-        <Row key={id} role="menuitem" roomy onClick={() => onPick(id)}>
-          <Command id={id} />
-          <span className="block text-xs text-soft">{does}</span>
-        </Row>
-      ))}
+      <div className="grid grid-cols-[auto_minmax(0,1fr)]">
+        {ACTIONS.map(({ id, does }) => (
+          <Row
+            key={id}
+            role="menuitem"
+            onClick={() => onPick(id)}
+            className="col-span-2 grid grid-cols-subgrid items-baseline gap-x-4"
+          >
+            <span className="text-sm">
+              <Command id={id} />
+            </span>
+            <span className="truncate text-soft">{does}</span>
+          </Row>
+        ))}
+      </div>
     </MenuButton>
   );
 }
