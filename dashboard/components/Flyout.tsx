@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  type ComponentProps,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -13,7 +14,7 @@ import {
 import { createPortal } from "react-dom";
 import { Button, Ghost } from "@/components/ui";
 
-const GAP = 4;
+const GAP = 8;
 const WIDTHS = { narrow: 200, wide: 360 };
 
 type Corner = { top: number; bottom: number; left: number };
@@ -43,11 +44,13 @@ function Flyout({
   from,
   keep,
   wide,
+  marked,
   onClose,
   children,
 }: {
   from: Corner;
   wide?: boolean;
+  marked?: boolean;
   keep?: RefObject<HTMLElement | null>;
   onClose: () => void;
   children: ReactNode;
@@ -103,7 +106,8 @@ function Flyout({
         width: Math.min(width, window.innerWidth - 2 * GAP),
         visibility: at ? "visible" : "hidden",
       }}
-      className="fixed z-50 overflow-hidden rounded-box bg-base-100 p-1 ring-1 ring-base-300/60"
+      className={`fixed z-50 overflow-hidden rounded-box bg-base-100 p-1
+        ${marked ? "border border-mark/30 halo" : "ring-1 ring-base-300/60"}`}
     >
       {children}
     </div>,
@@ -117,6 +121,8 @@ export function MenuButton({
   quiet,
   wide,
   leading,
+  tone,
+  className,
   children,
 }: {
   trigger: ReactNode;
@@ -124,6 +130,8 @@ export function MenuButton({
   quiet?: boolean;
   wide?: boolean;
   leading?: boolean;
+  tone?: ComponentProps<typeof Button>["tone"];
+  className?: string;
   children: ReactNode;
 }) {
   const { anchor, from, toggle, close } = useAnchored(wide, leading);
@@ -139,10 +147,10 @@ export function MenuButton({
 
   return (
     <>
-      {quiet ? <Ghost {...opens} /> : <Button roomy {...opens} />}
+      {quiet ? <Ghost {...opens} /> : <Button roomy tone={tone} className={className} {...opens} />}
 
       {from && (
-        <Flyout from={from} keep={anchor} wide={wide} onClose={close}>
+        <Flyout from={from} keep={anchor} wide={wide} marked={tone === "mark"} onClose={close}>
           {children}
         </Flyout>
       )}

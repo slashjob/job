@@ -5,6 +5,7 @@ import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 
+import { ActionsMenu } from "@/components/Actions";
 import Glyph from "@/components/Glyph";
 import Named from "@/components/Named";
 import { Conversation, useRun, type Asking } from "@/components/run";
@@ -166,49 +167,51 @@ export default function Dock({
           before:inset-x-0 before:bottom-full before:h-8 before:bg-linear-to-t before:from-base-200
           md:px-6 md:pb-6"
       >
-        <Measure
-          ref={dock}
-          className={`relative flex max-h-[min(var(--dock-tall),calc(100dvh-var(--nav)-3rem))] flex-col overflow-hidden
-            rounded-box bg-base-100 shadow-[0_0_2.5rem_-0.75rem_color-mix(in_oklab,var(--color-mark)_45%,transparent)]
-            border ${waiting ? "border-mark" : "border-mark/30"}`}
-        >
-          {chat || opened ? (
-            <>
-              <div className="flex shrink-0 items-center gap-1 p-1.5">
-                <Row
-                  roomy
-                  onClick={opened ? undefined : unfold}
-                  aria-expanded={opened}
-                  className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-0.5"
-                >
-                  <Mark standing={chat?.standing} />
-                  <span className="truncate text-mini font-medium">
-                    {chat ? <Named text={chat.title} plain /> : "New chat"}
-                  </span>
-                  {chat ? <Standing standing={chat.standing} /> : <span />}
-                  {!opened && chat?.doing && (
-                    <span className="col-span-2 col-start-2 truncate text-xs text-soft">
-                      <Named text={chat.doing} plain />
+        <Measure ref={dock} className="flex items-end gap-2">
+          <div
+            className={`relative flex max-h-[min(var(--dock-tall),calc(100dvh-var(--nav)-3rem))] min-w-0 flex-1
+              flex-col overflow-hidden rounded-box border bg-base-100 halo
+              ${waiting ? "border-mark" : "border-mark/30"}`}
+          >
+            {chat || opened ? (
+              <>
+                <div className="flex shrink-0 items-center gap-1 p-1.5">
+                  <Row
+                    roomy
+                    onClick={opened ? undefined : unfold}
+                    aria-expanded={opened}
+                    className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 gap-y-0.5"
+                  >
+                    <Mark standing={chat?.standing} />
+                    <span className="truncate text-mini font-medium">
+                      {chat ? <Named text={chat.title} plain /> : "New chat"}
                     </span>
-                  )}
-                </Row>
-                <Tip tip="Clear chat">
-                  <Ghost onClick={wipe} aria-label="Clear chat" icon={<Glyph icon={X} />} />
-                </Tip>
-              </div>
-              {opened && (
-                <Conversation
-                  className="min-h-0 flex-1"
-                  lines={lines}
-                  working={working}
-                  asking={asking}
-                  onStop={stop}
-                />
-              )}
-            </>
-          ) : (
-            <Conversation lines={lines} asking={asking} />
-          )}
+                    {chat ? <Standing standing={chat.standing} /> : <span />}
+                    {!opened && chat?.doing && (
+                      <span className="col-span-2 col-start-2 truncate text-xs text-soft">
+                        <Named text={chat.doing} plain />
+                      </span>
+                    )}
+                  </Row>
+                  <Tip tip="Clear chat">
+                    <Ghost onClick={wipe} aria-label="Clear chat" icon={<Glyph icon={X} />} />
+                  </Tip>
+                </div>
+                {opened && (
+                  <Conversation
+                    className="min-h-0 flex-1"
+                    lines={lines}
+                    working={working}
+                    asking={asking}
+                    onStop={stop}
+                  />
+                )}
+              </>
+            ) : (
+              <Conversation lines={lines} asking={asking} />
+            )}
+          </div>
+          <ActionsMenu working={busy || working} waiting={waiting} onPick={(id) => draft(id)} />
         </Measure>
       </aside>
     </DockContext.Provider>

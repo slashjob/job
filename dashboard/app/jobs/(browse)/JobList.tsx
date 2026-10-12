@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ChevronRight, CircleAlert, Copy, FileText, Search, Users } from "lucide-react";
-import Actions, { ActionsMenu } from "@/components/Actions";
+import Actions from "@/components/Actions";
 import { Command, copyKey, useDiscard } from "@/components/act";
 import { useDock } from "@/components/Dock";
 import Glyph from "@/components/Glyph";
@@ -81,13 +81,13 @@ const Resume = ({ job, labelled }: { job: Job; labelled?: boolean }) =>
     </a>
   ) : null;
 
-const Known = ({ job, labelled }: { job: Job; labelled?: boolean }) =>
+const Known = ({ job, labelled, className = "" }: { job: Job; labelled?: boolean; className?: string }) =>
   job.contacts ? (
     <Link
       href={companyHref("jobs", job.company)}
       aria-label={`${plural(job.contacts, "contact")} at ${job.company}`}
       title={`${plural(job.contacts, "contact")} at ${job.company}`}
-      className="tnum inline-flex items-center gap-1.5 text-xs text-soft transition-colors hover:text-base-content"
+      className={`tnum inline-flex items-center gap-1.5 text-xs text-soft transition-colors hover:text-base-content ${className}`}
     >
       <Glyph icon={Users} />
       {labelled ? plural(job.contacts, "contact") : job.contacts}
@@ -110,11 +110,11 @@ const Full = ({ job, menu, framed }: { job: Job; menu: Menu; framed?: boolean })
           {place && <span>{place}</span>}
           {pay && <span className="tnum">{pay}</span>}
           <Resume job={job} labelled />
-          <Known job={job} labelled />
         </>
       }
       tools={
         <>
+          <Known job={job} labelled className="mr-2" />
           <Actions ids={nextStep(job)} argument={job.key} />
           <More job={job} menu={menu} />
         </>
@@ -185,17 +185,14 @@ function Shelves({ jobs }: { jobs: Job[] }) {
   return (
     <Page
       toolbar={
-        <>
-          <SearchField
-            icon={<Glyph icon={Search} />}
-            aria-label="Search saved jobs"
-            placeholder="Search saved jobs"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            className="flex-1"
-          />
-          <ActionsMenu ids={["search", "resume", "apply", "network"]} />
-        </>
+        <SearchField
+          icon={<Glyph icon={Search} />}
+          aria-label="Search saved jobs"
+          placeholder="Search saved jobs"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          className="flex-1"
+        />
       }
     >
       {shelves.length === 0 && <Empty>No jobs match that search.</Empty>}

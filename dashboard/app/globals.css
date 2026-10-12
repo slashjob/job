@@ -120,6 +120,7 @@ html {
   --label: 13rem;
   --nav: 2.75rem;
   --dock-tall: 40rem;
+  --dock-row: calc(1.5rem + var(--text-sm) * var(--leading-relaxed) + 2px);
   --float: 0.75rem;
   --hit: 2.5rem;
   --lit-hi: #ec8a60;
@@ -214,6 +215,10 @@ html {
   @variant md {
     height: min(44rem, calc(100dvh - 25rem));
   }
+}
+
+@utility halo {
+  box-shadow: 0 0 2.5rem -0.75rem color-mix(in oklab, var(--color-mark) 45%, transparent);
 }
 
 @utility tnum {

@@ -37,7 +37,7 @@ const Known = ({ story }: { story: Story }) =>
       href={companyHref("news", story.company)}
       aria-label={`${plural(story.contacts, "contact")} at ${story.company}`}
       title={`${plural(story.contacts, "contact")} at ${story.company}`}
-      className="tnum inline-flex items-center gap-1.5 text-xs text-soft transition-colors hover:text-base-content"
+      className="tnum mr-2 inline-flex items-center gap-1.5 text-xs text-soft transition-colors hover:text-base-content"
     >
       <Glyph icon={Users} />
       {plural(story.contacts, "contact")}
@@ -74,11 +74,18 @@ function Photo({ story }: { story: Story }) {
 }
 
 const Source = ({ story }: { story: Story }) => (
-  <p className="mt-3 flex items-center gap-4 text-sm text-soft">
-    <Out href={story.url}>Read article</Out>
-    {story.source && <span>{story.source}</span>}
-    <Stamp>{shortDate(story.published)}</Stamp>
-  </p>
+  <div className="mt-3 flex items-center gap-4">
+    <p className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2 text-sm text-soft">
+      <Out href={story.url}>Read article</Out>
+      {story.source && <span>{story.source}</span>}
+      <Stamp>{shortDate(story.published)}</Stamp>
+    </p>
+    <span className="flex shrink-0 items-center gap-1.5">
+      <Known story={story} />
+      <Actions ids={story.contacts ? [] : ["network"]} argument={story.company} />
+      <Delete story={story} />
+    </span>
+  </div>
 );
 
 const Lead = ({ story }: { story: Story }) => (
@@ -86,12 +93,7 @@ const Lead = ({ story }: { story: Story }) => (
     <div className="flex gap-4">
       <Photo story={story} />
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-4">
-          <h3 className="min-w-0 flex-1 truncate font-display font-medium">{story.company}</h3>
-          <Known story={story} />
-          <Actions ids={story.contacts ? [] : ["network"]} argument={story.company} />
-          <Delete story={story} />
-        </div>
+        <h3 className="truncate font-display font-medium">{story.company}</h3>
         {story.reason && <p className="mt-1.5 leading-relaxed">{story.reason}</p>}
         <Source story={story} />
       </div>
@@ -183,12 +185,7 @@ const newest = (stories: Story[]) =>
   stories.reduce((top, story) => ((story.published ?? "") > top ? (story.published ?? "") : top), "");
 
 export default function Stories({ topics, stories }: { topics: Topic[]; stories: Story[] }) {
-  if (topics.length === 0)
-    return (
-      <Invite heading="No news yet" detail={describes("news")}>
-        <Actions ids={["news"]} />
-      </Invite>
-    );
+  if (topics.length === 0) return <Invite heading="No news yet" detail={describes("news")} />;
 
   const grouped = topics.map((topic) => ({
     topic,
@@ -205,14 +202,7 @@ export default function Stories({ topics, stories }: { topics: Topic[]; stories:
     .sort((left, right) => left.topic.paused - right.topic.paused);
 
   return (
-    <Page
-      toolbar={
-        <>
-          <span className="flex items-center text-sm text-soft">{describes("news")}</span>
-          <Actions ids={["news"]} />
-        </>
-      }
-    >
+    <Page>
       {found.map(({ topic, stories }) => (
         <Experience key={topic.project_id} topic={topic} stories={stories} />
       ))}

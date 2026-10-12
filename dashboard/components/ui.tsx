@@ -104,6 +104,7 @@ const TONES = {
   firm: `border border-base-content bg-base-content text-base-100
     hover:border-base-content/85 hover:bg-base-content/85`,
   grave: "border border-error/40 text-error hover:border-error hover:bg-error hover:text-error-content",
+  mark: "border border-mark/30 bg-base-100 halo hover:border-mark",
 };
 
 export const Button = ({
@@ -115,7 +116,7 @@ export const Button = ({
   className = "",
   ...rest
 }: {
-  tone?: "quiet" | "firm" | "grave";
+  tone?: keyof typeof TONES;
   icon?: ReactNode;
   roomy?: boolean;
   on?: boolean;
@@ -123,7 +124,8 @@ export const Button = ({
   <button
     type="button"
     {...rest}
-    className={`hit inline-flex items-center justify-center gap-1.5 rounded-field transition-colors
+    className={`hit inline-flex items-center justify-center gap-1.5 transition-colors
+      ${tone === "mark" ? "rounded-box" : "rounded-field"}
       disabled:opacity-40
       ${roomy ? "px-3 py-1.5 text-sm" : "px-2.5 py-1 text-xs"}
       ${TONES[tone]} ${on ? "border-base-content" : ""} ${className}`}
@@ -242,7 +244,7 @@ export const Empty = ({ children }: { children: ReactNode }) => (
   <p className="px-3 py-2.5 text-sm text-soft">{children}</p>
 );
 
-export const Invite = ({ heading, detail, children }: { heading: string; detail: string; children: ReactNode }) => (
+export const Invite = ({ heading, detail, children }: { heading: string; detail: string; children?: ReactNode }) => (
   <div className="mx-auto flex max-w-md flex-col items-center gap-2 px-6 py-12 text-center">
     <h2 className="font-display text-base font-semibold">{heading}</h2>
     <p className="mb-3 text-sm text-soft">{detail}</p>
