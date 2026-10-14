@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, ChevronRight, SendHorizontal, Square, Volume2, VolumeX } from "lucide-react";
 
@@ -243,6 +243,8 @@ function Picker({ models, model, onPick }: { models: Model[]; model: string; onP
   );
 }
 
+const SHOWN = 4;
+
 function Menu({
   actions,
   at,
@@ -255,6 +257,16 @@ function Menu({
   onPick: (action: Action) => void;
 }) {
   const box = useRef<HTMLDivElement>(null);
+  const [tall, setTall] = useState<number>();
+
+  useLayoutEffect(() => {
+    const held = box.current;
+    if (!held || held.children.length <= SHOWN) return setTall(undefined);
+    const first = held.children[1] as HTMLElement;
+    const last = held.children[SHOWN] as HTMLElement;
+    const rule = first.offsetHeight - first.clientHeight;
+    setTall(last.offsetTop + last.offsetHeight - first.offsetTop - rule);
+  }, [actions]);
 
   useEffect(() => {
     (box.current?.children[at] as HTMLElement | undefined)?.scrollIntoView({ block: "nearest" });
@@ -265,24 +277,27 @@ function Menu({
       ref={box}
       role="listbox"
       aria-label="Actions"
-      className="-mx-2.5 mb-2 flex max-h-64 flex-col gap-0.5 overflow-auto"
+      style={{ maxHeight: tall }}
+      className="relative -mx-1 mb-3 flex snap-y snap-mandatory flex-col divide-y divide-base-300/60
+        overflow-auto rounded-box px-1 ring-1 ring-base-300/60"
     >
       {actions.map((action, index) => (
-        <Row
-          key={action.id}
-          role="option"
-          roomy
-          on={index === at}
-          aria-selected={index === at}
-          onMouseMove={() => onHover(index)}
-          onClick={() => onPick(action)}
-          className="grid grid-cols-[minmax(0,1fr)] gap-y-0.5"
-        >
-          <span className="min-w-0 truncate text-sm">
-            <Command id={action.id} argument={action.argument} />
-          </span>
-          <span className="text-xs text-soft">{action.does}</span>
-        </Row>
+        <div key={action.id} role="none" className="snap-start py-1 not-first:-scroll-mt-px">
+          <Row
+            role="option"
+            roomy
+            on={index === at}
+            aria-selected={index === at}
+            onMouseMove={() => onHover(index)}
+            onClick={() => onPick(action)}
+            className="grid grid-cols-[minmax(0,1fr)] gap-y-0.5"
+          >
+            <span className="min-w-0 truncate text-sm">
+              <Command id={action.id} argument={action.argument} />
+            </span>
+            <span className="text-xs text-soft">{action.does}</span>
+          </Row>
+        </div>
       ))}
     </div>
   );
