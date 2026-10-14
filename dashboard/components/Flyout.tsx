@@ -2,7 +2,6 @@
 
 import {
   useCallback,
-  type ComponentProps,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -12,16 +11,16 @@ import {
   type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
-import { Button, Ghost } from "@/components/ui";
+import { Ghost } from "@/components/ui";
 
 const GAP = 8;
-const WIDTHS = { narrow: 200, wide: 360, broad: 480 };
+const WIDTHS = { narrow: 200, wide: 360 };
 
 type Width = keyof typeof WIDTHS;
 
 type Corner = { top: number; bottom: number; left: number };
 
-function useAnchored(size: Width, leading?: boolean, clears?: RefObject<HTMLElement | null>) {
+function useAnchored(size: Width, leading?: boolean) {
   const width = WIDTHS[size];
   const anchor = useRef<HTMLButtonElement>(null);
   const [from, setFrom] = useState<Corner | null>(null);
@@ -32,12 +31,11 @@ function useAnchored(size: Width, leading?: boolean, clears?: RefObject<HTMLElem
     (event: Clicked<HTMLButtonElement>) => {
       event.stopPropagation();
       const held = event.currentTarget.getBoundingClientRect();
-      const top = Math.min(held.top, clears?.current?.getBoundingClientRect().top ?? held.top);
       setFrom((open) =>
-        open ? null : { top, bottom: held.bottom, left: leading ? held.left : held.right - width },
+        open ? null : { top: held.top, bottom: held.bottom, left: leading ? held.left : held.right - width },
       );
     },
-    [width, leading, clears],
+    [width, leading],
   );
 
   return { anchor, from, toggle, close };
@@ -47,13 +45,11 @@ function Flyout({
   from,
   keep,
   size,
-  marked,
   onClose,
   children,
 }: {
   from: Corner;
   size: Width;
-  marked?: boolean;
   keep?: RefObject<HTMLElement | null>;
   onClose: () => void;
   children: ReactNode;
@@ -109,8 +105,7 @@ function Flyout({
         width: Math.min(width, window.innerWidth - 2 * GAP),
         visibility: at ? "visible" : "hidden",
       }}
-      className={`fixed z-50 overflow-hidden rounded-box bg-base-100 p-1
-        ${marked ? "border border-mark/30 halo" : "ring-1 ring-base-300/60"}`}
+      className="fixed z-50 overflow-hidden rounded-box bg-base-100 p-1 ring-1 ring-base-300/60"
     >
       {children}
     </div>,
@@ -121,25 +116,17 @@ function Flyout({
 export function MenuButton({
   trigger,
   legend,
-  quiet,
   size = "narrow",
   leading,
-  clears,
-  tone,
-  className,
   children,
 }: {
   trigger: ReactNode;
   legend: string;
-  quiet?: boolean;
   size?: Width;
   leading?: boolean;
-  clears?: RefObject<HTMLElement | null>;
-  tone?: ComponentProps<typeof Button>["tone"];
-  className?: string;
   children: ReactNode;
 }) {
-  const { anchor, from, toggle, close } = useAnchored(size, leading, clears);
+  const { anchor, from, toggle, close } = useAnchored(size, leading);
   const opens = {
     ref: anchor,
     onClick: toggle,
@@ -152,10 +139,10 @@ export function MenuButton({
 
   return (
     <>
-      {quiet ? <Ghost {...opens} /> : <Button roomy tone={tone} className={className} {...opens} />}
+      <Ghost {...opens} />
 
       {from && (
-        <Flyout from={from} keep={anchor} size={size} marked={tone === "mark"} onClose={close}>
+        <Flyout from={from} keep={anchor} size={size} onClose={close}>
           {children}
         </Flyout>
       )}

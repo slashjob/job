@@ -5,14 +5,14 @@ import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 
-import { ActionsMenu } from "@/components/Actions";
 import Glyph from "@/components/Glyph";
 import Named from "@/components/Named";
+import Wordmark from "@/components/Wordmark";
 import { Conversation, useRun, type Asking } from "@/components/run";
 import { Caret, Flag, Ghost, Measure, Row, Stamp, Tip } from "@/components/ui";
 import { useKey } from "@/components/useKey";
 import { usePing } from "@/components/usePing";
-import { CHAT, asked, commanded } from "@/lib/actions";
+import { CHAT, asked, commanded, unprefixed } from "@/lib/actions";
 import { WAITING, WORKING } from "@/lib/standing";
 import type { Model } from "@/lib/queries";
 import type { Run } from "@/lib/runs";
@@ -25,8 +25,9 @@ type Dock = {
   draft: (action: string, argument?: string) => void;
 };
 
-const HEADING =
-  "grid min-w-0 flex-1 grid-cols-[auto_minmax(0,max-content)_minmax(0,1fr)_auto] items-baseline gap-x-2.5";
+const HEADING = "grid min-w-0 flex-1 items-baseline gap-x-2.5";
+const MARKED = `${HEADING} grid-cols-[auto_minmax(0,max-content)_minmax(0,1fr)_auto]`;
+const BARE = `${HEADING} grid-cols-[minmax(0,max-content)_minmax(0,1fr)_auto]`;
 
 const DockContext = createContext<Dock | null>(null);
 
@@ -112,6 +113,14 @@ export default function Dock({
     input.current?.focus({ preventScroll: true });
   }, [opened, detach, unfold]);
 
+  const summon = useCallback(() => {
+    flushSync(() => {
+      unfold();
+      setSaid((standing) => (standing.trim() ? standing : "/"));
+    });
+    input.current?.focus({ preventScroll: true });
+  }, [unfold]);
+
   const wipe = useCallback(() => {
     if (!chat && !run) return;
     setGone(run ?? chat?.id ?? null);
@@ -161,10 +170,9 @@ export default function Dock({
 
   const heading = (
     <>
-      <span className="flex self-center">
-        <Mark standing={chat?.standing} />
+      <span className="truncate text-mini font-medium">
+        {chat ? <Named text={opened ? chat.title : unprefixed(chat.title)} plain /> : "New chat"}
       </span>
-      <span className="truncate text-mini font-medium">{chat ? <Named text={chat.title} plain /> : "New chat"}</span>
       <span className="truncate text-xs text-soft">{!opened && chat?.doing && <Named text={chat.doing} plain />}</span>
       {chat ? <Standing standing={chat.standing} /> : <span />}
     </>
@@ -181,7 +189,7 @@ export default function Dock({
           before:inset-x-0 before:bottom-full before:h-8 before:bg-linear-to-t before:from-base-200
           md:px-6 md:pb-6"
       >
-        <Measure ref={dock} className="flex items-end gap-2">
+        <Measure ref={dock} className="flex">
           <div
             className={`relative flex max-h-[min(var(--dock-tall),calc(100dvh-var(--nav)-3rem))] min-w-0 flex-1
               flex-col overflow-hidden rounded-box border bg-base-100 halo
@@ -189,13 +197,29 @@ export default function Dock({
           >
             {chat || opened ? (
               <>
-                <div className="flex shrink-0 items-center gap-1 p-1.5">
+                <div className={`flex shrink-0 items-center p-1.5 ${opened ? "gap-1" : ""}`}>
                   {opened ? (
-                    <div className={`${HEADING} px-3 py-2 text-sm`}>{heading}</div>
-                  ) : (
-                    <Row roomy onClick={unfold} aria-expanded={false} className={HEADING}>
+                    <div className={`${MARKED} px-3 py-2 text-sm`}>
+                      <span className="flex self-center">
+                        <Mark standing={chat?.standing} />
+                      </span>
                       {heading}
-                    </Row>
+                    </div>
+                  ) : (
+                    <>
+                      <Tip tip="Job actions">
+                        <Ghost
+                          onClick={summon}
+                          onPointerDown={(event) => event.preventDefault()}
+                          aria-label={waiting ? "Job actions, waiting on you" : "Job actions"}
+                        >
+                          <Wordmark size={16} working={busy} waiting={waiting} />
+                        </Ghost>
+                      </Tip>
+                      <Row roomy onClick={unfold} aria-expanded={false} className={`${BARE} pl-1`}>
+                        {heading}
+                      </Row>
+                    </>
                   )}
                   {opened && (
                     <Tip tip="Clear chat">
@@ -217,7 +241,6 @@ export default function Dock({
               <Conversation lines={lines} asking={asking} />
             )}
           </div>
-          <ActionsMenu working={busy || working} waiting={waiting} clears={dock} onPick={(id) => draft(id)} />
         </Measure>
       </aside>
     </DockContext.Provider>

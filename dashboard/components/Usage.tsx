@@ -65,7 +65,6 @@ export default function Usage({ usage, models, model }: { usage: Usage | null; m
 
   return (
     <MenuButton
-      quiet
       legend={legend ? `Usage and model — ${legend}` : "Usage and model"}
       trigger={
         <svg viewBox="0 0 16 16" width={16} height={16} aria-hidden className="shrink-0 -rotate-90">

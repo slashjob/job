@@ -10,6 +10,7 @@ import Glyph from "@/components/Glyph";
 import Markdown from "@/components/Markdown";
 import Models from "@/components/Models";
 import Named, { useLinked } from "@/components/Named";
+import Wordmark from "@/components/Wordmark";
 import { say } from "@/components/Toaster";
 import { Button, Dot, Flag, Ghost, Prose, Row, Stamp, Tip } from "@/components/ui";
 import { asked, suggested, type Action } from "@/lib/actions";
@@ -229,7 +230,6 @@ function Picker({ models, model, onPick }: { models: Model[]; model: string; onP
 
   return (
     <MenuButton
-      quiet
       legend={`Model, ${label}`}
       trigger={
         <>
@@ -307,9 +307,10 @@ function Composer({
   const [at, setAt] = useState(0);
   const [shut, setShut] = useState(false);
   const [awake, setAwake] = useState(false);
+  const [summoned, setSummoned] = useState(false);
   const form = useRef<HTMLFormElement>(null);
   const ready = said.trim().length > 0 && !working;
-  const menu = shut ? [] : suggested(said);
+  const menu = shut ? [] : suggested(summoned ? "/" : said);
   const chosen = menu[Math.min(at, menu.length - 1)];
 
   useEffect(() => {
@@ -332,7 +333,21 @@ function Composer({
   const write = (words: string) => {
     setAt(0);
     setShut(false);
+    setSummoned(false);
     onSaid(words);
+  };
+
+  const summon = () => {
+    if (chosen) {
+      setShut(true);
+      if (said === "/") onSaid("");
+    } else if (!said.trim()) write("/");
+    else {
+      setAt(0);
+      setShut(false);
+      setSummoned(true);
+    }
+    input?.current?.focus({ preventScroll: true });
   };
 
   const complete = (action: Action) => {
@@ -362,35 +377,53 @@ function Composer({
 
       {chosen && <Menu actions={menu} at={menu.indexOf(chosen)} onHover={setAt} onPick={complete} />}
 
-      <textarea
-        ref={input}
-        rows={1}
-        aria-label={asks}
-        placeholder={asks}
-        className="block max-h-40 w-full resize-none border-0 bg-transparent p-0 text-sm leading-relaxed
+      <div className="flex items-start gap-2">
+        <div className="flex h-[1lh] shrink-0 items-center text-sm leading-relaxed">
+          <div className="flex leading-none">
+            <Tip tip="Job actions">
+              <Ghost
+                onClick={summon}
+                onPointerDown={(event) => event.preventDefault()}
+                aria-label={waiting ? "Job actions, waiting on you" : "Job actions"}
+                aria-expanded={Boolean(chosen)}
+                aria-haspopup="listbox"
+                className="-ml-1.5"
+              >
+                <Wordmark size={16} working={working} waiting={waiting} />
+              </Ghost>
+            </Tip>
+          </div>
+        </div>
+        <textarea
+          ref={input}
+          rows={1}
+          aria-label={asks}
+          placeholder={asks}
+          className="block max-h-40 min-w-0 flex-1 resize-none border-0 bg-transparent p-0 text-sm leading-relaxed
           placeholder:text-soft focus:outline-none"
-        style={{ fieldSizing: "content" } as React.CSSProperties}
-        value={said}
-        onChange={(event) => write(event.target.value)}
-        onKeyDown={(event) => {
-          if (chosen && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
+          style={{ fieldSizing: "content" } as React.CSSProperties}
+          value={said}
+          onChange={(event) => write(event.target.value)}
+          onKeyDown={(event) => {
+            if (chosen && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
+              event.preventDefault();
+              const step = event.key === "ArrowDown" ? 1 : menu.length - 1;
+              return setAt((menu.indexOf(chosen) + step) % menu.length);
+            }
+            if (chosen && event.key === "Escape") return setShut(true);
+            if (event.key === "Escape") {
+              setAwake(false);
+              return event.currentTarget.blur();
+            }
+            if (event.key !== "Enter" && event.key !== "Tab") return;
+            if (event.shiftKey) return;
+            if (!chosen && event.key === "Enter" && matchMedia("(pointer: coarse)").matches) return;
             event.preventDefault();
-            const step = event.key === "ArrowDown" ? 1 : menu.length - 1;
-            return setAt((menu.indexOf(chosen) + step) % menu.length);
-          }
-          if (chosen && event.key === "Escape") return setShut(true);
-          if (event.key === "Escape") {
-            setAwake(false);
-            return event.currentTarget.blur();
-          }
-          if (event.key !== "Enter" && event.key !== "Tab") return;
-          if (event.shiftKey) return;
-          if (!chosen && event.key === "Enter" && matchMedia("(pointer: coarse)").matches) return;
-          event.preventDefault();
-          if (chosen) return complete(chosen);
-          if (event.key === "Enter") event.currentTarget.form?.requestSubmit();
-        }}
-      />
+            if (chosen) return complete(chosen);
+            if (event.key === "Enter") event.currentTarget.form?.requestSubmit();
+          }}
+        />
+      </div>
 
       <div className={`mt-2 items-center justify-between gap-4 ${full ? "flex" : "hidden"}`}>
         <p className="text-xs text-soft pointer-coarse:invisible">Shift + Enter for a new line</p>

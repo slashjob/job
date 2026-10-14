@@ -76,6 +76,8 @@ const BY_ID = new Map([...ACTIONS, CHAT].map((action) => [action.id, action]));
 export const asked = (id: string, argument: string) =>
   id === CHAT.id ? argument : `/job${id === "all" ? "" : ` ${id}`}${argument ? ` ${argument}` : ""}`;
 
+export const unprefixed = (said: string) => said.replace(/^\/job(?=\s|$)\s*/, "");
+
 export const runnable = (id: string) => BY_ID.has(id);
 
 const commands = new Set(ACTIONS.map((action) => action.id));

@@ -1,13 +1,9 @@
 "use client";
 
-import type { RefObject } from "react";
-
 import { Command } from "@/components/act";
 import { useDock } from "@/components/Dock";
-import { MenuButton } from "@/components/Flyout";
-import Wordmark from "@/components/Wordmark";
-import { Button, Row, Tip } from "@/components/ui";
-import { ACTIONS, describes } from "@/lib/actions";
+import { Button, Tip } from "@/components/ui";
+import { describes } from "@/lib/actions";
 
 export default function Actions({ ids, argument = "" }: { ids: string[]; argument?: string }) {
   const { draft } = useDock();
@@ -24,44 +20,5 @@ export default function Actions({ ids, argument = "" }: { ids: string[]; argumen
         </Tip>
       ))}
     </div>
-  );
-}
-
-export function ActionsMenu({
-  working,
-  waiting,
-  clears,
-  onPick,
-}: {
-  working: boolean;
-  waiting: boolean;
-  clears: RefObject<HTMLElement | null>;
-  onPick: (id: string) => void;
-}) {
-  return (
-    <MenuButton
-      size="broad"
-      clears={clears}
-      tone="mark"
-      className="h-[var(--dock-row)] shrink-0"
-      legend={waiting ? "Job actions, waiting on you" : "Job actions"}
-      trigger={<Wordmark size={15} working={working} waiting={waiting} />}
-    >
-      <div className="grid grid-cols-[auto_minmax(0,1fr)]">
-        {ACTIONS.map(({ id, does }) => (
-          <Row
-            key={id}
-            role="menuitem"
-            onClick={() => onPick(id)}
-            className="col-span-2 grid grid-cols-subgrid items-baseline gap-x-4"
-          >
-            <span className="text-sm">
-              <Command id={id} />
-            </span>
-            <span className="truncate text-soft">{does}</span>
-          </Row>
-        ))}
-      </div>
-    </MenuButton>
   );
 }

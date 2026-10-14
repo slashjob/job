@@ -10,7 +10,7 @@ export type Option = { key: string; label: ReactNode; tone?: "grave"; icon?: Rea
 
 export function OptionsButton({ what, options }: { what: string | null; options: Option[] }) {
   return (
-    <MenuButton quiet legend={`More for ${what ?? "this"}`} trigger={<Glyph icon={Ellipsis} />}>
+    <MenuButton legend={`More for ${what ?? "this"}`} trigger={<Glyph icon={Ellipsis} />}>
       {options.map((option) => (
         <Row
           key={option.key}
