@@ -85,7 +85,9 @@ const commands = new Set(ACTIONS.map((action) => action.id));
 export const suggested = (said: string): Action[] => {
   if (!said.startsWith("/") || said.includes("\n")) return [];
   const seek = said.trim().toLowerCase();
-  return ACTIONS.filter((action) => asked(action.id, "").startsWith(seek));
+  return ACTIONS.filter(
+    (action) => asked(action.id, "").startsWith(seek) || (action.id !== "all" && `/${action.id}`.startsWith(seek)),
+  );
 };
 
 export function commanded(said: string): { action: string; argument: string } | null {
