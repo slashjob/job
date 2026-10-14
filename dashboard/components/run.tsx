@@ -338,10 +338,12 @@ function Composer({
       const target = event.target as Element;
       if (form.current?.contains(target) || target.closest("[role=menu]")) return;
       setAwake(false);
+      setShut(true);
+      if (said.trim() === "/") onSaid("");
     };
     document.addEventListener("pointerdown", outside);
     return () => document.removeEventListener("pointerdown", outside);
-  }, [awake]);
+  }, [awake, said, onSaid]);
 
   const full = awake || said.length > 0 || working || waiting;
 
