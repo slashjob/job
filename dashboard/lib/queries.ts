@@ -140,7 +140,13 @@ export function contacts(): Circle[] {
 
 const STORY = TABLES.news
   .pick({ article_id: true, title: true, url: true, image: true, source: true, published: true, reason: true })
-  .extend({ company: z.string(), project_id: z.number().nullable(), contacts: z.number() });
+  .extend({
+    company: z.string(),
+    project_id: z.number().nullable(),
+    project: z.string().nullable(),
+    employer_id: z.number().nullable(),
+    contacts: z.number(),
+  });
 
 export type Story = z.infer<typeof STORY>;
 
@@ -148,26 +154,8 @@ export const news = (): Story[] =>
   rows(
     STORY,
     "SELECT news.article_id, news.title, news.url, news.image, news.source, news.published, news.reason," +
-      "       news.company, news.project_id," +
+      "       news.company, news.project_id, projects.name AS project, projects.employer_id," +
       "       (SELECT COUNT(*) FROM contacts WHERE contacts.company = news.company) AS contacts " +
-      "FROM news " +
+      "FROM news LEFT JOIN projects ON projects.id = news.project_id " +
       "WHERE news.status = 'lead' ORDER BY news.published IS NULL, news.published DESC",
-  );
-
-const TOPIC = z.object({
-  project_id: z.number(),
-  name: z.string(),
-  employer_id: z.number(),
-  query: z.string(),
-  paused: z.number(),
-});
-
-export type Topic = z.infer<typeof TOPIC>;
-
-export const topics = (): Topic[] =>
-  rows(
-    TOPIC,
-    "SELECT news_topics.project_id, projects.name, projects.employer_id, news_topics.query, news_topics.paused " +
-      "FROM news_topics JOIN projects ON projects.id = news_topics.project_id " +
-      "WHERE news_topics.query IS NOT NULL ORDER BY projects.employer_id, projects.seq",
   );

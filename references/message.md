@@ -1,7 +1,7 @@
 # Messaging
 
-One message to one person on LinkedIn, for the purpose the invocation names. The deliverable is
-that message typed into LinkedIn and left unsent — invariant 1 covers Send as much as Submit.
+One message to one person on LinkedIn, or by email, for the purpose the invocation names. The
+deliverable is that message typed into LinkedIn, or drafted in chat, and left unsent — invariant 1 covers Send as much as Submit.
 
 **This is the one action that opens a profile, and only the one named.** The user chose this person
 and is about to turn up in their inbox anyway. A sign-in page is theirs to get past: ask, naming the
@@ -30,6 +30,10 @@ covers that purpose, read it before writing:
 | ---- | ---------------------- |
 | 1st | Message, on their profile |
 | Anyone else | Connect, then the note LinkedIn offers to add to the request |
+| Email, when the user asks for it | Drafted in chat with a subject line, for them to send from their own mail |
+
+**An email address is never guessed and sent to by you.** With none published, list the likely
+ones in order, first name at the company's domain first, for the user to try; a bounce is the test.
 
 **A connection note is capped at a few hundred characters, and LinkedIn counts them.** Write to the
 count rather than letting it cut the ask off the end. Free accounts get a handful of notes a month:
@@ -45,21 +49,26 @@ unanswered ask for the same thing, stop and say so rather than adding a second.
 
 ## What it says
 
+**Path, Proof, Ask. Under 100 words**, in this order:
+
 1. **Why this person** — the path: the mutual connection by name, the school, the group, as the
    `contacts` row or the profile shows it. It is the reason a stranger reads the second sentence.
    Never claim an acquaintance the row, the profile and the thread do not show; a 1st with a history
    needs no path at all, and a stranger with none opens on the purpose instead.
-2. **The purpose**, and what in the user's record makes it worth their time.
-3. **One ask**, with a no that costs them nothing.
+2. **One line of proof**: the single thing in the user's record that meets the purpose. One, even
+   where the record holds five.
+3. **The ask is a conversation, not a job**: their view of the problem that proof sits in, and where
+   someone who built it could be useful. A purpose whose reference names its own ask, a referral,
+   keeps it.
+4. **A question they can answer yes or no, with a timeframe**: fifteen minutes in the next couple of
+   weeks.
 
 **Nothing about them the profile does not show.** Praise for a career or a post is the mark of mass
 outreach, and the reader has seen it that morning.
 
-**A message is short enough to read on a phone without scrolling** — four or five sentences. A
-stranger owes the user nothing and reads accordingly.
-
 **Cordial and professional**: a greeting by first name, a polite ask, and a sign-off of "Best," and
-the user's first name on their own lines. A connection note's sign-off counts against the cap, so
+the user's first name on their own lines; an email adds `identity.linkedin` on the line under the
+name. A connection note's sign-off counts against the cap, so
 the middle is the first thing cut to make room.
 
 ## Hand it over

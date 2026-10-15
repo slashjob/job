@@ -42,15 +42,17 @@ const spoken = (kept: Kept): kept is Line => kept.kind !== "opened" && kept.kind
 
 const modelled = (kept: Kept[]) => [...kept].reverse().find((one): one is Modelled => one.kind === "model")?.key;
 
-type Live = { child: ChildProcess; ended: string; hears: Set<(kept: Kept) => void> };
+type Hears = Set<(kept: Kept) => void>;
+
+type Live = { child: ChildProcess; ended: string; hears: Hears; queue: string[]; model?: string };
 
 const memory = globalThis as { runs?: Map<string, Live> };
 const live = () => (memory.runs ??= new Map<string, Live>());
 
-function append(id: string, kept: Kept) {
+function append(id: string, kept: Kept, hears = live().get(id)?.hears) {
   fs.mkdirSync(RUNS, { recursive: true });
   fs.appendFileSync(file(id), `${JSON.stringify(kept)}\n`);
-  for (const hears of live().get(id)?.hears ?? []) hears(kept);
+  for (const one of hears ?? []) one(kept);
 }
 
 function held(id: string): Kept[] {
@@ -129,20 +131,32 @@ export function current(): Run | null {
   return runs.sort((one, two) => two.touched - one.touched)[0]?.run ?? null;
 }
 
-export async function begin({
-  action = "",
-  argument = "",
-  run = null,
-  model: picked,
-}: {
-  action?: string;
-  argument?: string;
-  run?: string | null;
-  model?: string;
-}) {
+export async function begin(
+  {
+    action = "",
+    argument = "",
+    run = null,
+    model: picked,
+  }: {
+    action?: string;
+    argument?: string;
+    run?: string | null;
+    model?: string;
+  },
+  hears: Hears = new Set(),
+) {
   if (argument.length > LONGEST) throw new Error(`an argument is at most ${LONGEST} characters`);
 
   const words = argument.trim();
+  const working = run ? live().get(run) : undefined;
+  if (run && working) {
+    if (!words) throw new Error("nothing to queue");
+    working.queue.push(words);
+    working.model = picked ?? working.model;
+    append(run, { kind: "queued", body: words });
+    return run;
+  }
+
   const id = run ?? randomUUID();
   const kept = run ? held(run) : [];
   const opened = kept.find((one) => one.kind === "opened");
@@ -150,7 +164,6 @@ export async function begin({
   const database = run ? (opened?.database ?? MAIN) : active();
 
   if (!runnable(named)) throw new Error(`no such action: ${named}`);
-  if (run && live().has(run)) throw new Error("that run is still working");
 
   const resume = [...kept].reverse().find((one) => one.kind === "session")?.id;
   if (run && !resume) throw new Error("that run cannot be continued");
@@ -164,9 +177,9 @@ export async function begin({
 
   const started = new Date().toISOString();
   if (!run)
-    append(id, { kind: "opened", action: named, title: shown(named, words), started, argument: words, database });
-  if (chosen !== was) append(id, { kind: "model", key: chosen });
-  append(id, { kind: "asked", body: resume ? words : shown(named, words) });
+    append(id, { kind: "opened", action: named, title: shown(named, words), started, argument: words, database }, hears);
+  if (chosen !== was) append(id, { kind: "model", key: chosen }, hears);
+  append(id, { kind: "asked", body: resume ? words : shown(named, words) }, hears);
 
   const child = spawn(
     "claude",
@@ -187,7 +200,7 @@ export async function begin({
     { cwd: installed(), env: { ...outermost(process.env), JOB_DATABASE: database }, stdio: ["ignore", "pipe", "pipe"] },
   );
 
-  const one: Live = { child, ended: DONE, hears: new Set() };
+  const one: Live = { child, ended: DONE, hears, queue: [] };
   live().set(id, one);
   const keep = (kept: Kept) => {
     if (live().get(id) === one) append(id, kept);
@@ -226,11 +239,21 @@ export async function begin({
       one.ended = "Failed";
       keep({ kind: "wrong", body: `claude exited ${code}` });
     }
+    if (live().get(id) !== one) return;
+    if (one.queue.length && one.ended !== "Stopped") return void next(id, one);
     keep({ kind: "end", body: one.ended });
-    if (live().get(id) === one) live().delete(id);
+    live().delete(id);
   });
 
   return id;
+}
+
+function next(id: string, one: Live) {
+  live().delete(id);
+  begin({ run: id, argument: one.queue.join("\n\n"), model: one.model }, one.hears).catch((error: Error) => {
+    append(id, { kind: "wrong", body: error.message }, one.hears);
+    append(id, { kind: "end", body: "Failed" }, one.hears);
+  });
 }
 
 export function clear() {
@@ -252,6 +275,7 @@ export function halt(id: string) {
   const one = live().get(id);
   if (!one) return;
   one.ended = "Stopped";
+  one.queue = [];
   one.child.kill("SIGTERM");
 }
 

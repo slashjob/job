@@ -120,13 +120,24 @@ export function useRun() {
     router.refresh();
   }, [detach, router]);
 
+  const queue = useCallback(async (body: unknown) => {
+    try {
+      await told(body);
+    } catch (error) {
+      say((error as Error).message, true);
+    }
+  }, []);
+
+  const working = streaming && lines.at(-1)?.kind !== "end";
+
   return {
     lines,
     run,
-    working: streaming && lines.at(-1)?.kind !== "end",
+    working,
     open,
     start: (action: string, argument: string, model: string) => send({ action, argument, model }),
-    reply: (words: string, model: string) => send({ run, argument: words, model }),
+    reply: (words: string, model: string) =>
+      working ? queue({ run, argument: words, model }) : send({ run, argument: words, model }),
     detach,
     stop: () => {
       if (run) void told({ stop: run });
@@ -140,6 +151,7 @@ type Turn = { asked?: Line; steps: Line[]; reply?: Line; wrong: Line[]; end?: Li
 function turns(lines: Line[]): Turn[] {
   const all: Turn[] = [];
   for (const line of lines) {
+    if (line.kind === "queued") continue;
     if (line.kind === "asked" || !all.length) all.push({ steps: [], wrong: [] });
     const turn = all[all.length - 1];
     if (line.kind === "asked") turn.asked = line;
@@ -324,7 +336,7 @@ function Composer({
   const [awake, setAwake] = useState(false);
   const [summoned, setSummoned] = useState(false);
   const form = useRef<HTMLFormElement>(null);
-  const ready = said.trim().length > 0 && !working;
+  const ready = said.trim().length > 0;
   const menu = shut ? [] : suggested(summoned ? "/" : said);
   const chosen = menu[Math.min(at, menu.length - 1)];
 
@@ -454,13 +466,14 @@ function Composer({
             />
           </Tip>
           <Picker models={models} model={model} onPick={onModel} />
-          {working ? (
+          {working && (
             <Button onClick={onStop} icon={<Glyph icon={Square} size="sm" className="fill-current" />}>
               Stop
             </Button>
-          ) : (
+          )}
+          {(!working || ready) && (
             <Button type="submit" tone="firm" disabled={!ready} icon={<Glyph icon={SendHorizontal} size="sm" />}>
-              Send
+              {working ? "Queue" : "Send"}
             </Button>
           )}
         </div>
@@ -503,6 +516,8 @@ export function Conversation({
   const last = lines.at(-1);
   const waiting = !working && last?.kind === "end" && last.body === WAITING;
   const alone = !lines.length && !working;
+  const pending = last?.kind === "end" ? [] : lines.slice(lines.findLastIndex((line) => line.kind === "asked") + 1);
+  const queued = pending.filter((line) => line.kind === "queued");
 
   useEffect(() => {
     const held = tail.current;
@@ -528,6 +543,14 @@ export function Conversation({
                 </span>
               </div>
             )}
+            {queued.map((line, at) => (
+              <div key={at} className="flex items-center justify-end gap-2 px-4 pt-3">
+                <Stamp>Queued</Stamp>
+                <Prose className="max-w-[85%] rounded-sheet rounded-br-md bg-base-200 px-4 py-2.5 text-soft">
+                  <Named text={line.body} />
+                </Prose>
+              </div>
+            ))}
           </div>
         )}
       </div>

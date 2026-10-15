@@ -17,7 +17,6 @@ const WRITABLE = new Set<Table>([
   "employers",
   "projects",
   "project_technologies",
-  "news_topics",
   "instructions",
   "summary",
 ]);
@@ -158,29 +157,6 @@ export async function pass(article_id: string): Promise<Dropped> {
     })();
     revalidatePath("/", "layout");
     return { gone: article_id };
-  } catch (error) {
-    return failed(error);
-  }
-}
-
-export async function dropTopic(project_id: number): Promise<Dropped> {
-  try {
-    db().transaction(() => {
-      if (
-        !db().prepare("UPDATE news_topics SET query=NULL WHERE project_id=? AND query IS NOT NULL").run(project_id)
-          .changes
-      )
-        throw new Error(`no news search for project ${project_id}`);
-      const leads = rows(
-        z.object({ company: z.string().nullable() }),
-        "SELECT company FROM news WHERE project_id=? AND status='lead'",
-        [project_id],
-      );
-      db().prepare("UPDATE news SET status='passed' WHERE project_id=? AND status='lead'").run(project_id);
-      forgetUnclaimed(leads.map((lead) => lead.company));
-    })();
-    revalidatePath("/", "layout");
-    return { gone: String(project_id) };
   } catch (error) {
     return failed(error);
   }

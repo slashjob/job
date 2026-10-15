@@ -44,7 +44,7 @@ Nothing below overrides these.
 | `/job apply [key or URL]` | Resume, then stage, every `shortlisted` posting, or the one named; then network at the companies staged | `references/applying.md`, then `references/network.md` |
 | `/job network [company]` | Find people the user can reach on LinkedIn at every company they applied to, or the one named — a news lead included | `references/network.md` |
 | `/job news [project]` | Find companies in the news building what the user has built, before they post a role, and who is there to write to — for every project, or the one named | `references/news.md` |
-| `/job message [person] [purpose]` | Write one person on LinkedIn, for the purpose named, typed in for the user to send | `references/message.md`, then `references/writing.md` |
+| `/job message [person] [purpose]` | Write one person on LinkedIn or by email, for the purpose named, left for the user to send | `references/message.md`, then `references/writing.md` |
 | `/job dashboard [start\|stop\|status]` | Start the dashboard and open or focus its tab, or stop it | `cli/dashboard.ts --help` |
 | `/job help` | Run `cli/help.ts`, then reply with its output verbatim — the user cannot see tool output. No run, no queries, no commentary | |
 

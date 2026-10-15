@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { declared, type Standing } from "./standing";
 
-export type Line = { kind: "asked" | "said" | "aside" | "wrong" | "end"; body: string };
+export type Line = { kind: "asked" | "queued" | "said" | "aside" | "wrong" | "end"; body: string };
 
 export function heard(line: string): { lines: Line[]; session?: string; standing?: Standing } {
   let said: any;

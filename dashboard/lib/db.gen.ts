@@ -85,13 +85,6 @@ export const TABLES = {
     reason: z.string().nullable(),
     image: z.string().nullable(),
   }),
-  news_topics: z.object({
-    project_id: z.number(),
-    query: z.string().nullable(),
-    basis: z.string(),
-    written_on: z.string(),
-    paused: z.number(),
-  }),
   postings: z.object({
     key: z.string(),
     source: z.string(),

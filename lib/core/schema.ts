@@ -269,24 +269,6 @@ export const TABLES = {
         "flatten the slopes it describes into walls.",
     } satisfies Shape),
 
-  news_topics: z
-    .object({
-      project_id: col(z.number(), { sql: "PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE" }),
-      query: col(z.string().nullable(), { sql: filled("query") }),
-      basis: z.string(),
-      written_on: col(z.string(), {
-        sql: "DEFAULT (date('now')) CHECK (written_on IS date(written_on))",
-        takes: "a date, as YYYY-MM-DD",
-      }),
-      paused: col(z.number(), { sql: "DEFAULT 0 CHECK (paused IN (0,1))", takes: "0 or 1" }),
-    })
-    .meta({
-      note:
-        "The NewsData query each project is searched by. `basis` hashes the project's name,\n" +
-        "about and technologies as the query was written from them. A NULL query is a project the user\n" +
-        "removed from the search, and stays removed; a paused one keeps its query and is skipped.",
-    } satisfies Shape),
-
   news: z
     .object({
       article_id: col(z.string(), { sql: "PRIMARY KEY" }),
@@ -310,7 +292,7 @@ export const TABLES = {
     })
     .meta({
       note:
-        "Articles fetched from NewsData, each judged once. A lead is a company building\n" +
+        "Articles read off Google News, each judged once. A lead is a company building\n" +
         "what one of the user's projects already built: `project_id` is that project and\n" +
         "`reason` says why, in a line.",
       constraints: ["CHECK (status IN ('new','noise') OR (company IS NOT NULL AND reason IS NOT NULL))"],
@@ -343,7 +325,6 @@ export const ORDER: Table[] = [
   "employers",
   "projects",
   "project_technologies",
-  "news_topics",
   "news",
   "instructions",
   "summary",

@@ -4,24 +4,26 @@ Companies in the news building something the user has already built, found befor
 role. The deliverable is a list of leads: the company, what it is building, and the project of the
 user's that did the same, and the people there to write to. Whether to reach out is theirs.
 
-## Queries
+## Searching
 
-**One per project, written once and kept.** Write only for the projects `cli/news.ts topics --stale`
-lists; with none listed, go straight to the search. The user reads and edits these on the News page,
-so each is the product or technique the project is, in the words a reporter would use rather than
-the project's own name: `"route optimization" AND (freight OR logistics)`, not `DispatchPlanner v2`.
-A project that is work `instructions.text` says the user does not want is dropped, not written.
+**You search Google News in the browser**:
+`https://news.google.com/search?q=<terms>+when:7d&hl=en-US&gl=US&ceid=US:en`. Read each results page
+as JSON with `browser_evaluate` — headline, source, time, link, image — and store every article with
+`cli/news.ts add`. Judging decides what is noise, not the search.
 
-**A project named is the only one written and searched**, with `search --project`.
+**Terms come off `cli/news.ts projects`, fresh each run, never saved.** Each is the product or
+technique the project is, in the words a reporter would use rather than the project's own name:
+`"route optimization" freight startup`, not `DispatchPlanner v2`. Several narrow searches per
+project beat one broad one. A project that is work `instructions.text` says the user does not want
+is not searched.
 
-**Every page costs the user a NewsData credit, from a daily allowance.** One page per query. A query
-that returns mostly noise is too broad — narrow it rather than reading further pages.
+**A project named is the only one searched.**
 
 ## Judging
 
 **Done by a Haiku subagent**, never by this run: the Agent tool with `model: "haiku"`, handed this
 file's path, the `cli/news.ts` path, and `instructions.text`. It reads the projects with
-`cli/news.ts topics --json` and the articles with `cli/news.ts pending --json`, follows this
+`cli/news.ts projects --json` and the articles with `cli/news.ts pending --json`, follows this
 section, and records every verdict with `cli/news.ts judge`.
 
 **A lead is one named company building what one project built** — the product, or the technique
@@ -54,5 +56,4 @@ who is there to write to. The next step is `/job message` to one of them.
 Read by `references/message.md` when the purpose is a company in the news.
 
 **The purpose**: what the article reported they are building, the project of the user's that built
-the same, and the one thing in its row that shows it — then ask whether they are hiring for it, or
-would talk. Never imply an opening exists.
+the same, and the one thing in its row that shows it. Never imply an opening exists.
