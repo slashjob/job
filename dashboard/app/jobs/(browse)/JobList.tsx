@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
-import { ChevronRight, CircleAlert, Copy, FileText, Search, Users } from "lucide-react";
+import { ChevronRight, CircleAlert, Copy, FileText, Search } from "lucide-react";
 import Actions from "@/components/Actions";
 import { Command, copyKey, useDiscard } from "@/components/act";
 import { useDock } from "@/components/Dock";
@@ -12,8 +11,8 @@ import { OptionsButton, deleteOption, type Option } from "@/components/Options";
 import { Badge } from "@/components/Status";
 import { Count, Empty, Group, Invite, Page, SearchField, Stamp } from "@/components/ui";
 import { describes, offered } from "@/lib/actions";
-import { places, plural, shortDate, shortPay } from "@/lib/format";
-import { assetHref, companyHref, jobHref } from "@/lib/links";
+import { places, shortDate, shortPay } from "@/lib/format";
+import { assetHref, jobHref } from "@/lib/links";
 import { SHELVES } from "@/lib/status";
 import type { Job } from "@/lib/queries";
 
@@ -45,15 +44,11 @@ function useMenu(): Menu {
       label: <Command id={id} />,
       onPick: () => draft(id, job.key),
     })),
-    ...(job.company
-      ? [
-          {
-            key: "network",
-            label: <Command id="network" />,
-            onPick: () => draft("network", job.company ?? undefined),
-          },
-        ]
-      : []),
+    {
+      key: "contact",
+      label: <Command id="contact" />,
+      onPick: () => draft("contact", job.key),
+    },
     {
       key: "copy",
       label: "Copy job ID",
@@ -81,19 +76,6 @@ const Resume = ({ job, labelled }: { job: Job; labelled?: boolean }) =>
     </a>
   ) : null;
 
-const Known = ({ job, labelled, className = "" }: { job: Job; labelled?: boolean; className?: string }) =>
-  job.contacts ? (
-    <Link
-      href={companyHref("jobs", job.company)}
-      aria-label={`${plural(job.contacts, "contact")} at ${job.company}`}
-      title={`${plural(job.contacts, "contact")} at ${job.company}`}
-      className={`tnum inline-flex items-center gap-1.5 text-xs text-soft transition-colors hover:text-base-content ${className}`}
-    >
-      <Glyph icon={Users} />
-      {labelled ? plural(job.contacts, "contact") : job.contacts}
-    </Link>
-  ) : null;
-
 const More = ({ job, menu }: { job: Job; menu: Menu }) => <OptionsButton what={job.title} options={menu(job)} />;
 
 const Full = ({ job, menu, framed }: { job: Job; menu: Menu; framed?: boolean }) => {
@@ -114,7 +96,6 @@ const Full = ({ job, menu, framed }: { job: Job; menu: Menu; framed?: boolean })
       }
       tools={
         <>
-          <Known job={job} labelled className="mr-2" />
           <Actions ids={nextStep(job)} argument={job.key} />
           <More job={job} menu={menu} />
         </>
@@ -149,7 +130,6 @@ const Brief = ({ job, menu, why }: { job: Job; menu: Menu; why?: boolean }) => (
       </div>
       {job.status === "interviewing" && <Badge>{job.status}</Badge>}
       <span className="ml-auto flex shrink-0 items-center gap-2">
-        <Known job={job} />
         {job.status !== "applied" && job.status !== "interviewing" && <Resume job={job} />}
         <Stamp>{shortDate(job.last_updated)}</Stamp>
         <More job={job} menu={menu} />

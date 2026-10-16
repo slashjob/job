@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Newspaper, Users } from "lucide-react";
+import { Newspaper } from "lucide-react";
 import Actions from "@/components/Actions";
 import { Command, usePass } from "@/components/act";
 import { useDock } from "@/components/Dock";
@@ -10,27 +10,14 @@ import Glyph from "@/components/Glyph";
 import { DeleteMenu, OptionsButton } from "@/components/Options";
 import { Card, Group, Invite, Out, Page, Stamp } from "@/components/ui";
 import { describes } from "@/lib/actions";
-import { plural, shortDate } from "@/lib/format";
-import { companyHref, projectHref } from "@/lib/links";
+import { shortDate } from "@/lib/format";
+import { projectHref } from "@/lib/links";
 import type { Story } from "@/lib/queries";
 
 function Delete({ story }: { story: Story }) {
   const passOn = usePass();
   return <DeleteMenu what={story.title} label="Delete article" onPick={() => passOn(story.article_id)} />;
 }
-
-const Known = ({ story }: { story: Story }) =>
-  story.contacts ? (
-    <Link
-      href={companyHref("news", story.company)}
-      aria-label={`${plural(story.contacts, "contact")} at ${story.company}`}
-      title={`${plural(story.contacts, "contact")} at ${story.company}`}
-      className="tnum mr-2 inline-flex items-center gap-1.5 text-xs text-soft transition-colors hover:text-base-content"
-    >
-      <Glyph icon={Users} />
-      {plural(story.contacts, "contact")}
-    </Link>
-  ) : null;
 
 function Photo({ story }: { story: Story }) {
   const [broken, setBroken] = useState(false);
@@ -69,8 +56,7 @@ const Source = ({ story }: { story: Story }) => (
       <Stamp>{shortDate(story.published)}</Stamp>
     </p>
     <span className="flex shrink-0 items-center gap-1.5">
-      <Known story={story} />
-      <Actions ids={story.contacts ? [] : ["network"]} argument={story.company} />
+      <Actions ids={["contact"]} argument={story.company} />
       <Delete story={story} />
     </span>
   </div>

@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { db, one, rows } from "./db.ts";
-import { MODELS, PURSUED } from "./queries.ts";
+import { MODELS } from "./queries.ts";
 import { TABLES, bare, type Table } from "./schema.ts";
 import { CAREER, absolute } from "./skill.ts";
 
@@ -101,27 +101,15 @@ function removeResume(held: string) {
   for (const extension of RESUME_FILES) fs.rmSync(stem + extension, { force: true });
 }
 
-function forgetUnclaimed(companies: (string | null)[]) {
-  const unclaimed = db().prepare(
-    "DELETE FROM contacts WHERE company=:company " +
-      `AND NOT EXISTS (SELECT 1 FROM postings WHERE company=:company AND ${PURSUED}) ` +
-      "AND NOT EXISTS (SELECT 1 FROM news WHERE company=:company AND status='lead')",
-  );
-  for (const company of new Set(companies)) if (company) unclaimed.run({ company });
-}
-
 export async function discard(key: string): Promise<Dropped> {
   try {
     const found = one(
-      z.object({ company: z.string(), resume: z.string().nullable() }),
-      "SELECT company, resume FROM postings WHERE key=?",
+      z.object({ resume: z.string().nullable() }),
+      "SELECT resume FROM postings WHERE key=?",
       [key],
     );
     if (!found) return { error: `no posting keyed ${key}` };
-    db().transaction(() => {
-      db().prepare("DELETE FROM postings WHERE key=?").run(key);
-      forgetUnclaimed([found.company]);
-    })();
+    db().prepare("DELETE FROM postings WHERE key=?").run(key);
     const shared =
       found.resume && one(z.object({ key: z.string() }), "SELECT key FROM postings WHERE resume=?", [found.resume]);
     if (found.resume && !shared) removeResume(found.resume);
@@ -132,29 +120,10 @@ export async function discard(key: string): Promise<Dropped> {
   }
 }
 
-export async function forget(company: string, url: string): Promise<Dropped> {
-  try {
-    if (!db().prepare("DELETE FROM contacts WHERE company=? AND url=?").run(company, url).changes)
-      return { error: `no contact ${url} at ${company}` };
-    revalidatePath("/", "layout");
-    return { gone: url };
-  } catch (error) {
-    return failed(error);
-  }
-}
-
 export async function pass(article_id: string): Promise<Dropped> {
   try {
-    const lead = one(
-      z.object({ company: z.string().nullable() }),
-      "SELECT company FROM news WHERE article_id=? AND status = 'lead'",
-      [article_id],
-    );
-    if (!lead) return { error: `no news lead ${article_id}` };
-    db().transaction(() => {
-      db().prepare("UPDATE news SET status='passed' WHERE article_id=?").run(article_id);
-      forgetUnclaimed([lead.company]);
-    })();
+    if (!db().prepare("UPDATE news SET status='passed' WHERE article_id=? AND status = 'lead'").run(article_id).changes)
+      return { error: `no news lead ${article_id}` };
     revalidatePath("/", "layout");
     return { gone: article_id };
   } catch (error) {

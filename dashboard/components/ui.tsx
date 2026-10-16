@@ -83,16 +83,6 @@ export const Group = ({
   </section>
 );
 
-export const Section = ({ heading, count, children }: { heading: string; count: number; children: ReactNode }) => (
-  <section className="mb-16 last:mb-0">
-    <h2 className="mb-6 flex items-baseline gap-2 border-b border-base-300 pb-2 font-display text-xl font-medium">
-      {heading}
-      <Count of={count} />
-    </h2>
-    {children}
-  </section>
-);
-
 export const Back = ({ href, children }: { href: string; children: ReactNode }) => (
   <GhostLink href={href} className="-ml-2 mb-1 text-sm" icon={<Glyph icon={ChevronLeft} />}>
     {children}

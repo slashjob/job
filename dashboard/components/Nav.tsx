@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Briefcase, Newspaper, User, Users, type LucideIcon } from "lucide-react";
+import { Briefcase, Newspaper, User, type LucideIcon } from "lucide-react";
 import Glyph from "./Glyph";
 import Store from "./Store";
 import ThemeToggle from "./ThemeToggle";
@@ -19,7 +19,6 @@ type Item = { href: string; label: string; icon: LucideIcon; key: string };
 const SECTIONS: Item[] = [
   { href: "/jobs", label: "Jobs", icon: Briefcase, key: "j" },
   { href: "/news", label: "News", icon: Newspaper, key: "w" },
-  { href: "/contacts", label: "Contacts", icon: Users, key: "c" },
   { href: "/profile", label: "Profile", icon: User, key: "p" },
 ];
 

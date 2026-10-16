@@ -1,17 +1,6 @@
 import { z } from "zod";
 
 export const TABLES = {
-  contacts: z.object({
-    company: z.string(),
-    url: z.string(),
-    name: z.string(),
-    title: z.string().nullable(),
-    degree: z.enum(["1st", "2nd", "3rd"]).nullable(),
-    introducer: z.string().nullable(),
-    shared_group: z.string().nullable(),
-    shared_school: z.string().nullable(),
-    found_on: z.string(),
-  }),
   education: z.object({
     id: z.number(),
     degree: z.string(),

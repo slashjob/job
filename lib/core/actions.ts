@@ -45,21 +45,15 @@ export const ACTIONS: Action[] = [
     accepts: ["new", "shortlisted", "skipped", "staged"],
   },
   {
-    id: "network",
-    does: "Find people you can message",
-    argument: "[company]",
-    accepts: [],
-  },
-  {
     id: "news",
     does: "Find companies in the news building what you have built",
     argument: "[project]",
     accepts: [],
   },
   {
-    id: "message",
-    does: "Write anyone on LinkedIn, for any purpose",
-    argument: "[person] [purpose]",
+    id: "contact",
+    does: "Find who to write to about a job or a news lead, and how to reach them",
+    argument: "[key or company]",
     accepts: [],
   },
   {

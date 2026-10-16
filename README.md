@@ -35,10 +35,9 @@ Type any of these into Claude Code and press <kbd>Enter</kbd>:
 | `/job`                     | find jobs, write resumes, and fill in applications, left open in the browser for you to check and submit |
 | `/job search`              | only find jobs                                                                                           |
 | `/job resume`              | only write resumes                                                                                       |
-| `/job apply`               | fill in applications, then find people at those companies                                                |
-| `/job network`             | find people at companies you applied to                                                                  |
+| `/job apply`               | fill in applications                                                                                     |
 | `/job news`                | find companies in the news building what you have built, before they post a role                         |
-| `/job message`             | write anyone on LinkedIn — a referral request, say — left there for you to send                          |
+| `/job contact`             | find who to write to about a job or a news lead, and draft it with you, left for you to send             |
 | `/job dashboard`           | open the dashboard                                                                                       |
 | `/job install`             | update to the latest version                                                                             |
 | `/job help`                | list every command                                                                                       |
