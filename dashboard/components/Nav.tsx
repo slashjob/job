@@ -44,12 +44,13 @@ export default function Nav({
         pointer-fine:delay-300 pointer-fine:hover:delay-0 pointer-fine:has-focus-visible:delay-0
         pointer-fine:after:absolute pointer-fine:after:inset-x-0 pointer-fine:after:top-full pointer-fine:after:h-6
         pointer-fine:hover:translate-y-0 pointer-fine:hover:after:h-2
-        pointer-fine:has-focus-visible:translate-y-0 pointer-fine:has-focus-visible:after:h-2"
+        pointer-fine:has-focus-visible:translate-y-0 pointer-fine:has-focus-visible:after:h-2
+        pointer-fine:has-aria-expanded:translate-y-0 pointer-fine:has-aria-expanded:delay-0"
     >
       <div className="mx-auto flex h-[var(--nav)] max-w-[104rem] items-center justify-center px-2 sm:px-4 md:px-6">
         <NavGroup>
           <li>
-            <Tip tip="Jobs">
+            <Tip centered tip="Jobs">
               <GhostLink
                 href="/jobs"
                 on={jobs}
@@ -60,7 +61,7 @@ export default function Nav({
             </Tip>
           </li>
           <li>
-            <Tip tip="Profile">
+            <Tip centered tip="Profile">
               <GhostLink
                 href="/profile"
                 on={profile}
@@ -75,12 +76,12 @@ export default function Nav({
             <ThemeToggle />
           </li>
           <li>
-            <Tip tip="Usage and model">
+            <Tip centered tip="Usage and model">
               <Usage usage={limits} models={models} model={model} />
             </Tip>
           </li>
           <li>
-            <Tip tip="Database">
+            <Tip centered tip="Database">
               <Store store={store} />
             </Tip>
           </li>

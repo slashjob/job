@@ -277,8 +277,11 @@ export const Flag = ({ children }: { children: ReactNode }) => (
   </span>
 );
 
-export const Tip = ({ tip, children }: { tip: string; children: ReactNode }) => (
-  <span data-tip={tip} className="tooltip tooltip-bottom tooltip-loose before:text-micro [&:before]:text-left">
+export const Tip = ({ tip, centered, children }: { tip: string; centered?: boolean; children: ReactNode }) => (
+  <span
+    data-tip={tip}
+    className={`tooltip tooltip-bottom before:text-micro ${centered ? "" : "tooltip-loose [&:before]:text-left"}`}
+  >
     {children}
   </span>
 );

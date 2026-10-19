@@ -8,7 +8,7 @@ import { X } from "lucide-react";
 import Glyph from "@/components/Glyph";
 import Named from "@/components/Named";
 import Wordmark from "@/components/Wordmark";
-import { Conversation, useRun, type Asking } from "@/components/run";
+import { Conversation, focusEnd, useRun, type Asking } from "@/components/run";
 import { Caret, Flag, Ghost, Measure, Row, Stamp, Tip } from "@/components/ui";
 import { useKey } from "@/components/useKey";
 import { usePing } from "@/components/usePing";
@@ -110,7 +110,7 @@ export default function Dock({
   const toggle = useCallback(() => {
     if (opened) return detach();
     flushSync(unfold);
-    input.current?.focus({ preventScroll: true });
+    focusEnd(input.current);
   }, [opened, detach, unfold]);
 
   const summon = useCallback(() => {
@@ -118,7 +118,7 @@ export default function Dock({
       unfold();
       setSaid((standing) => (standing.trim() ? standing : "/"));
     });
-    input.current?.focus({ preventScroll: true });
+    focusEnd(input.current);
   }, [unfold]);
 
   const wipe = useCallback(() => {
@@ -135,7 +135,7 @@ export default function Dock({
         wipe();
         setSaid(`${asked(id, argument)} `);
       });
-      input.current?.focus({ preventScroll: true });
+      focusEnd(input.current);
     },
     [wipe],
   );

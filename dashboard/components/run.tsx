@@ -41,6 +41,12 @@ async function told(body: unknown): Promise<string> {
   return run;
 }
 
+export const focusEnd = (field: HTMLTextAreaElement | null | undefined) => {
+  if (!field) return;
+  field.focus({ preventScroll: true });
+  requestAnimationFrame(() => field.setSelectionRange(field.value.length, field.value.length));
+};
+
 export function useRun() {
   const router = useRouter();
   const [run, setRun] = useState<string | null>(null);
@@ -341,7 +347,7 @@ function Composer({
   const chosen = menu[Math.min(at, menu.length - 1)];
 
   useEffect(() => {
-    if (waiting) input?.current?.focus({ preventScroll: true });
+    if (waiting) focusEnd(input?.current);
   }, [waiting, input]);
 
   useEffect(() => {
@@ -376,13 +382,13 @@ function Composer({
       setShut(false);
       setSummoned(true);
     }
-    input?.current?.focus({ preventScroll: true });
+    focusEnd(input?.current);
   };
 
   const complete = (action: Action) => {
     setShut(true);
     onSaid(`${asked(action.id, "")} `);
-    input?.current?.focus({ preventScroll: true });
+    focusEnd(input?.current);
   };
 
   return (

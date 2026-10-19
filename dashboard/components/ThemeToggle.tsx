@@ -30,7 +30,7 @@ export default function ThemeToggle() {
   const next = theme === "night" ? "readout" : "night";
   const label = next === "night" ? "Switch to dark theme" : "Switch to light theme";
   return (
-    <Tip tip={label}>
+    <Tip centered tip={label}>
       <Ghost
         onClick={() => setTheme(next)}
         aria-label={label}

@@ -37,25 +37,15 @@ const Match = ({ company }: { company: Company }) => {
   const [first, ...rest] = projectsOf(company.articles);
   if (!first) return null;
   return (
-    <>
-      <GhostLink
-        href={projectHref(first.employer_id, first.project_id)}
-        icon={<Glyph icon={Target} />}
-        title={`Matches ${first.project}`}
-        className="text-sm"
-      >
-        <span className="max-w-56 truncate">{first.project}</span>
-      </GhostLink>
-      {rest.length > 0 && (
-        <GhostLink
-          href={`${companyHref(company.id)}#news`}
-          title={rest.map((project) => project.project).join(", ")}
-          className="tnum text-sm"
-        >
-          +{rest.length}
-        </GhostLink>
-      )}
-    </>
+    <GhostLink
+      href={rest.length ? `${companyHref(company.id)}#news` : projectHref(first.employer_id, first.project_id)}
+      icon={<Glyph icon={Target} />}
+      title={`Matches ${[first, ...rest].map((project) => project.project).join(", ")}`}
+      className="text-sm"
+    >
+      <span className="max-w-56 truncate">{first.project}</span>
+      {rest.length > 0 && <span className="tnum text-soft">+{rest.length}</span>}
+    </GhostLink>
   );
 };
 
