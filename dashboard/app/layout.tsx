@@ -67,7 +67,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               model={preferred}
               nav={<Nav key="nav" store={store()} limits={usage()} models={MODELS} model={preferred} />}
             >
-              <main id="content" className="mx-auto w-full min-w-0 max-w-[104rem] flex-1 px-4 py-6 md:px-6 md:py-7">
+              <main
+                id="content"
+                className="mx-auto w-full min-w-0 max-w-[104rem] flex-1 px-4 py-6 md:px-6 md:py-7 pointer-fine:pb-[var(--dock-clear)]"
+              >
                 {children}
               </main>
             </Dock>

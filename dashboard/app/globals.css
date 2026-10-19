@@ -85,7 +85,7 @@
   --color-mark-content: oklch(21% 0.04 45);
   --animate-blink: blink 1.2s ease-in-out infinite;
   --animate-arrive: arrive 0.5s ease-out 1;
-  --animate-beacon: beacon 9s linear infinite;
+  --animate-beacon: beacon 12s linear infinite;
 
   @keyframes blink {
     0%,
@@ -129,6 +129,7 @@ html {
   --label: 13rem;
   --nav: 2.75rem;
   --dock-tall: 40rem;
+  --dock-clear: 6rem;
   --float: 0.75rem;
   --hit: 2.5rem;
   --lit-hi: #ec8a60;
@@ -136,9 +137,11 @@ html {
   --glow: #e27042;
   --glow-amber: #f2a64a;
   --glow-rose: #e0566a;
+  --beacon: 0.6;
 }
 
 [data-theme="night"] {
+  --beacon: 0.35;
   --soft: oklch(68% 0.012 85);
   --signal: oklch(76% 0.13 50);
   --rule: oklch(25% 0.008 85);
@@ -146,6 +149,7 @@ html {
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --beacon: 0.35;
     --soft: oklch(68% 0.012 85);
     --signal: oklch(76% 0.13 50);
     --rule: oklch(25% 0.008 85);
@@ -154,6 +158,7 @@ html {
 
 @media (prefers-color-scheme: dark) {
   [data-theme="readout"] {
+    --beacon: 0.6;
     --soft: oklch(46% 0.016 85);
     --signal: oklch(48% 0.16 42);
     --rule: var(--color-base-200);
@@ -243,6 +248,7 @@ html {
     )
     0 0 / 300% 100%;
   filter: blur(1.25rem);
+  opacity: var(--beacon);
 }
 
 @utility tnum {

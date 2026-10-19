@@ -10,6 +10,7 @@ import Named from "@/components/Named";
 import Wordmark from "@/components/Wordmark";
 import { Conversation, focusEnd, useRun, type Asking } from "@/components/run";
 import { Caret, Flag, Ghost, Measure, Row, Stamp, Tip } from "@/components/ui";
+import { useGlide } from "@/components/useGlide";
 import { useKey } from "@/components/useKey";
 import { usePing } from "@/components/usePing";
 import { CHAT, asked, commanded, unprefixed } from "@/lib/actions";
@@ -18,6 +19,7 @@ import type { Model } from "@/lib/queries";
 import type { Run } from "@/lib/runs";
 
 const WATCH = 4000;
+const LINGER = 300;
 
 type Dock = {
   working: boolean;
@@ -64,6 +66,9 @@ export default function Dock({
   const [gone, setGone] = useState<string | null>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const dock = useRef<HTMLDivElement>(null);
+  const card = useRef<HTMLDivElement>(null);
+  const slide = useRef<HTMLDivElement>(null);
+  const lingering = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const chat = held && held.id !== gone ? held : null;
   const opened = run !== null;
@@ -71,6 +76,7 @@ export default function Dock({
   const waiting = chat?.standing === WAITING;
   const talking = picked ?? chat?.model ?? model;
   const { sounding, toggleSound } = usePing(chat);
+  useGlide(card, slide);
 
   useEffect(() => {
     const tag = document.querySelector("title");
@@ -186,13 +192,25 @@ export default function Dock({
       <aside
         aria-label="Chat"
         data-held={Boolean(chat || opened || said) || undefined}
+        onPointerLeave={(event) => {
+          const aside = event.currentTarget;
+          aside.dataset.linger = "";
+          clearTimeout(lingering.current);
+          lingering.current = setTimeout(() => delete aside.dataset.linger, LINGER);
+        }}
+        onPointerEnter={(event) => {
+          clearTimeout(lingering.current);
+          delete event.currentTarget.dataset.linger;
+        }}
         className="group/dock sticky bottom-0 z-30 pointer-fine:fixed pointer-fine:inset-x-0"
       >
         <div
+          ref={slide}
           className="relative bg-base-200 px-4 pb-4 transition-transform duration-200 ease-out
             before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-8
             before:bg-linear-to-t before:from-base-200 before:transition-opacity before:duration-200 md:px-6 md:pb-6
-            pointer-fine:translate-y-full pointer-fine:delay-300 pointer-fine:before:opacity-0 pointer-fine:before:delay-300
+            pointer-fine:translate-y-full pointer-fine:before:opacity-0
+            pointer-fine:group-data-linger/dock:delay-300 pointer-fine:group-data-linger/dock:before:delay-300
             pointer-fine:group-summoned/dock:translate-y-0 pointer-fine:group-summoned/dock:delay-0
             pointer-fine:group-summoned/dock:before:opacity-100 pointer-fine:group-summoned/dock:before:delay-0"
         >
@@ -202,6 +220,7 @@ export default function Dock({
               className="pointer-events-none absolute inset-x-0 -top-3 bottom-0 rounded-box beacon motion-safe:animate-beacon"
             />
             <div
+              ref={card}
               className={`relative flex max-h-[min(var(--dock-tall),calc(100dvh-var(--nav)-3rem))] min-w-0 flex-1
                 flex-col overflow-hidden rounded-box border bg-base-100
                 ${waiting ? "border-mark" : "border-mark/30"}`}
