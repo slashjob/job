@@ -1,12 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { Newspaper } from "lucide-react";
 import { Card, Out } from "@/components/ui";
 import { shortDate } from "@/lib/format";
-import { projectHref } from "@/lib/links";
 import type { Article } from "@/lib/queries";
+import { Matches } from "../../jobs";
 
 function Photo({ article }: { article: Article }) {
   const [broken, setBroken] = useState(false);
@@ -44,16 +43,6 @@ const Byline = ({ article }: { article: Article }) => (
   </p>
 );
 
-const Match = ({ article }: { article: Article }) =>
-  article.project_id !== null && article.employer_id !== null ? (
-    <p className="mt-2 text-sm text-soft">
-      Matches{" "}
-      <Link href={projectHref(article.employer_id, article.project_id)} className="link text-base-content">
-        {article.project}
-      </Link>
-    </p>
-  ) : null;
-
 export default function Articles({ articles }: { articles: Article[] }) {
   return articles.map((article) => (
     <Card key={article.article_id} soft>
@@ -63,7 +52,7 @@ export default function Articles({ articles }: { articles: Article[] }) {
           <h3 className="line-clamp-2 font-display font-medium">{article.title}</h3>
           <Byline article={article} />
           {article.reason && <p className="mt-3 leading-relaxed">{article.reason}</p>}
-          <Match article={article} />
+          <Matches articles={[article]} />
         </div>
       </div>
     </Card>

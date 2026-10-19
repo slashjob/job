@@ -46,6 +46,7 @@ export function LinkCard({
   href,
   title,
   subtitle,
+  stamp,
   meta,
   tools,
   children,
@@ -53,6 +54,7 @@ export function LinkCard({
   href: string;
   title: string | null;
   subtitle?: ReactNode;
+  stamp?: ReactNode;
   meta?: ReactNode;
   tools: ReactNode;
   children?: ReactNode;
@@ -60,9 +62,12 @@ export function LinkCard({
   return (
     <Card soft>
       <Linked href={href}>
-        <h3 className="line-clamp-2 font-display text-lg font-medium leading-snug sm:line-clamp-1">
-          <TitleLink href={href}>{title}</TitleLink>
-        </h3>
+        <div className="flex items-baseline gap-3">
+          <h3 className="line-clamp-2 min-w-0 flex-1 font-display text-lg font-medium leading-snug sm:line-clamp-1">
+            <TitleLink href={href}>{title}</TitleLink>
+          </h3>
+          {stamp}
+        </div>
         {subtitle && <p className="mt-0.5 truncate text-sm font-medium text-soft">{subtitle}</p>}
 
         {children}

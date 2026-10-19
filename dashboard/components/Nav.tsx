@@ -7,11 +7,10 @@ import { User } from "lucide-react";
 import Glyph from "./Glyph";
 import Store from "./Store";
 import ThemeToggle from "./ThemeToggle";
-import TurnOff from "./TurnOff";
 import { useKey } from "./useKey";
 import Usage from "./Usage";
 import Wordmark from "./Wordmark";
-import { Divider, GhostLink, NavGroup } from "@/components/ui";
+import { GhostLink, NavGroup } from "@/components/ui";
 import type { Model } from "@/lib/queries";
 import type { Store as Facts } from "@/lib/store";
 import type { Usage as Limits } from "@/lib/usage";
@@ -39,7 +38,13 @@ export default function Nav({
   );
   const profile = here.startsWith("/profile");
   return (
-    <nav aria-label="Sections" className="sticky top-0 z-40 bg-base-100">
+    <nav
+      aria-label="Sections"
+      className="sticky top-0 z-40 border-b border-base-300 bg-base-100 transition-transform duration-200 ease-out
+        pointer-fine:fixed pointer-fine:inset-x-0 pointer-fine:-translate-y-full
+        pointer-fine:after:absolute pointer-fine:after:inset-x-0 pointer-fine:after:top-full pointer-fine:after:h-2
+        pointer-fine:hover:translate-y-0 pointer-fine:has-focus-visible:translate-y-0"
+    >
       <div className="mx-auto flex h-[var(--nav)] max-w-[104rem] items-center gap-1 px-2 sm:gap-4 sm:px-4 md:px-6">
         <Link href="/jobs" aria-label="Jobs" className="mr-auto rounded-field p-1.5">
           <Wordmark />
@@ -66,12 +71,9 @@ export default function Nav({
               <Store store={store} />
             </li>
           </NavGroup>
-
-          <Divider />
-
-          <TurnOff />
         </div>
       </div>
     </nav>
   );
 }
+

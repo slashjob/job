@@ -279,10 +279,6 @@ export function halt(id: string) {
   one.child.kill("SIGTERM");
 }
 
-export function haltAll() {
-  for (const id of live().keys()) halt(id);
-}
-
 export function watch(id: string, signal: AbortSignal) {
   const kept = held(id);
   const encoder = new TextEncoder();

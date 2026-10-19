@@ -51,13 +51,13 @@ export default async function CompanyPage({ params }: PageProps<"/jobs/company/[
       </header>
 
       {found.articles.length > 0 && (
-        <Group heading="News" count={found.articles.length} items="cards">
+        <Group id="news" heading="News" count={found.articles.length} items="cards">
           <Articles articles={found.articles} />
         </Group>
       )}
 
       {found.jobs.length > 0 && (
-        <Group heading="Openings" count={found.jobs.length} items="rows">
+        <Group id="openings" heading="Openings" count={found.jobs.length} items="rows">
           {found.jobs.map((job) => (
             <Linked
               key={job.key}
@@ -71,7 +71,7 @@ export default async function CompanyPage({ params }: PageProps<"/jobs/company/[
       )}
 
       {found.people.length > 0 && (
-        <Group heading="Contacts" count={found.people.length} items="rows">
+        <Group id="contacts" heading="Contacts" count={found.people.length} items="rows">
           {found.people.map((person) => (
             <Person key={person.id} person={person} />
           ))}

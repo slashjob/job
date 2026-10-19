@@ -17,7 +17,12 @@ export const Measure = ({
   </div>
 );
 
-export const Page = ({ children }: { children: ReactNode }) => <Measure>{children}</Measure>;
+export const Page = ({ toolbar, children }: { toolbar?: ReactNode; children: ReactNode }) => (
+  <Measure>
+    {toolbar && <div className="mb-6 flex items-center justify-end gap-3">{toolbar}</div>}
+    {children}
+  </Measure>
+);
 
 export const Card = ({
   children,
@@ -119,8 +124,6 @@ export const Button = ({
     {children}
   </button>
 );
-
-export const Divider = () => <span aria-hidden className="h-4 w-px shrink-0 bg-base-300 max-sm:hidden" />;
 
 export const NavGroup = ({ children, fill }: { children: ReactNode; fill?: boolean }) => (
   <ul className={`flex items-center gap-0.5 sm:gap-1 ${fill ? "strip min-w-0 flex-1" : "shrink-0"}`}>{children}</ul>

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { Fragment } from "react";
 import { useRouter } from "next/navigation";
 import { Copy, FileText } from "lucide-react";
 import { Command, copyKey, useDiscard, usePass } from "@/components/act";
@@ -9,8 +11,8 @@ import { TitleLink } from "@/components/Linked";
 import { DeleteMenu, OptionsButton, deleteOption, type Option } from "@/components/Options";
 import { Stamp } from "@/components/ui";
 import { places, shortDate, shortPay } from "@/lib/format";
-import { assetHref, jobHref } from "@/lib/links";
-import type { Company, Job } from "@/lib/queries";
+import { assetHref, jobHref, projectHref } from "@/lib/links";
+import type { Article, Company, Job } from "@/lib/queries";
 
 export function where(job: Job) {
   const { lead, more } = places(job.location);
@@ -103,3 +105,31 @@ export const JobRow = ({ job }: { job: Job }) => {
     </div>
   );
 };
+
+type Matched = Pick<Article, "project" | "project_id" | "employer_id">;
+
+export const projectsOf = (articles: Matched[]) =>
+  articles.filter(
+    (article, at, all) =>
+      article.project_id !== null &&
+      article.employer_id !== null &&
+      all.findIndex((other) => other.project_id === article.project_id) === at,
+  );
+
+export function Matches({ articles }: { articles: Matched[] }) {
+  const projects = projectsOf(articles);
+  if (!projects.length) return null;
+  return (
+    <p className="mt-2 text-sm text-soft">
+      Matches{" "}
+      {projects.map((project, at) => (
+        <Fragment key={project.project_id}>
+          {at > 0 && ", "}
+          <Link href={projectHref(project.employer_id!, project.project_id!)} className="link text-base-content">
+            {project.project}
+          </Link>
+        </Fragment>
+      ))}
+    </p>
+  );
+}
