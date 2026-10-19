@@ -1,14 +1,14 @@
 # Contact
 
-Finding who to write to about a posting or a news lead, and how to reach them. The deliverable is
+Writing to someone at a company, about the company or one of its postings. The deliverable is
 first a recommendation in chat — the person, why them, and the way to reach them — and, once the
 user settles on it, the message drafted there and left unsent; invariant 1 covers Send as much as
 Submit.
 
 ## About what
 
-A posting key, or a company with a news lead. **A company with more than one posting
-`shortlisted`, `staged`, `applied` or `interviewing` is asked about, by title.** A person named
+A posting key, or a company. **A company with more than one opening is
+asked about, by title.** A person named
 instead is written to for the purpose the invocation states; with none, ask.
 
 **A name alone matches several companies**, and the wrong one returns real people who work somewhere
@@ -20,13 +20,14 @@ names one. The firm's own staff are not a way in.
 
 ## Who
 
-**One person, two at most, chosen now from why.** Nobody is stored: the right person changes as
-people join and leave.
+**One person, two at most, chosen from why.** The search stores the people worth writing to at each
+company — `cli/search.ts contacts --company <id>` — so start from them, and look further only when
+none fits why the user is writing. Store whoever is found the same way.
 
 | Why | Who |
 | --- | --- |
 | A posting | The hiring manager — whoever leads the team the role sits in. The posting sometimes names them. The recruiter on it where no hiring manager can be told apart |
-| A news lead | A founder, or whoever leads engineering |
+| The company | A founder, or whoever leads engineering |
 
 **A 1st-degree connection at the company is a way in worth naming beside them** — the company's
 LinkedIn page says how many work there. They are asked to refer or introduce, not to hire.
@@ -42,27 +43,26 @@ pages. A sign-in page is theirs to get past: ask, naming the tab, and wait.
 
 ## How to reach them
 
-**The way that holds the whole message and that this person reads.** Look in this order, and stop at
-the first that holds:
+**Email, above every other way.** Look in this order:
 
-1. **An email address published for them**, or for this kind of inquiry — the company website's
-   team, about or contact page, their own site, the posting. An address for anyone, `info@`, is a
-   way into a news lead, never into a posting.
-2. **X, where they post.** A DM, where their DMs are open.
-3. **LinkedIn**: Message for a 1st; otherwise Connect, with a note.
+1. **An address published for them** — the company website's team, about or contact page, their own
+   site, the posting.
+2. **A guess at their address.** Where any address at the company's domain is published, follow its
+   pattern (`jane.doe@` means `first.last@`); with none, their first name at the domain. One guess,
+   the likeliest; a bounce is the test.
+3. **X or LinkedIn only where no domain can be found to guess at**: an X DM where their DMs are
+   open; otherwise LinkedIn Message for a 1st, Connect with a note for anyone else.
 
-**An email address is never guessed and sent to by you.** With none published, list the likely
-ones in order, first name at the company's domain first, for the user to try; a bounce is the test.
+**An address for anyone, `info@`, is a way into the company, never into a posting** — a guessed
+address for the person beats it.
 
 ## Bring it to the user
 
 Under the opening sentence: the person, their title, why them, the way to reach them and where it
-was found; anyone else worth weighing, a line each. **Then stop.** Whether to write, to whom, and
+was found, or that the address is a guess; anyone else worth weighing, a line each. **Then stop.** Whether to write, to whom, and
 which way, is decided with the user before anything is drafted.
 
 ## Writing it
-
-For a news lead, read `references/news.md`, **Writing to a lead**, first.
 
 | Way | Where the message goes |
 | --- | --- |
@@ -83,15 +83,20 @@ of how well the two know each other, and a message that introduces the user to s
 last month reads as a mail merge. If the thread already holds an unanswered ask for the same thing,
 stop and say so rather than adding a second.
 
+### About the company
+
+**The purpose**: what the news reported they are building, the project of the user's that built the
+same, and the one thing in its row that shows it. Never imply an opening they have not posted.
+
 ### About a posting
 
 **The match**: the title as the posting spells it, with the posting's URL where the box has room.
 Then what the posting asks for most and the one or two things in the record that meet it — by the
 same rule as a fit question in `references/applying.md`, not the resume retold.
 
-**Say where the application stands, as the posting's `status` has it** — in already, or about to go
-in. Some employers only take a referral made before the application, so the reader needs to know
-which.
+**Say where the application stands — ask the user whether it is in already**, since nothing here
+records it. Some employers only take a referral made before the application, so the reader needs to
+know which.
 
 **The hiring manager or a recruiter is asked only to look at it**: a referral goes to them. Anyone
 else at the company is asked for a referral if, having read the match, they think the fit is real.

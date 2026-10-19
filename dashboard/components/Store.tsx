@@ -116,7 +116,6 @@ export default function Store({ store }: { store: Facts }) {
         {store.logBytes > 0 && <Fact label="Unmerged log" value={byteSize(store.logBytes)} />}
         <Fact label="Last written" value={new Date(store.modified).toLocaleString()} />
         <Fact label="Postings" value={store.postings.toLocaleString()} />
-        <Fact label="Staged" value={store.staged.toLocaleString()} />
       </div>
     </MenuButton>
   );

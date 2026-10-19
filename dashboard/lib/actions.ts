@@ -1,56 +1,35 @@
-import type { Status } from "./schema.ts";
-
 export type Action = {
   id: string;
   does: string;
   argument: string;
-  accepts: Status[];
   browses: boolean;
   asks?: string;
 };
 
 export const ACTIONS: Action[] = [
-  {
-    id: "all",
-    does: "Run all actions: search, resume, stage",
-    argument: "",
-    accepts: [],
-    browses: true,
-  },
-  { id: "setup", does: "Build your profile", argument: "", accepts: [], browses: false },
+  { id: "setup", does: "Build your profile", argument: "", browses: false },
   {
     id: "search",
-    does: "Search the job boards for openings that fit your profile",
-    argument: "[terms]",
-    accepts: [],
-    browses: false,
+    does: "Find companies in the news building what you have built, their openings, and who to write to",
+    argument: "[project]",
+    browses: true,
   },
   {
     id: "resume",
-    does: "Tailor a resume for one or more job openings",
+    does: "Tailor a resume for a job, or for every job without one",
     argument: "[JD, URL, or key]",
-    accepts: ["new", "shortlisted", "skipped", "staged"],
     browses: false,
   },
   {
     id: "apply",
-    does: "Fill out a job application",
-    argument: "[key or URL]",
-    accepts: ["new", "shortlisted", "skipped", "staged"],
-    browses: true,
-  },
-  {
-    id: "news",
-    does: "Find companies in the news building what you have built",
-    argument: "[project]",
-    accepts: [],
+    does: "Fill out the application for one job, for you to submit",
+    argument: "<key or URL>",
     browses: true,
   },
   {
     id: "contact",
-    does: "Find who to write to about a job or a news lead, and how to reach them",
+    does: "Write to someone at a company, about it or one of its jobs",
     argument: "[key or company]",
-    accepts: [],
     browses: true,
   },
 ];
@@ -59,7 +38,7 @@ export const CHAT: Action = {
   id: "chat",
   does: "Talk to Claude",
   argument: "",
-  accepts: [],
+
   browses: false,
   asks: "Write a message, or type / for an action",
 };
@@ -67,7 +46,7 @@ export const CHAT: Action = {
 const BY_ID = new Map([...ACTIONS, CHAT].map((action) => [action.id, action]));
 
 export const asked = (id: string, argument: string) =>
-  id === CHAT.id ? argument : `/job${id === "all" ? "" : ` ${id}`}${argument ? ` ${argument}` : ""}`;
+  id === CHAT.id ? argument : `/job ${id}${argument ? ` ${argument}` : ""}`;
 
 export const unprefixed = (said: string) => said.replace(/^\/job(?=\s|$)\s*/, "");
 
@@ -78,16 +57,14 @@ const commands = new Set(ACTIONS.map((action) => action.id));
 export const suggested = (said: string): Action[] => {
   if (!said.startsWith("/") || said.includes("\n")) return [];
   const seek = said.trim().toLowerCase();
-  return ACTIONS.filter(
-    (action) => asked(action.id, "").startsWith(seek) || (action.id !== "all" && `/${action.id}`.startsWith(seek)),
-  );
+  return ACTIONS.filter((action) => asked(action.id, "").startsWith(seek) || `/${action.id}`.startsWith(seek));
 };
 
 export function commanded(said: string): { action: string; argument: string } | null {
   const parts = said.match(/^\/job(?:\s+(\S+)\s*([\s\S]*?))?\s*$/);
   if (!parts) return null;
   const [, id, argument = ""] = parts;
-  if (!id) return { action: "all", argument: "" };
+  if (!id) return { action: "search", argument: "" };
   return commands.has(id) ? { action: id, argument } : null;
 }
 
@@ -96,11 +73,3 @@ export const shown = (id: string, argument: string) => (BY_ID.get(id)?.asks ? ar
 export const browses = (id: string) => Boolean(BY_ID.get(id)?.browses);
 
 export const describes = (id: string) => BY_ID.get(id)?.does ?? "";
-
-export const offered = (status: string | null | undefined) =>
-  ACTIONS.filter((action) => action.accepts.some((allowed) => allowed === status));
-
-export function actionsFor(status: string | null | undefined) {
-  const ids = offered(status).map((action) => action.id);
-  return { resume: ids.filter((id) => id === "resume"), other: ids.filter((id) => id !== "resume") };
-}

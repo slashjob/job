@@ -4,8 +4,6 @@ import { TABLES, VIEWS, type Table } from "./db.gen.ts";
 
 export { TABLES, VIEWS, type Table };
 
-export type Status = NonNullable<z.infer<typeof TABLES.postings.shape.status>>;
-
 export const bare = (shape: z.ZodType): z.ZodType =>
   shape instanceof z.ZodNullable ? bare(shape.unwrap() as z.ZodType) : shape;
 

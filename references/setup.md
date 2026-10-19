@@ -24,21 +24,22 @@ path, or `NULL`, and anything they must do themselves comes with the exact keys 
   pressing.
 - **What to do with all that.** One piece of prose in `instructions.text`, written in their words
   and read over the profile rather than repeating it. Nothing forces a question here, so **ask all
-  of it**: the work they want, strongest first, in the words a job board would use for it — the
-  search is typed off this prose, so it has to name the roles plainly enough to search on —
+  of it**: the work they want, strongest first, in the words a job board would use for it — every
+  opening at a company is judged off this prose, so it has to name the roles plainly enough to tell
+  one from another —
   seniority, the years a posting may ask for before it stops fitting, what makes an opening better,
   what puts them off, and what makes them skip it outright — and **how those relate**, which is the
   judgement a list cannot hold. Keep the slopes they describe: "7+ years only when the rest is a
   bullseye" is the answer, not a number. **Name the hard stops as hard stops** in the prose, or they
   read as a strong dislike. **Name the titles and the employers they never want**, plainly enough
-  to type into a search box — a title they never take, a staffing firm, a former employer — because
-  the search excludes them off this prose. **A fact `identity` or their work history already holds does not
+  to rule out on sight — a title they never take, a staffing firm, a former employer — because
+  the search drops them off this prose. **A fact `identity` or their work history already holds does not
   belong here** — where they live, remote preference, relocation, employment type, the floor, what
-  they have built. `cli/score.ts instructions` prints those above the prose, so restating them only
+  they have built. `cli/search.ts instructions` prints those above the prose, so restating them only
   gives the two a chance to disagree.
 - **Their experience.** The longest part and the one that matters most: `employers` → `projects` is
-  **the only source a resume may draw from and the background every score is judged against**, so a
-  thin profile produces thin resumes and scores that cannot tell a fitting posting from a stretch.
+  **the only source a resume may draw from and the background every opening is judged against**, so a
+  thin profile produces thin resumes and a search that cannot tell a fitting posting from a stretch.
   The technologies on a project are matched against the JD, so name them even where the prose about
   the project already implies them. **Open by asking what already describes their work, before
   asking them to describe it** — a resume or CV, LinkedIn, a personal site, a blog, GitHub, or
@@ -56,12 +57,12 @@ A `NULL` is not a failure — it is a hard stop later. Tell them which ones will
 each named as the question a form would ask.
 
 **3. Check the prose covers the search.** There is no filter table: `instructions.text` and
-`identity` are the only two places a preference can live, and every argument of the search — the
-terms, the places, what to leave out — is typed off them. Read the prose back with that call in
+`identity` are the only two places a preference can live. The news is searched off the projects;
+what the search keeps — the places, what to leave out — is typed off these two. Read the prose back with that call in
 mind. If you cannot fill an argument from it, that is a missing sentence, not a missing feature: ask
 for it, and add it to the prose in their words.
 
-**4. Do a dry run.** Search one board for a role they named — `references/boards.md` and
-`references/searching.md` are the how — then query `triage`. It costs nothing, so the point is only to see whether the
-prose aims straight. Sensible companies means it is tuned; nothing, or all noise, means another pass
-at what the instructions say and at the queries you built from them.
+**4. Do a dry run.** Search for one project — `references/searching.md` is the how — then list
+`cli/search.ts companies`. It costs nothing, so the point is only to see whether the projects and
+the prose aim straight. Sensible companies means it is tuned; nothing, or all noise, means another
+pass at what the projects and instructions say and at the queries you built from them.

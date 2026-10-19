@@ -32,12 +32,10 @@ Type any of these into Claude Code and press <kbd>Enter</kbd>:
 
 | Type                       | To                                                                                                       |
 | -------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `/job`                     | find jobs, write resumes, and fill in applications, left open in the browser for you to check and submit |
-| `/job search`              | only find jobs                                                                                           |
-| `/job resume`              | only write resumes                                                                                       |
-| `/job apply`               | fill in applications                                                                                     |
-| `/job news`                | find companies in the news building what you have built, before they post a role                         |
-| `/job contact`             | find who to write to about a job or a news lead, and draft it with you, left for you to send             |
+| `/job`                     | find companies building what you have built, their jobs, and who to write to                             |
+| `/job resume`              | write a resume for a job                                                                                 |
+| `/job apply`               | fill in a job's application, left open in the browser for you to check and submit                       |
+| `/job contact`             | write to someone at a company about it or one of its jobs, drafted with you, left for you to send        |
 | `/job dashboard`           | open the dashboard                                                                                       |
 | `/job install`             | update to the latest version                                                                             |
 | `/job help`                | list every command                                                                                       |

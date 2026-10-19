@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { db, one, rows } from "./core/db.ts";
+import { one, rows } from "./core/db.ts";
 import { TABLES, VIEWS } from "./core/schema.ts";
 
 const Standing = TABLES.identity.pick({
@@ -23,17 +23,7 @@ const Prospect = VIEWS.prospects.pick({
   compensation: true,
   posted_at: true,
   url: true,
-  score: true,
-  status: true,
   description: true,
-});
-
-const Pending = VIEWS.prospects.pick({
-  key: true,
-  company: true,
-  title: true,
-  location: true,
-  last_updated: true,
 });
 
 const Worked = VIEWS.career.pick({
@@ -47,7 +37,6 @@ const Worked = VIEWS.career.pick({
 
 const Span = VIEWS.experience.pick({ years: true, clock_starts: true });
 
-const Scored = VIEWS.prospects.pick({ score: true, status: true });
 const Written = TABLES.instructions;
 
 export type Prospect = z.infer<typeof Prospect>;
@@ -96,31 +85,7 @@ export const instructions = () => ({
   text: one(Written, "SELECT text FROM instructions WHERE id=1")?.text ?? null,
 });
 
-export const triage = (filter: { status?: string; limit?: number } = {}) =>
-  rows(
-    VIEWS.triage,
-    "SELECT * FROM triage" +
-      (filter.status ? " WHERE status=?" : "") +
-      (filter.limit ? ` LIMIT ${Number(filter.limit)}` : ""),
-    filter.status ? [filter.status] : [],
-  );
+export const openings = (unbuilt = false) =>
+  rows(VIEWS.triage, "SELECT * FROM triage" + (unbuilt ? " WHERE resume IS NULL" : ""));
 
 export const prospect = (key: string) => one(Prospect, `SELECT ${listed(Prospect)} FROM prospects WHERE key=?`, [key]);
-
-export const unscored = () =>
-  rows(Pending, `SELECT ${listed(Pending)} FROM prospects WHERE score IS NULL ORDER BY last_updated DESC`);
-
-export function record(key: string, score: number, reason: string) {
-  const row = prospect(key);
-  if (!row) throw new Error(`no prospect '${key}'`);
-  if (!(score >= 0 && score <= 10)) throw new Error(`score must be 0-10, got ${score}`);
-  if (!reason.trim()) throw new Error("a reason cannot be empty: name the JD language that drove the score");
-  if (!(row.description ?? "").trim())
-    throw new Error(
-      `${key} has no description — scoring off a title is what this action exists ` +
-        "to prevent. Open the posting, read it, and store the description first",
-    );
-
-  db().prepare("UPDATE postings SET score=?, reason=? WHERE key=?").run(score, reason.trim(), key);
-  return one(Scored, `SELECT ${listed(Scored)} FROM prospects WHERE key=?`, [key])!;
-}

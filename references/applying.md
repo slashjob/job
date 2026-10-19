@@ -1,7 +1,7 @@
 # Application forms per ATS
 
 Reaching, reading and filling a form with the Playwright MCP tools. This action ends with the form
-filled and staged; the user submits.
+filled and left open in its tab; the user submits.
 
 ## Who answers a field
 
@@ -38,8 +38,6 @@ first half of this action, and the employer's form beats a board-hosted one when
 2. **Search the web when it dead-ends** — a board-hosted form, an expired listing, or a redirect
    that lands on a careers homepage. Search the exact title plus the company name, and prefer a
    result on an ATS domain over the employer's marketing page.
-3. **Store what you land on.** `staged.url` is the form actually filled, so a later run does not
-   resolve it twice.
 
 **Confirm it is the same role before filling.** A search can land on a different opening at the same
 employer. Title and location must match the prospect; if they do not, flag it rather than applying.
@@ -70,9 +68,6 @@ browser_snapshot
 
 Greenhouse and Lever are usually ready on load; snapshot and check for field refs before assuming.
 Clear `.playwright-mcp/` at the end of a run.
-
-**Check for a duplicate before staging**: `$Q "SELECT status FROM prospects WHERE key='…'"`. A second
-application to the same role reads as carelessness and can burn a stated limit.
 
 ## Filling
 
@@ -132,9 +127,8 @@ Re-snapshot and check every required field — marked `*` — holds a value. The
 uncommitted typeahead, a radio group that looks answered because one option is visible, and a file
 input that never received the upload.
 
-Then `cli/stage.ts add`, naming `--blocked-on` if anything is still unanswered.
-
-**Leave the tab open. The filled form is the record.** Whatever the user needs to weigh in on, raise
+**Leave the tab open. The filled form is the record.** Hand it over with what is still unanswered,
+each named as the question the form asks. Whatever the user needs to weigh in on, raise
 it in the conversation while the tab is open.
 
 `cli/profile.ts answers` and `cli/profile.ts missing` are where the stored answers come from, and which of
@@ -187,10 +181,10 @@ page was complete. **Work Experience, Education and Skills are optional** when a
 - **Published salary ranges.** Ashby prints the band on the posting. Read it before answering any
   compensation field: answering a $120,000 floor against a published $180K–$240K band anchors the
   negotiation sixty thousand dollars below where the employer opened it.
-- **Application limits.** Some companies state them ("5 per 90 days"). `postings` records every
-  application with its company and date — count what has already gone there before staging another.
+- **Application limits.** Some companies state them ("5 per 90 days"). Nothing here records an
+  application, so name the limit to the user before filling.
 - **Cover letter fields** are usually optional. Leave optional essay fields empty rather than filling
   them with something generic; a weak answer costs more than no answer.
 - **"How did you hear about us?"** — answer the company's job board, which is true.
 - **Login walls.** Some forms require an account before showing any fields — flag for the user, and
-  stage what is reachable.
+  fill what is reachable.

@@ -4,9 +4,8 @@ import path from "node:path";
 import { NodeCompiler, type NodeError } from "@myriaddreamin/typst-ts-node-compiler";
 import { extractText, getDocumentProxy } from "unpdf";
 
-import { db, one } from "./core/db.ts";
+import { db } from "./core/db.ts";
 import { ROOT } from "./core/root.ts";
-import { VIEWS } from "./core/schema.ts";
 import { DEFAULT_MARGINS, DENSITY, FONTS, build as markup, type Density } from "./core/typst.ts";
 
 const FONT_DIR = path.join(ROOT, "assets", "fonts");
@@ -88,8 +87,7 @@ export async function build(
 
   if (!options.key) return { out, density, pages, foot, recorded: null };
 
-  const row = one(VIEWS.prospects.pick({ status: true }), "SELECT status FROM prospects WHERE key=?", [options.key]);
-  if (!row) throw new Error(`no prospect '${options.key}' — the PDF is at ${out}, unrecorded`);
-  db().prepare("UPDATE postings SET resume=? WHERE key=?").run(out, options.key);
-  return { out, density, pages, foot, recorded: row.status };
+  if (!db().prepare("UPDATE postings SET resume=? WHERE key=?").run(out, options.key).changes)
+    throw new Error(`no prospect '${options.key}' — the PDF is at ${out}, unrecorded`);
+  return { out, density, pages, foot, recorded: options.key };
 }

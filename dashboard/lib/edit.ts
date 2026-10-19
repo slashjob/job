@@ -103,11 +103,7 @@ function removeResume(held: string) {
 
 export async function discard(key: string): Promise<Dropped> {
   try {
-    const found = one(
-      z.object({ resume: z.string().nullable() }),
-      "SELECT resume FROM postings WHERE key=?",
-      [key],
-    );
+    const found = one(z.object({ resume: z.string().nullable() }), "SELECT resume FROM postings WHERE key=?", [key]);
     if (!found) return { error: `no posting keyed ${key}` };
     db().prepare("DELETE FROM postings WHERE key=?").run(key);
     const shared =
@@ -120,12 +116,12 @@ export async function discard(key: string): Promise<Dropped> {
   }
 }
 
-export async function pass(article_id: string): Promise<Dropped> {
+export async function pass(company: number): Promise<Dropped> {
   try {
-    if (!db().prepare("UPDATE news SET status='passed' WHERE article_id=? AND status = 'lead'").run(article_id).changes)
-      return { error: `no news lead ${article_id}` };
+    if (!db().prepare("UPDATE companies SET status='passed' WHERE id=? AND status = 'lead'").run(company).changes)
+      return { error: `no company ${company}` };
     revalidatePath("/", "layout");
-    return { gone: article_id };
+    return { gone: String(company) };
   } catch (error) {
     return failed(error);
   }

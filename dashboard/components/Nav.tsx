@@ -2,25 +2,21 @@
 
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Briefcase, Newspaper, User, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { User } from "lucide-react";
 import Glyph from "./Glyph";
 import Store from "./Store";
 import ThemeToggle from "./ThemeToggle";
 import TurnOff from "./TurnOff";
 import { useKey } from "./useKey";
 import Usage from "./Usage";
+import Wordmark from "./Wordmark";
 import { Divider, GhostLink, NavGroup } from "@/components/ui";
 import type { Model } from "@/lib/queries";
 import type { Store as Facts } from "@/lib/store";
 import type { Usage as Limits } from "@/lib/usage";
 
-type Item = { href: string; label: string; icon: LucideIcon; key: string };
-
-const SECTIONS: Item[] = [
-  { href: "/jobs", label: "Jobs", icon: Briefcase, key: "j" },
-  { href: "/news", label: "News", icon: Newspaper, key: "w" },
-  { href: "/profile", label: "Profile", icon: User, key: "p" },
-];
+const KEYS: Record<string, string> = { j: "/jobs", p: "/profile" };
 
 export default function Nav({
   store,
@@ -35,31 +31,31 @@ export default function Nav({
 }) {
   const here = usePathname();
   const router = useRouter();
-  useKey(useMemo(() => Object.fromEntries(SECTIONS.map(({ href, key }) => [key, () => router.push(href)])), [router]));
+  useKey(
+    useMemo(
+      () => Object.fromEntries(Object.entries(KEYS).map(([key, href]) => [key, () => router.push(href)])),
+      [router],
+    ),
+  );
+  const profile = here.startsWith("/profile");
   return (
     <nav aria-label="Sections" className="sticky top-0 z-40 bg-base-100">
       <div className="mx-auto flex h-[var(--nav)] max-w-[104rem] items-center gap-1 px-2 sm:gap-4 sm:px-4 md:px-6">
-        <NavGroup fill>
-          {SECTIONS.map(({ href, label, icon }) => {
-            const active = here.startsWith(href);
-            return (
-              <li key={href}>
-                <GhostLink
-                  href={href}
-                  on={active}
-                  aria-current={active ? "page" : undefined}
-                  className="whitespace-nowrap text-sm"
-                  icon={<Glyph icon={icon} />}
-                >
-                  <span className="max-sm:sr-only">{label}</span>
-                </GhostLink>
-              </li>
-            );
-          })}
-        </NavGroup>
+        <Link href="/jobs" aria-label="Jobs" className="mr-auto rounded-field p-1.5">
+          <Wordmark />
+        </Link>
 
         <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-4">
           <NavGroup>
+            <li>
+              <GhostLink
+                href="/profile"
+                on={profile}
+                aria-label="Profile"
+                aria-current={profile ? "page" : undefined}
+                icon={<Glyph icon={User} size="lg" />}
+              />
+            </li>
             <li>
               <ThemeToggle />
             </li>

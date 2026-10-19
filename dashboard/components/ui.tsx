@@ -17,12 +17,7 @@ export const Measure = ({
   </div>
 );
 
-export const Page = ({ toolbar, children }: { toolbar?: ReactNode; children: ReactNode }) => (
-  <Measure>
-    {toolbar && <div className="mb-10 flex items-stretch justify-end gap-3">{toolbar}</div>}
-    {children}
-  </Measure>
-);
+export const Page = ({ children }: { children: ReactNode }) => <Measure>{children}</Measure>;
 
 export const Card = ({
   children,
@@ -211,17 +206,6 @@ export const Row = ({
   >
     {children}
   </button>
-);
-
-export const SearchField = ({
-  icon,
-  className = "",
-  ...rest
-}: { icon: ReactNode } & Omit<ComponentPropsWithRef<"input">, "type">) => (
-  <label className={`relative flex items-center ${className}`}>
-    <span className="pointer-events-none absolute left-2.5 text-soft">{icon}</span>
-    <input type="search" {...rest} className="field hit py-1.5 pl-8 text-sm" />
-  </label>
 );
 
 export const TextField = (props: Omit<ComponentPropsWithRef<"input">, "type" | "className">) => (

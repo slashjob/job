@@ -27,11 +27,35 @@ export const TABLES = {
     value: z.string().nullable(),
   }),
 
+  companies: z
+    .object({
+      id: col(z.number(), { sql: "PRIMARY KEY AUTOINCREMENT" }),
+      name: col(z.string(), { sql: `${filled("name")} UNIQUE COLLATE NOCASE` }),
+      website: col(z.string().nullable(), { sql: url("website"), takes: "a URL, starting http" }),
+      status: col(z.enum(["lead", "passed"]), { sql: "DEFAULT 'lead'" }),
+      found_on: col(z.string(), {
+        sql: "DEFAULT (date('now')) CHECK (found_on IS date(found_on))",
+        takes: "a date, as YYYY-MM-DD",
+      }),
+      searched_on: col(z.string().nullable(), {
+        sql: "CHECK (searched_on IS date(searched_on))",
+        takes: "a date, as YYYY-MM-DD",
+      }),
+    })
+    .meta({
+      note:
+        "Every company the search turned up: the news about it, its openings and the\n" +
+        "people worth writing to hang off it. `searched_on` is the day its openings were\n" +
+        "last looked for; `passed` keeps it from coming back.",
+      indexes: ["idx_companies_status ON companies(status)"],
+    } satisfies Shape),
+
   postings: z
     .object({
       key: col(z.string(), { sql: "PRIMARY KEY" }),
       source: z.string(),
       company: z.string(),
+      company_id: col(z.number(), { sql: owned("companies(id)") }),
       title: z.string(),
       url: col(z.string().nullable(), {
         sql: url("url"),
@@ -61,30 +85,11 @@ export const TABLES = {
         sql: "CHECK (last_updated IS date(last_updated))",
         takes: "a date, as YYYY-MM-DD",
       }),
-      score: col(z.number().nullable(), {
-        sql: "CHECK (score IS NULL OR score BETWEEN 0 AND 10)",
-      }),
-      reason: z.string().nullable(),
       resume: z.string().nullable(),
-      status: z
-        .enum(["new", "shortlisted", "skipped", "staged", "applied", "interviewing", "rejected", "passed"])
-        .nullable(),
     })
     .meta({
-      indexes: ["idx_postings_status ON postings(status)", "idx_postings_updated ON postings(last_updated)"],
+      indexes: ["idx_postings_updated ON postings(last_updated)"],
     } satisfies Shape),
-
-  staged: z.object({
-    key: col(z.string(), {
-      sql: "PRIMARY KEY REFERENCES postings(key) ON DELETE CASCADE",
-    }),
-    url: col(z.string().nullable(), {
-      sql: url("url"),
-      takes: "a URL, starting http",
-    }),
-    status: z.enum(["ready", "blocked"]).nullable(),
-    blocked_on: z.string().nullable(),
-  }),
 
   identity: z
     .object({
@@ -239,7 +244,7 @@ export const TABLES = {
       singleRow: true,
       note:
         "What to do with everything above: the prose the search is typed from and\n" +
-        "every score is judged against. One reader reads it, and typed columns only\n" +
+        "every opening is judged against. One reader reads it, and typed columns only\n" +
         "flatten the slopes it describes into walls.",
     } satisfies Shape),
 
@@ -259,8 +264,8 @@ export const TABLES = {
         sql: "DEFAULT (date('now')) CHECK (found_on IS date(found_on))",
         takes: "a date, as YYYY-MM-DD",
       }),
-      status: col(z.enum(["new", "lead", "noise", "passed"]), { sql: "DEFAULT 'new'" }),
-      company: z.string().nullable(),
+      status: col(z.enum(["new", "lead", "noise"]), { sql: "DEFAULT 'new'" }),
+      company_id: col(z.number().nullable(), { sql: owned("companies(id)") }),
       project_id: col(z.number().nullable(), { sql: "REFERENCES projects(id) ON DELETE SET NULL" }),
       reason: z.string().nullable(),
     })
@@ -269,8 +274,34 @@ export const TABLES = {
         "Articles read off Google News, each judged once. A lead is a company building\n" +
         "what one of the user's projects already built: `project_id` is that project and\n" +
         "`reason` says why, in a line.",
-      constraints: ["CHECK (status IN ('new','noise') OR (company IS NOT NULL AND reason IS NOT NULL))"],
-      indexes: ["idx_news_status ON news(status)"],
+      constraints: ["CHECK (status IN ('new','noise') OR (company_id IS NOT NULL AND reason IS NOT NULL))"],
+      indexes: ["idx_news_status ON news(status)", "idx_news_company ON news(company_id)"],
+    } satisfies Shape),
+
+  contacts: z
+    .object({
+      id: col(z.number(), { sql: "PRIMARY KEY AUTOINCREMENT" }),
+      company_id: col(z.number(), { sql: owned("companies(id)") }),
+      name: col(z.string(), { sql: filled("name") }),
+      title: z.string().nullable(),
+      why: col(z.string(), { sql: filled("why") }),
+      email: col(z.string().nullable(), {
+        sql: "CHECK (email LIKE '_%@_%._%')",
+        takes: "an email address",
+      }),
+      x: col(z.string().nullable(), { sql: url("x"), takes: "a URL, starting http" }),
+      linkedin: col(z.string().nullable(), { sql: url("linkedin"), takes: "a URL, starting http" }),
+      found_on: col(z.string(), {
+        sql: "DEFAULT (date('now')) CHECK (found_on IS date(found_on))",
+        takes: "a date, as YYYY-MM-DD",
+      }),
+    })
+    .meta({
+      note:
+        "The one or two people at a company worth writing to, and every way to reach\n" +
+        "them that is published. `why` is what makes them the one.",
+      constraints: ["CHECK (COALESCE(email, x, linkedin) IS NOT NULL)"],
+      indexes: ["idx_contacts_company ON contacts(company_id)"],
     } satisfies Shape),
 
   summary: z
@@ -287,18 +318,17 @@ export const TABLES = {
 
 export type Table = keyof typeof TABLES;
 
-export type Status = NonNullable<z.infer<typeof TABLES.postings.shape.status>>;
-
 export const ORDER: Table[] = [
   "settings",
+  "companies",
   "postings",
-  "staged",
   "identity",
   "education",
   "employers",
   "projects",
   "project_technologies",
   "news",
+  "contacts",
   "instructions",
   "summary",
 ];
@@ -310,6 +340,7 @@ export const VIEWS = {
   prospects: TABLES.postings.pick({
     key: true,
     company: true,
+    company_id: true,
     title: true,
     url: true,
     location: true,
@@ -319,14 +350,12 @@ export const VIEWS = {
     last_updated: true,
     source: true,
     description: true,
-    score: true,
-    reason: true,
     resume: true,
-    status: true,
   }),
   triage: TABLES.postings.pick({
     key: true,
     company: true,
+    company_id: true,
     title: true,
     location: true,
     remote: true,
@@ -334,8 +363,6 @@ export const VIEWS = {
     posted_at: true,
     last_updated: true,
     source: true,
-    score: true,
-    status: true,
     resume: true,
     url: true,
   }),
@@ -364,7 +391,7 @@ export const VIEWS = {
 
 export const DERIVED: Partial<Record<keyof typeof VIEWS, { where?: string; order?: string }>> = {
   prospects: {},
-  triage: { order: "COALESCE(score,-1) DESC, last_updated DESC" },
+  triage: { order: "last_updated DESC" },
 };
 
 export const bare = (shape: z.ZodType): z.ZodType =>

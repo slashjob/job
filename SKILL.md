@@ -1,13 +1,14 @@
 ---
 name: job
-description: Searches the job boards in the browser for new openings, scores them against the search profile, builds a tailored resume for each shortlist, and fills the application form for the user to submit in the browser. Use for anything about the user's job search: finding openings, tailoring a resume to a posting, applying, their profile, opening the dashboard, the local web app over it, or anything in it that seems broken. `/job install`, then `/job setup`, on first use; `/job help` for the command list.
-argument-hint: [install|setup|search|resume [JD|url|key]|apply [key|url]|news [project]|contact [key|company]|dashboard [start|stop|status]|help]
+description: Finds companies in the news building what the user has already built, then their openings that fit the search profile, and the people to write to there; on request, builds a tailored resume and fills the application form for the user to submit in the browser. Use for anything about the user's job search: finding companies or openings, writing to someone at a company, tailoring a resume to a posting, applying, their profile, opening the dashboard, the local web app over it, or anything in it that seems broken. `/job install`, then `/job setup`, on first use; `/job help` for the command list.
+argument-hint: [install|setup|search [project]|resume [JD|url|key]|apply [key|url]|contact [key|company]|dashboard [start|stop|status]|help]
 ---
 
 # Job routine
 
-**search → resume → stage.** The deliverable is filled applications, left open in the
-browser for the user to review and submit.
+**The deliverable is companies building what the user has already built, and who to write to
+there.** A resume and a filled application are made on request, and left in the browser for the
+user to review and submit.
 
 ## Invariants
 
@@ -38,12 +39,11 @@ Nothing below overrides these.
 | ---------- | ---- | ---------- |
 | `/job install` | Dependencies, browser tools, and the browser | `references/install.md` |
 | `/job setup` | First-run setup | `references/setup.md` |
-| `/job` | Search, resume, then stage | each action's file, as it starts |
-| `/job search` | Search the boards in the browser, scoring each opening as it is read | `references/boards.md`, then `references/searching.md` |
-| `/job resume [JD, URL, or key]` | Build a resume for every `shortlisted` posting, or the one named | `references/resume.md` |
-| `/job apply [key or URL]` | Resume, then stage, every `shortlisted` posting, or the one named | `references/applying.md` |
-| `/job news [project]` | Find companies in the news building what the user has built, before they post a role — for every project, or the one named | `references/news.md` |
-| `/job contact [key or company]` | Find who to write to about a posting or a news lead and how to reach them, then draft it with the user, left for them to send | `references/contact.md`, then `references/writing.md` |
+| `/job` | The same as `/job search` | |
+| `/job search [project]` | Find companies in the news building what the user has built, then the openings and the people to write to at each — for every project, or the one named | `references/searching.md`, then `references/boards.md` |
+| `/job resume [JD, URL, or key]` | Build a resume for the posting named, or for each one `cli/search.ts openings --unbuilt` lists | `references/resume.md` |
+| `/job apply <key or URL>` | Resume, then fill the form, for the one posting named | `references/applying.md` |
+| `/job contact [key or company]` | Choose who to write to at a company, about it or a posting, then draft it with the user, left for them to send | `references/contact.md`, then `references/writing.md` |
 | `/job dashboard [start\|stop\|status]` | Start the dashboard and open or focus its tab, or stop it | `cli/dashboard.ts --help` |
 | `/job help` | Run `cli/help.ts`, then reply with its output verbatim — the user cannot see tool output. No run, no queries, no commentary | |
 
@@ -83,15 +83,15 @@ filled application, and navigating it loses them. Start each search, and each ap
 **Generalise to the criterion, never to the posting.** "This one is too senior" is a rule about
 seniority, not about that company — but one posting is one data point, and where the words bear two
 readings that lead to different edits, **ask which**. A wrong rule in `instructions.text` silently
-mis-scores every posting after it.
+misjudges every posting after it.
 
 **`instructions.text` is their prose, in their voice.** Add the sentence the complaint earns and
 leave the rest alone. Resume wording that was wrong on right facts is this skill's rule, not theirs:
 file it with `cli/issue.ts`.
 
-**A complaint that rules a posting out sets it `passed`**, unless they said otherwise — it is their
-only way to clear it. **A change of criteria leaves every score stale**: say so, per **Re-judging** in
-`references/searching.md`, and leave clearing them to the user.
+**A complaint that rules a posting out deletes it**, unless they said otherwise; the sentence it
+earns in `instructions.text` keeps a search from bringing it back. **A change of criteria leaves every
+opening kept under the old ones**: say so, per **Re-judging** in `references/searching.md`.
 
 ## When something is broken
 

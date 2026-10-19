@@ -44,10 +44,7 @@ const ANSWER = VIEWS.answers.extend({ section: z.string(), field: z.string() });
 export const answers = () => rows(ANSWER, "SELECT section, field, value FROM answers");
 export const education = () => listing("education");
 
-const TRIAGE = VIEWS.triage.extend({
-  reason: TABLES.postings.shape.reason,
-  blocked_on: TABLES.staged.shape.blocked_on,
-});
+const TRIAGE = VIEWS.triage;
 
 export type Job = z.infer<typeof TRIAGE>;
 
@@ -59,12 +56,9 @@ export const names = () =>
     ).map((posting) => [posting.key, `${posting.company} · ${posting.title}`]),
   );
 
-export const jobs = () =>
-  rows(
-    TRIAGE,
-    "SELECT triage.*, postings.reason, staged.blocked_on " +
-      "FROM triage JOIN postings USING (key) LEFT JOIN staged USING (key)",
-  );
+const triaged = (where = "", args: unknown[] = []) => rows(TRIAGE, `SELECT * FROM triage ${where}`, args);
+
+export const jobs = () => triaged();
 
 export function career(): Employer[] {
   const technologies = listing("project_technologies", "ORDER BY project_id, technology");
@@ -82,39 +76,67 @@ export function career(): Employer[] {
   }));
 }
 
-const STAGED = TABLES.staged.omit({ key: true });
-
 export type Posting = z.infer<typeof VIEWS.prospects>;
-export type Prospect = {
-  posting: Posting;
-  staged: z.infer<typeof STAGED> | null;
-};
 
-export function prospect(key: string): Prospect | null {
-  const posting = one(VIEWS.prospects, "SELECT * FROM prospects WHERE key=?", [key]);
-  if (!posting) return null;
-  return {
-    posting,
-    staged: one(STAGED, "SELECT url, status, blocked_on FROM staged WHERE key=?", [key]),
-  };
-}
+export const prospect = (key: string) => one(VIEWS.prospects, "SELECT * FROM prospects WHERE key=?", [key]);
 
-const STORY = TABLES.news
+const ARTICLE = TABLES.news
   .pick({ article_id: true, title: true, url: true, image: true, source: true, published: true, reason: true })
   .extend({
-    company: z.string(),
+    company_id: z.number(),
     project_id: z.number().nullable(),
     project: z.string().nullable(),
     employer_id: z.number().nullable(),
   });
 
-export type Story = z.infer<typeof STORY>;
+export type Article = z.infer<typeof ARTICLE>;
 
-export const news = (): Story[] =>
+const articles = (where: string, args: unknown[] = []) =>
   rows(
-    STORY,
+    ARTICLE,
     "SELECT news.article_id, news.title, news.url, news.image, news.source, news.published, news.reason," +
-      "       news.company, news.project_id, projects.name AS project, projects.employer_id " +
+      "       news.company_id, news.project_id, projects.name AS project, projects.employer_id " +
       "FROM news LEFT JOIN projects ON projects.id = news.project_id " +
-      "WHERE news.status = 'lead' ORDER BY news.published IS NULL, news.published DESC",
+      `WHERE news.status = 'lead' ${where} ORDER BY news.published IS NULL, news.published DESC`,
+    args,
   );
+
+const CONTACT = TABLES.contacts.omit({ company_id: true });
+
+export type Contact = z.infer<typeof CONTACT>;
+
+const COMPANY = TABLES.companies.pick({ id: true, name: true, website: true, found_on: true }).extend({
+  contacts: z.number(),
+});
+
+export type Company = z.infer<typeof COMPANY> & { articles: Article[]; jobs: Job[] };
+
+const listed = (where: string, args: unknown[] = []) =>
+  rows(
+    COMPANY,
+    "SELECT c.id, c.name, c.website, c.found_on," +
+      " (SELECT count(*) FROM contacts WHERE company_id = c.id) AS contacts " +
+      `FROM companies c WHERE c.status = 'lead' ${where}`,
+    args,
+  );
+
+export function companies(): Company[] {
+  const news = articles("");
+  const held = jobs();
+  return listed("").map((company) => ({
+    ...company,
+    articles: news.filter((article) => article.company_id === company.id),
+    jobs: held.filter((job) => job.company_id === company.id),
+  }));
+}
+
+export function company(id: number): (Company & { people: Contact[] }) | null {
+  const [found] = listed("AND c.id = ?", [id]);
+  if (!found) return null;
+  return {
+    ...found,
+    articles: articles("AND news.company_id = ?", [id]),
+    jobs: triaged("WHERE triage.company_id = ?", [id]),
+    people: rows(CONTACT, "SELECT * FROM contacts WHERE company_id = ? ORDER BY id", [id]),
+  };
+}

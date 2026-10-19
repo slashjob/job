@@ -1,8 +1,8 @@
-import { jobs } from "@/lib/queries";
-import JobList from "./JobList";
+import { companies } from "@/lib/queries";
+import Companies from "./Companies";
 
 export const dynamic = "force-dynamic";
 
 export default function JobsPage() {
-  return <JobList jobs={jobs()} />;
+  return <Companies companies={companies()} />;
 }

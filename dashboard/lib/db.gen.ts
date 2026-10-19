@@ -1,6 +1,25 @@
 import { z } from "zod";
 
 export const TABLES = {
+  companies: z.object({
+    id: z.number(),
+    name: z.string(),
+    website: z.string().nullable(),
+    status: z.enum(["lead", "passed"]),
+    found_on: z.string(),
+    searched_on: z.string().nullable(),
+  }),
+  contacts: z.object({
+    id: z.number(),
+    company_id: z.number(),
+    name: z.string(),
+    title: z.string().nullable(),
+    why: z.string(),
+    email: z.string().nullable(),
+    x: z.string().nullable(),
+    linkedin: z.string().nullable(),
+    found_on: z.string(),
+  }),
   education: z.object({
     id: z.number(),
     degree: z.string(),
@@ -67,17 +86,18 @@ export const TABLES = {
     source: z.string().nullable(),
     published: z.string().nullable(),
     summary: z.string().nullable(),
+    image: z.string().nullable(),
     found_on: z.string(),
-    status: z.enum(["new", "lead", "noise", "messaged", "passed"]),
-    company: z.string().nullable(),
+    status: z.enum(["new", "lead", "noise"]),
+    company_id: z.number().nullable(),
     project_id: z.number().nullable(),
     reason: z.string().nullable(),
-    image: z.string().nullable(),
   }),
   postings: z.object({
     key: z.string(),
     source: z.string(),
     company: z.string(),
+    company_id: z.number(),
     title: z.string(),
     url: z.string().nullable(),
     location: z.string().nullable(),
@@ -89,12 +109,7 @@ export const TABLES = {
     last_fetched: z.string(),
     ingested_on: z.string().nullable(),
     last_updated: z.string().nullable(),
-    score: z.number().nullable(),
-    reason: z.string().nullable(),
     resume: z.string().nullable(),
-    status: z
-      .enum(["new", "shortlisted", "skipped", "staged", "applied", "interviewing", "rejected", "passed"])
-      .nullable(),
   }),
   project_technologies: z.object({
     project_id: z.number(),
@@ -112,12 +127,6 @@ export const TABLES = {
   settings: z.object({
     key: z.string(),
     value: z.string().nullable(),
-  }),
-  staged: z.object({
-    key: z.string(),
-    url: z.string().nullable(),
-    status: z.enum(["ready", "blocked"]).nullable(),
-    blocked_on: z.string().nullable(),
   }),
   summary: z.object({
     id: z.number(),
@@ -149,6 +158,7 @@ export const VIEWS = {
   prospects: z.object({
     key: z.string(),
     company: z.string(),
+    company_id: z.number(),
     title: z.string(),
     url: z.string().nullable(),
     location: z.string().nullable(),
@@ -158,16 +168,12 @@ export const VIEWS = {
     last_updated: z.string().nullable(),
     source: z.string(),
     description: z.string().nullable(),
-    score: z.number().nullable(),
-    reason: z.string().nullable(),
     resume: z.string().nullable(),
-    status: z
-      .enum(["new", "shortlisted", "skipped", "staged", "applied", "interviewing", "rejected", "passed"])
-      .nullable(),
   }),
   triage: z.object({
     key: z.string(),
     company: z.string(),
+    company_id: z.number(),
     title: z.string(),
     location: z.string().nullable(),
     remote: z.number().nullable(),
@@ -175,10 +181,6 @@ export const VIEWS = {
     posted_at: z.string().nullable(),
     last_updated: z.string().nullable(),
     source: z.string(),
-    score: z.number().nullable(),
-    status: z
-      .enum(["new", "shortlisted", "skipped", "staged", "applied", "interviewing", "rejected", "passed"])
-      .nullable(),
     resume: z.string().nullable(),
     url: z.string().nullable(),
   }),

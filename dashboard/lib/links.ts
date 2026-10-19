@@ -2,7 +2,7 @@ export const jobHref = (key: string) => `/jobs/${encodeURIComponent(key)}`;
 
 export const assetHref = (kind: string, key: string) => `/asset/${kind}/${encodeURIComponent(key)}`;
 
-export const newsHref = "/news";
+export const companyHref = (company: number) => `/jobs/company/${company}`;
 
 export const careerHref = "/profile/career";
 

@@ -37,8 +37,8 @@ export function useDiscard() {
 export function usePass() {
   const router = useRouter();
   return useCallback(
-    async (article_id: string) => {
-      const result = await answered(pass(article_id));
+    async (company: number) => {
+      const result = await answered(pass(company));
       if (reported(result)) return;
       say("deleted");
       router.refresh();

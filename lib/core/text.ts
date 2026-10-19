@@ -9,7 +9,10 @@ export const norm = (text: string | null | undefined) =>
 const COMPANY_SUFFIXES =
   /[,.]?\s*\b(inc|llc|ltd|corp|corporation|co|company|technologies|technology|labs|holdings|group|usa)\b\.?/gi;
 
-export const normCompany = (name: string | null | undefined) => norm((name ?? "").replace(COMPANY_SUFFIXES, ""));
+const DOMAIN = /\.(ai|io|com|co|dev|app|so|xyz)$/i;
+
+export const normCompany = (name: string | null | undefined) =>
+  norm((name ?? "").trim().replace(DOMAIN, "").replace(COMPANY_SUFFIXES, ""));
 
 const ISO = /^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?))?\s*(Z|[+-]\d{2}:?\d{2})?$/;
 

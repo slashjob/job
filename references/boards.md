@@ -1,8 +1,8 @@
 # Boards
 
-Where to look. The boards below are the ones with known quirks, not a fence: **search any established
-job board or careers site that seems likely to hold the roles the instructions ask for** — the big
-general boards, a field's own niche board, an employer's careers page.
+Where a company's openings live when its own careers page does not hold them. The boards below are
+the ones with known quirks, not a fence: **search any established job board for the company by
+name** — the big general boards, a field's own niche board.
 
 **Stop and ask before going further on a site you cannot vouch for** — one that wants paying, wants
 an account or personal details before it shows a posting, has no identifiable company behind it, or
@@ -21,9 +21,8 @@ found, skip the posting rather than inventing a key.
 
 ## `indeed`
 
-The broad sweep, and where most of the volume is. Good for titles that thousands of employers post
-under the same words — engineering, nursing, ops, support. Bad for anything niche: the sponsored
-placements crowd out the real postings, and staffing firms repost the same role under several names.
+The most employers in one place. The sponsored placements crowd out the real postings, and staffing
+firms repost the same role under several names.
 
 - Queries are `https://www.indeed.com/jobs?q=…&l=…&fromage=…`
 - **Scope `q` with `title:"…"`.** A bare term matches the body text and returns off-target results.

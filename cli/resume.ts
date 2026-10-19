@@ -73,7 +73,7 @@ program
       console.log(
         `${built.pages} page${built.pages === 1 ? "" : "s"}, ${built.foot.toFixed(2)}in blank above the bottom margin on the last`,
       );
-      if (built.recorded !== null) console.log(`recorded on ${options.key} (${built.recorded})`);
+      if (built.recorded !== null) console.log(`recorded on ${built.recorded}`);
     }),
   );
 

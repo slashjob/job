@@ -1,6 +1,6 @@
 # Storage
 
-One convention: `job.db` — postings, prospects, staged applications, and the user's whole profile
+One convention: `job.db` — companies, their news, openings and people, and the user's whole profile
 are rows in it. The filesystem holds only built PDFs, in `resumes/` beside it.
 
 **Both are fixed absolute paths, so `/job` runs identically from anywhere.** Ask the skill where they

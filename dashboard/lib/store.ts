@@ -12,7 +12,6 @@ export type Store = {
   logBytes: number;
   modified: number;
   postings: number;
-  staged: number;
 };
 
 const stat = (file: string) => {
@@ -25,11 +24,10 @@ const stat = (file: string) => {
 
 const COUNT = z.object({ total: z.number() });
 
-const count = (table: "postings" | "staged") => one(COUNT, `SELECT count(*) AS total FROM ${table}`)?.total ?? 0;
+const count = (table: "postings") => one(COUNT, `SELECT count(*) AS total FROM ${table}`)?.total ?? 0;
 
 export function store(): Store {
   const postings = count("postings");
-  const staged = count("staged");
   const at = database();
   const files = [at, `${at}-wal`, `${at}-shm`].flatMap((file) => stat(file) ?? []);
   return {
@@ -40,6 +38,5 @@ export function store(): Store {
     logBytes: stat(`${at}-wal`)?.size ?? 0,
     modified: Math.max(...files.map((file) => file.mtimeMs)),
     postings,
-    staged,
   };
 }

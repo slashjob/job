@@ -1,7 +1,6 @@
 import Actions from "@/components/Actions";
 import Opening from "./Opening";
 import { Card, Measure, Out, Prose, Stack, Stamp } from "@/components/ui";
-import { actionsFor } from "@/lib/actions";
 import { assetHref } from "@/lib/links";
 import { prospect, type Posting } from "@/lib/queries";
 import { notFound } from "next/navigation";
@@ -27,7 +26,6 @@ const Description = ({ posting }: { posting: Posting }) => (
 
 const Resume = ({ posting }: { posting: Posting }) => {
   const file = assetHref("resume", posting.key);
-  const { resume: build } = actionsFor(posting.status);
 
   return (
     <Stack className={`flex flex-col ${posting.resume ? "reader" : ""}`}>
@@ -44,7 +42,7 @@ const Resume = ({ posting }: { posting: Posting }) => {
               <Out href={file}>Open the PDF</Out>
             </span>
           )}
-          <Actions ids={build} argument={posting.key} />
+          <Actions ids={["resume"]} argument={posting.key} />
         </span>
       </div>
 
@@ -61,13 +59,12 @@ const Resume = ({ posting }: { posting: Posting }) => {
 
 export default async function JobPage({ params }: PageProps<"/jobs/[key]">) {
   const { key } = await params;
-  const found = prospect(decodeURIComponent(key));
-  if (!found) notFound();
-  const { posting } = found;
+  const posting = prospect(decodeURIComponent(key));
+  if (!posting) notFound();
 
   return (
     <Measure>
-      <Opening found={found} />
+      <Opening posting={posting} />
 
       <div className="flex flex-col gap-6">
         <Description posting={posting} />

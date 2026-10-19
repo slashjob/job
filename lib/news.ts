@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 
+import { companyId } from "./company.ts";
 import { db, one, rows } from "./core/db.ts";
 
 const Found = z.object({
@@ -22,16 +23,6 @@ const Held = z.object({
   source: z.string().nullable(),
   published: z.string().nullable(),
   summary: z.string().nullable(),
-});
-const Lead = z.object({
-  article_id: z.string(),
-  company: z.string(),
-  project: z.string().nullable(),
-  reason: z.string(),
-  title: z.string(),
-  url: z.string(),
-  published: z.string().nullable(),
-  status: z.string(),
 });
 const Verdict = z.discriminatedUnion("verdict", [
   z.object({ article_id: z.string(), verdict: z.literal("noise") }),
@@ -98,31 +89,20 @@ const projectId = (named: number | string) => {
 export function judge(payload: unknown) {
   const verdicts = z.array(Verdict).parse(payload);
   const update = db().prepare(
-    "UPDATE news SET status=?, company=?, project_id=?, reason=? WHERE article_id=? AND status='new'",
+    "UPDATE news SET status=?, company_id=?, project_id=?, reason=? WHERE article_id=? AND status='new'",
   );
-  const already = db().prepare(
-    "SELECT 1 FROM news WHERE status IN ('lead','passed') AND lower(trim(company)) = lower(trim(?))",
-  );
+  const counted = () => one(z.object({ held: z.number() }), "SELECT count(*) AS held FROM companies")!.held;
+  const before = counted();
   let leads = 0;
-  let repeats = 0;
   db().transaction(() => {
     for (const held of verdicts) {
-      const lead = held.verdict === "lead" && !already.get(held.company);
-      const changed = lead
-        ? update.run("lead", held.company, projectId(held.project), held.reason, held.article_id)
-        : update.run("noise", null, null, null, held.article_id);
+      const changed =
+        held.verdict === "lead"
+          ? update.run("lead", companyId(held.company), projectId(held.project), held.reason, held.article_id)
+          : update.run("noise", null, null, null, held.article_id);
       if (!changed.changes) throw new Error(`${held.article_id} is not an unjudged article`);
-      if (lead) leads++;
-      else if (held.verdict === "lead") repeats++;
+      if (held.verdict === "lead") leads++;
     }
   })();
-  return { judged: verdicts.length, leads, repeats };
+  return { judged: verdicts.length, leads, companies: counted() - before };
 }
-
-export const leads = (all: boolean) =>
-  rows(
-    Lead,
-    "SELECT news.article_id, company, projects.name AS project, reason, title, url, published, status " +
-      "FROM news LEFT JOIN projects ON projects.id = news.project_id " +
-      `WHERE status ${all ? "IN ('lead','passed')" : "= 'lead'"} ORDER BY published DESC`,
-  );

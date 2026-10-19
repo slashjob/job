@@ -1,35 +1,68 @@
 # Searching
 
-Finding the openings and judging them, in one pass. **You do the searching** in the browser: browse
-the boards and careers sites worth searching, score each posting as you read it, and hand the
-survivors to `cli/search.ts insert`.
+One pass, in four steps: **the news, the companies in it, their openings, and the people to write
+to there.** The deliverable is companies building what the user has already built, each with what
+was found about it. **You do the searching** in the browser; nothing here costs money or needs a key.
 
-Nothing here costs money or needs a key, and there is no list of employers to maintain: reach is
-whatever you search for.
+**Search in the foreground and do not end the turn mid-run.** The user is otherwise left holding a
+routine that has found nothing. This is the slow part of the routine, and sitting through it is the
+job. Store as you go — a run cut short by a captcha or a closed laptop keeps everything already
+stored.
 
-## What to search for
+## 1. The news
 
-**Nothing about what to search for is baked into this skill.** The terms come off `cli/score.ts
-instructions` and the profile — read both, then build the queries. If something belongs in the search
-and is in neither, that is the gap: decide whether it is a profile fact or a line the user should
-add to their instructions, and ask.
+**Search Google News in the browser**:
+`https://news.google.com/search?q=<terms>+when:7d&hl=en-US&gl=US&ceid=US:en`. Read each results page
+as JSON with `browser_evaluate` — headline, source, time, link, image — and store every article with
+`cli/search.ts articles`. Judging decides what is noise, not the search.
 
-| Part of a query | Comes from |
-| --------------- | ---------- |
-| the title terms | the titles named in `instructions` — the same words the judgement reads |
-| where | `identity.location`, and what the instructions say about where they will work |
-| how far back | the user — ask before the first run |
-| what to leave out | the titles and employers the instructions rule out |
+**Terms come off `cli/search.ts projects`, fresh each run, never saved.** Each is the product or
+technique the project is, in the words a reporter would use rather than the project's own name:
+`"route optimization" freight`, not `DispatchPlanner v2`. Several narrow searches per project beat
+one broad one. A project that is work `instructions.text` says the user does not want is not
+searched. **A project named is the only one searched.**
 
-**The terms match the title, and nothing else.** Say them the way a title says them, short and
-literal, and run several narrow queries rather than one broad one.
+**A company of any size is in scope**, from a seed round to a public company launching a product.
+What matters is that it is building the thing.
+
+## 2. Judging the news
+
+**Done by a Haiku subagent**, never by this run: the Agent tool with `model: "haiku"`, handed this
+file's path, the `cli/search.ts` path, and `instructions.text`. It reads the projects with
+`cli/search.ts projects --json` and the articles with `cli/search.ts pending --json`, follows this
+section only, and records every verdict with `cli/search.ts judge`.
+
+**A lead is one named company building what one project built** — the product, or the technique it
+rests on. The strongest is a company announcing that it is building, launching or raising money for
+it. Everything else is noise:
+
+- A company using AI, rather than building the thing
+- Market commentary, listicles, opinion, a research paper with no company behind it
+- An article whose title and summary do not say what the company builds. Judging is once: a guess
+  becomes a company the user spends a morning on
+
+**The company is named the way it names itself**, without the article's framing — `judge` files a
+second article about it under the same company, by name. **The match is the most specific
+project**, and `reason` is one line: what the company is building, and what in the project did the
+same.
+
+## 3. Openings
+
+For every company `cli/search.ts companies --due` lists, **find its own website first** and confirm
+it is the company the article names — a name alone matches several, and the wrong one turns up real
+openings somewhere else. Where the two cannot be matched, leave the company and say so.
+
+**Read every opening at the company, then judge which fit.** Its careers page, or the ATS the page
+embeds, is where to read; `references/boards.md` is for a company whose openings live elsewhere.
+Store the ones that fit with `cli/search.ts insert --company <id> --website <url>` — and with an
+empty array where none does, which marks the company searched all the same.
 
 **Do not narrow location past what the user actually said.** A posting open in both London and New
 York is one a US-based user still wants to see.
 
-## What the judgement reads
+### What the judgement reads
 
-`cli/score.ts instructions` prints all of it: their work history, the standing facts off `identity`,
+`cli/search.ts instructions` prints all of it: their work history, the standing facts off `identity`,
 and `instructions.text`, their own prose.
 
 **The history is what fit is measured against; the prose is only what they want.** A posting can
@@ -40,11 +73,11 @@ that merely sounds like the posting. Where the JD names years, the prose says ho
 go and the history says where they stand; neither number is yours to invent.
 
 **The prose carries no numbers.** It says in its own words what counts for how much, what is a hard
-stop, and what the search should ask for. Nothing is added up; the score is a judgement those inform.
-It is theirs, so when a score and the prose disagree **the prose is right and the score is wrong** —
-do not quietly compensate for prose you would have written differently.
+stop, and what the search should ask for. Nothing is added up; whether an opening is kept is a
+judgement those inform. It is theirs, so when your judgement and the prose disagree **the prose is
+right** — do not quietly compensate for prose you would have written differently.
 
-## Reading a posting
+### Reading a posting
 
 **Read a page as text, not as a snapshot.** A snapshot carries the site's navigation, footer and
 every ref, and each turn after it carries them too. On a results page, `browser_evaluate` a function
@@ -52,8 +85,8 @@ that returns the listings as JSON — title, company, location, link; on a posti
 `(document.querySelector('main') ?? document.body).innerText`. Snapshot only when the text comes back
 empty or wrong.
 
-1. **Read titles and locations first, and open only what survives that.** Opening a hundred postings
-   to learn that eighty are the wrong role is the expensive way to read a title.
+1. **Read titles and locations first, and open only what survives that.** Opening every posting at
+   a company to learn that most are the wrong role is the expensive way to read a title.
 2. **Open the posting and read the description before judging it.** Judging off a title is the
    failure this pass exists to prevent — a "Software Engineer" JD that is 80% LLM work beats a
    "Senior AI Engineer" req that is really data plumbing. A posting with no description cannot be
@@ -72,71 +105,46 @@ the wrong field or seniority, and anything the instructions rule out by name. **
 is not a low one** — most postings state none, and an unstated band is a question for later, not a
 reason to drop.
 
-## The scale
+### Keep or drop
 
-The `shortlist_threshold` row in `settings` — 7 by default — is the only number the app owns. So
-the live question between a 6 and a 7 is not how good the posting is but **whether they should
-spend an hour of their morning applying to it.**
+**Keep an opening only if they should spend an hour of their morning applying to it.** That is the
+whole question; nothing is rated, and nothing kept is ranked against anything else. Their prose
+already says what costs nothing, what is a mark against, and what is a hard stop — read the answer
+there rather than inventing a rubric here.
 
-Every other gradation comes off their prose, which already ranks what costs nothing, what is a mark
-against, and what is a hard stop. Read the ranking there rather than inventing a rubric here.
+Where the call turns on something the posting never states — no compensation, no location — keep it
+on a stated assumption and say so when handing it over.
 
-**Score everything you keep, the rejects included.** An unscored row sits at `new` and comes back
-tomorrow, so keeping a posting without judging it is a decision paid for again every morning.
+## 4. People
 
-## The reason
-
-**Two short sentences, and stop.** The one thing that drove the score, in the JD's words, and the
-one thing working against it. It is read by someone deciding at a glance whether to trust the
-shortlist, so a paragraph is a worse reason than a line, not a more thorough one.
-
-Summarising the posting is not judging it — they can read the JD. Cut every clause that does not
-change the number: the title, the stage of the company, the stack, the caveats about how soft a gate
-is. A reason that would fit any posting is a score that was not made.
-
-Where the score turns on something the posting never states — no compensation, no location — score
-on a stated assumption and say so in the reason.
+For every company `--due` lists with no contacts, find the one or two worth writing to by
+`references/contact.md`, **Who** and **How to reach them**, and store them with `cli/search.ts
+contacts`.
 
 ## Hand them over
 
-Pipe the postings to `cli/search.ts insert --file -` as a JSON array, each with its `score` and
-`reason` — no file to write first.
-
-**Search in the foreground and do not end the turn mid-run.** The user is otherwise left holding a
-routine that has not searched or shortlisted anything. This is the slow part of the routine, and
-sitting through it is the job.
-
-Insert as you go rather than at the end — a run cut short by a captcha or a closed laptop keeps
-everything already inserted.
+Under the opening sentence, one line per company this run turned up: the company, what it is
+building, who to write to, and any opening kept. The next step is `/job contact` with a
+company, or `/job apply` on an opening.
 
 ## Dedupe
 
-`insert` drops any posting already held, matched by key or by normalized company + title. **If it
-collapses two roles that are genuinely different** — the same title twice at one employer,
-different teams — the line it prints about the drop is the only warning. Give the second one a title that tells them
-apart and insert it again.
+`insert` drops any posting already held, matched by key or by the same title at the same company. **If it
+collapses two roles that are genuinely different** — the same title twice, different teams — the
+line it prints about the drop is the only warning. Give the second one a title that tells them apart
+and insert it again.
 
 ## Re-judging
 
-**Nothing re-scores itself.** Editing `instructions.text`, or adding the employer or project that
-changes what they can be considered for, leaves every existing score where it was, and the shortlist
-stays built on criteria that no longer apply. After either change, clear the scores you want judged
-again — and clear the status with them, because a row left `shortlisted` with a NULL score stays
-shortlisted:
-
-```bash
-$Q "UPDATE postings SET score=NULL, reason=NULL, status='new'
-    WHERE status IN ('new','skipped','shortlisted')"
-```
-
-Rows already past triage — staged, applied, interviewing — are history, not candidates. Leave them.
-`cli/score.ts` re-judges what is already stored without going back to the boards.
+**Nothing re-judges itself.** Editing `instructions.text`, or adding the employer or project that
+changes what they can be considered for, leaves every opening kept under criteria that no longer
+apply. After either change, say so, and with the user's go-ahead read the kept openings again with
+`cli/search.ts openings` and `show`, and delete the ones that no longer fit.
 
 ## Traps
 
 | Symptom | Cause | Fix |
 | ------- | ----- | --- |
-| A search returns almost nothing | The terms do not match how titles are worded | Widen the terms, not the window |
-| Several pages in a row come back empty | The board is asking for a person, and an empty page reads exactly like a quiet market | Stop and check the count against the queries run; a block is not a result |
-| A 403 where a navigation worked | Something did `fetch()`/XHR instead of navigating; boards throttle those even in the same session | Navigate, the way a person would |
-| The shortlist is too big or too small | The threshold, not the scores | The `shortlist_threshold` row in `settings` |
+| The news returns almost nothing | The terms are the project's words, not a reporter's | Widen the terms, not the window |
+| Several pages in a row come back empty | The site is asking for a person, and an empty page reads exactly like a quiet market | Stop and check the count against the queries run; a block is not a result |
+| A 403 where a navigation worked | Something did `fetch()`/XHR instead of navigating; sites throttle those even in the same session | Navigate, the way a person would |

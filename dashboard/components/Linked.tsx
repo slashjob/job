@@ -46,7 +46,6 @@ export function LinkCard({
   href,
   title,
   subtitle,
-  framed,
   meta,
   tools,
   children,
@@ -54,13 +53,12 @@ export function LinkCard({
   href: string;
   title: string | null;
   subtitle?: ReactNode;
-  framed?: boolean;
   meta?: ReactNode;
   tools: ReactNode;
   children?: ReactNode;
 }) {
   return (
-    <Card soft={!framed}>
+    <Card soft>
       <Linked href={href}>
         <h3 className="line-clamp-2 font-display text-lg font-medium leading-snug sm:line-clamp-1">
           <TitleLink href={href}>{title}</TitleLink>

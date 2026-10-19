@@ -1,43 +1,19 @@
--- Behavior the schema cannot declare: the triggers that stamp a posting once it
--- lands and couple score to status, and the views whose bodies are not a
--- column list.
+-- Behavior the schema cannot declare: the trigger that stamps a posting when it
+-- moves, and the views whose bodies are not a column list.
 -- Tables, indexes and the views derived from them are rendered from lib/core/ddl.ts.
 
 DROP TRIGGER IF EXISTS on_kept;
 DROP TRIGGER IF EXISTS on_kept_insert;
-
-CREATE TRIGGER IF NOT EXISTS on_insert AFTER INSERT ON postings
-BEGIN
-  UPDATE postings SET status = COALESCE(status, CASE
-    WHEN new.score IS NULL THEN 'new'
-    WHEN new.score >= COALESCE((SELECT CAST(value AS INTEGER) FROM settings
-                                WHERE key='shortlist_threshold'), 7)
-    THEN 'shortlisted' ELSE 'skipped' END),
-                      last_updated = date('now')
-  WHERE key = new.key;
-END;
-
--- The day the row last moved: scored, shortlisted, tailored, staged, applied.
--- A re-fetch is not progress, so `last_fetched` is not among the columns watched.
-DROP TRIGGER IF EXISTS on_change;
-
-CREATE TRIGGER IF NOT EXISTS on_change AFTER UPDATE OF status, score, resume ON postings
-BEGIN
-  UPDATE postings SET last_updated = date('now') WHERE key = new.key;
-END;
-
--- Scoring sets the status by the threshold in settings, so a score and a
--- shortlist decision can never disagree.
+DROP TRIGGER IF EXISTS on_insert;
 DROP TRIGGER IF EXISTS on_score;
 
-CREATE TRIGGER IF NOT EXISTS on_score AFTER UPDATE OF score ON postings
-WHEN new.score IS NOT NULL AND new.score IS NOT old.score
+-- The day the row last moved: a resume tailored for it. A re-fetch is not
+-- progress, so `last_fetched` is not among the columns watched.
+DROP TRIGGER IF EXISTS on_change;
+
+CREATE TRIGGER IF NOT EXISTS on_change AFTER UPDATE OF resume ON postings
 BEGIN
-  UPDATE postings SET status = CASE
-    WHEN new.score >= COALESCE((SELECT CAST(value AS INTEGER) FROM settings
-                                WHERE key='shortlist_threshold'), 7)
-    THEN 'shortlisted' ELSE 'skipped' END
-  WHERE key = new.key;
+  UPDATE postings SET last_updated = date('now') WHERE key = new.key;
 END;
 
 -- The totals a form asks for as a number rather than a story, counted off
