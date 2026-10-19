@@ -39,7 +39,7 @@ const Match = ({ company }: { company: Company }) => {
   return (
     <>
       <GhostLink
-        href={projectHref(first.employer_id!, first.project_id!)}
+        href={projectHref(first.employer_id, first.project_id)}
         icon={<Glyph icon={Target} />}
         title={`Matches ${first.project}`}
         className="text-sm"

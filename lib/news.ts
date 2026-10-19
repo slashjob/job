@@ -30,7 +30,7 @@ const Verdict = z.discriminatedUnion("verdict", [
     article_id: z.string(),
     verdict: z.literal("lead"),
     company: z.string().trim().min(1, "a lead names the company"),
-    project: z.union([z.number(), z.string().trim().min(1)]),
+    projects: z.array(z.union([z.number(), z.string().trim().min(1)])).min(1, "a lead names a project"),
     reason: z.string().trim().min(1, "a lead says why, in a line"),
   }),
 ]);
@@ -88,9 +88,8 @@ const projectId = (named: number | string) => {
 
 export function judge(payload: unknown) {
   const verdicts = z.array(Verdict).parse(payload);
-  const update = db().prepare(
-    "UPDATE news SET status=?, company_id=?, project_id=?, reason=? WHERE article_id=? AND status='new'",
-  );
+  const update = db().prepare("UPDATE news SET status=?, company_id=?, reason=? WHERE article_id=? AND status='new'");
+  const match = db().prepare("INSERT OR IGNORE INTO news_projects(article_id, project_id) VALUES(?,?)");
   const counted = () => one(z.object({ held: z.number() }), "SELECT count(*) AS held FROM companies")!.held;
   const before = counted();
   let leads = 0;
@@ -98,10 +97,12 @@ export function judge(payload: unknown) {
     for (const held of verdicts) {
       const changed =
         held.verdict === "lead"
-          ? update.run("lead", companyId(held.company), projectId(held.project), held.reason, held.article_id)
-          : update.run("noise", null, null, null, held.article_id);
+          ? update.run("lead", companyId(held.company), held.reason, held.article_id)
+          : update.run("noise", null, null, held.article_id);
       if (!changed.changes) throw new Error(`${held.article_id} is not an unjudged article`);
-      if (held.verdict === "lead") leads++;
+      if (held.verdict !== "lead") continue;
+      for (const named of held.projects) match.run(held.article_id, projectId(named));
+      leads++;
     }
   })();
   return { judged: verdicts.length, leads, companies: counted() - before };

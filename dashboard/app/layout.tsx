@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { Figtree, IBM_Plex_Mono } from "next/font/google";
+import { ShownActions } from "@/components/Actions";
 import Dock from "@/components/Dock";
 import { NamesProvider } from "@/components/Named";
 import Nav from "@/components/Nav";
@@ -59,16 +60,18 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         <NamesProvider names={names()}>
-          <Dock
-            run={run}
-            models={MODELS}
-            model={preferred}
-            nav={<Nav key="nav" store={store()} limits={usage()} models={MODELS} model={preferred} />}
-          >
-            <main id="content" className="mx-auto w-full min-w-0 max-w-[104rem] flex-1 px-4 py-6 md:px-6 md:py-7">
-              {children}
-            </main>
-          </Dock>
+          <ShownActions>
+            <Dock
+              run={run}
+              models={MODELS}
+              model={preferred}
+              nav={<Nav key="nav" store={store()} limits={usage()} models={MODELS} model={preferred} />}
+            >
+              <main id="content" className="mx-auto w-full min-w-0 max-w-[104rem] flex-1 px-4 py-6 md:px-6 md:py-7">
+                {children}
+              </main>
+            </Dock>
+          </ShownActions>
         </NamesProvider>
         <Toaster />
       </body>

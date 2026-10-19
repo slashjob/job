@@ -4,11 +4,10 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { useRouter } from "next/navigation";
 import { Copy, FileText } from "lucide-react";
-import { Command, copyKey, useDiscard, usePass } from "@/components/act";
-import { useDock } from "@/components/Dock";
+import { copyKey, useDiscard, usePass } from "@/components/act";
 import Glyph from "@/components/Glyph";
 import { TitleLink } from "@/components/Linked";
-import { DeleteMenu, OptionsButton, deleteOption, type Option } from "@/components/Options";
+import { DeleteMenu, OptionsButton, deleteOption, useActionOption, type Option } from "@/components/Options";
 import { Stamp } from "@/components/ui";
 import { places, shortDate, shortPay } from "@/lib/format";
 import { assetHref, jobHref, projectHref } from "@/lib/links";
@@ -36,14 +35,10 @@ export const Resume = ({ job, labelled }: { job: Job; labelled?: boolean }) =>
   ) : null;
 
 function useJobMenu() {
-  const { draft } = useDock();
+  const actionOption = useActionOption();
   const drop = useDiscard();
   return (job: Job): Option[] => [
-    ...["resume", "apply", "contact"].map((id) => ({
-      key: id,
-      label: <Command id={id} />,
-      onPick: () => draft(id, job.key),
-    })),
+    ...["resume", "apply", "contact"].map((id) => actionOption(id, job.key)),
     {
       key: "copy",
       label: "Copy job ID",
@@ -60,15 +55,12 @@ export function JobMenu({ job }: { job: Job }) {
 }
 
 export function CompanyMenu({ company }: { company: Pick<Company, "id" | "name"> }) {
-  const { draft } = useDock();
+  const actionOption = useActionOption();
   const pass = usePass();
   return (
     <OptionsButton
       what={company.name}
-      options={[
-        { key: "contact", label: <Command id="contact" />, onPick: () => draft("contact", company.name) },
-        deleteOption("Delete company", () => pass(company.id)),
-      ]}
+      options={[actionOption("contact", company.name), deleteOption("Delete company", () => pass(company.id))]}
     />
   );
 }
@@ -106,17 +98,12 @@ export const JobRow = ({ job }: { job: Job }) => {
   );
 };
 
-type Matched = Pick<Article, "project" | "project_id" | "employer_id">;
+export const projectsOf = (articles: Pick<Article, "projects">[]) =>
+  articles
+    .flatMap((article) => article.projects)
+    .filter((project, at, all) => all.findIndex((other) => other.project_id === project.project_id) === at);
 
-export const projectsOf = (articles: Matched[]) =>
-  articles.filter(
-    (article, at, all) =>
-      article.project_id !== null &&
-      article.employer_id !== null &&
-      all.findIndex((other) => other.project_id === article.project_id) === at,
-  );
-
-export function Matches({ articles }: { articles: Matched[] }) {
+export function Matches({ articles }: { articles: Pick<Article, "projects">[] }) {
   const projects = projectsOf(articles);
   if (!projects.length) return null;
   return (
@@ -125,7 +112,7 @@ export function Matches({ articles }: { articles: Matched[] }) {
       {projects.map((project, at) => (
         <Fragment key={project.project_id}>
           {at > 0 && ", "}
-          <Link href={projectHref(project.employer_id!, project.project_id!)} className="link text-base-content">
+          <Link href={projectHref(project.employer_id, project.project_id)} className="link text-base-content">
             {project.project}
           </Link>
         </Fragment>

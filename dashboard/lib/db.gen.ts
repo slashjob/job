@@ -90,8 +90,11 @@ export const TABLES = {
     found_on: z.string(),
     status: z.enum(["new", "lead", "noise"]),
     company_id: z.number().nullable(),
-    project_id: z.number().nullable(),
     reason: z.string().nullable(),
+  }),
+  news_projects: z.object({
+    article_id: z.string(),
+    project_id: z.number(),
   }),
   postings: z.object({
     key: z.string(),

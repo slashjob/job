@@ -1,5 +1,7 @@
+import { Briefcase, Newspaper, Users, type LucideIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import Actions from "@/components/Actions";
+import Glyph from "@/components/Glyph";
 import Linked from "@/components/Linked";
 import { Back, Group, Measure, Out } from "@/components/ui";
 import { jobHref } from "@/lib/links";
@@ -8,6 +10,13 @@ import { JobRow, PassCompany } from "../../jobs";
 import Articles from "./Articles";
 
 export const dynamic = "force-dynamic";
+
+const Heading = ({ icon, children }: { icon: LucideIcon; children: string }) => (
+  <>
+    <Glyph icon={icon} size="lg" className="text-soft" />
+    {children}
+  </>
+);
 
 const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 
@@ -51,13 +60,13 @@ export default async function CompanyPage({ params }: PageProps<"/jobs/company/[
       </header>
 
       {found.articles.length > 0 && (
-        <Group id="news" heading="News" count={found.articles.length} items="cards">
+        <Group id="news" heading={<Heading icon={Newspaper}>News</Heading>} count={found.articles.length} items="cards">
           <Articles articles={found.articles} />
         </Group>
       )}
 
       {found.jobs.length > 0 && (
-        <Group id="openings" heading="Openings" count={found.jobs.length} items="rows">
+        <Group id="openings" heading={<Heading icon={Briefcase}>Openings</Heading>} count={found.jobs.length} items="rows">
           {found.jobs.map((job) => (
             <Linked
               key={job.key}
@@ -71,7 +80,7 @@ export default async function CompanyPage({ params }: PageProps<"/jobs/company/[
       )}
 
       {found.people.length > 0 && (
-        <Group id="contacts" heading="Contacts" count={found.people.length} items="rows">
+        <Group id="contacts" heading={<Heading icon={Users}>Contacts</Heading>} count={found.people.length} items="rows">
           {found.people.map((person) => (
             <Person key={person.id} person={person} />
           ))}

@@ -32,7 +32,7 @@ file's path, the `cli/search.ts` path, and `instructions.text`. It reads the pro
 `cli/search.ts projects --json` and the articles with `cli/search.ts pending --json`, follows this
 section only, and records every verdict with `cli/search.ts judge`.
 
-**A lead is one named company building what one project built** — the product, or the technique it
+**A lead is one named company building what a project built** — the product, or the technique it
 rests on. The strongest is a company announcing that it is building, launching or raising money for
 it. Everything else is noise:
 
@@ -42,9 +42,9 @@ it. Everything else is noise:
   becomes a company the user spends a morning on
 
 **The company is named the way it names itself**, without the article's framing — `judge` files a
-second article about it under the same company, by name. **The match is the most specific
-project**, and `reason` is one line: what the company is building, and what in the project did the
-same.
+second article about it under the same company, by name. **The match is every project that built
+it** — the product or the technique, not a shared technology — and `reason` is one line: what the
+company is building, and what in those projects did the same.
 
 ## 3. Openings
 

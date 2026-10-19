@@ -80,26 +80,32 @@ export type Posting = z.infer<typeof VIEWS.prospects>;
 
 export const prospect = (key: string) => one(VIEWS.prospects, "SELECT * FROM prospects WHERE key=?", [key]);
 
+const MATCH = z.object({ article_id: z.string(), project_id: z.number(), project: z.string(), employer_id: z.number() });
+
+export type Match = z.infer<typeof MATCH>;
+
 const ARTICLE = TABLES.news
-  .pick({ article_id: true, title: true, url: true, image: true, source: true, published: true, reason: true })
-  .extend({
-    company_id: z.number(),
-    project_id: z.number().nullable(),
-    project: z.string().nullable(),
-    employer_id: z.number().nullable(),
-  });
+  .pick({ article_id: true, title: true, url: true, source: true, published: true, reason: true })
+  .extend({ company_id: z.number() });
 
-export type Article = z.infer<typeof ARTICLE>;
+export type Article = z.infer<typeof ARTICLE> & { projects: Match[] };
 
-const articles = (where: string, args: unknown[] = []) =>
-  rows(
-    ARTICLE,
-    "SELECT news.article_id, news.title, news.url, news.image, news.source, news.published, news.reason," +
-      "       news.company_id, news.project_id, projects.name AS project, projects.employer_id " +
-      "FROM news LEFT JOIN projects ON projects.id = news.project_id " +
-      `WHERE news.status = 'lead' ${where} ORDER BY news.published IS NULL, news.published DESC`,
-    args,
+const articles = (where: string, args: unknown[] = []): Article[] => {
+  const matched = rows(
+    MATCH,
+    "SELECT news_projects.article_id, projects.id AS project_id, projects.name AS project, projects.employer_id " +
+      "FROM news_projects JOIN projects ON projects.id = news_projects.project_id ORDER BY projects.id",
   );
+  return rows(
+    ARTICLE,
+    "SELECT news.article_id, news.title, news.url, news.source, news.published, news.reason, news.company_id " +
+      `FROM news WHERE news.status = 'lead' ${where} ORDER BY news.published IS NULL, news.published DESC`,
+    args,
+  ).map((article) => ({
+    ...article,
+    projects: matched.filter((match) => match.article_id === article.article_id),
+  }));
+};
 
 const CONTACT = TABLES.contacts.omit({ company_id: true });
 

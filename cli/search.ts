@@ -55,8 +55,8 @@ An article is {title, url, source, published, summary, image}; only title and
 url are required. One already held, by url, is skipped.
 
 A verdict is {article_id, verdict: "noise"} or {article_id, verdict: "lead",
-company, project, reason}. \`project\` is a project's id or exact name;
-\`reason\` is one line on what the company is building that the project did. A
+company, projects, reason}. \`projects\` lists each project's id or exact name;
+\`reason\` is one line on what the company is building that they did. A
 lead's company is matched to one already held by name, or added.
 
 A posting is {key, source, company, title, url, location, remote, compensation,

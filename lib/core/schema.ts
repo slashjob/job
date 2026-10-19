@@ -266,16 +266,26 @@ export const TABLES = {
       }),
       status: col(z.enum(["new", "lead", "noise"]), { sql: "DEFAULT 'new'" }),
       company_id: col(z.number().nullable(), { sql: owned("companies(id)") }),
-      project_id: col(z.number().nullable(), { sql: "REFERENCES projects(id) ON DELETE SET NULL" }),
       reason: z.string().nullable(),
     })
     .meta({
       note:
         "Articles read off Google News, each judged once. A lead is a company building\n" +
-        "what one of the user's projects already built: `project_id` is that project and\n" +
+        "what the user's projects already built: `news_projects` names them and\n" +
         "`reason` says why, in a line.",
       constraints: ["CHECK (status IN ('new','noise') OR (company_id IS NOT NULL AND reason IS NOT NULL))"],
       indexes: ["idx_news_status ON news(status)", "idx_news_company ON news(company_id)"],
+    } satisfies Shape),
+
+  news_projects: z
+    .object({
+      article_id: col(z.string(), { sql: owned("news(article_id)") }),
+      project_id: col(z.number(), { sql: owned("projects(id)") }),
+    })
+    .meta({
+      note: "Every project that built what a lead's company is building.",
+      constraints: ["PRIMARY KEY (article_id, project_id)"],
+      indexes: ["idx_news_projects_project ON news_projects(project_id)"],
     } satisfies Shape),
 
   contacts: z
@@ -328,6 +338,7 @@ export const ORDER: Table[] = [
   "projects",
   "project_technologies",
   "news",
+  "news_projects",
   "contacts",
   "instructions",
   "summary",
