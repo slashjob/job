@@ -10,7 +10,7 @@ export const ACTIONS: Action[] = [
   { id: "setup", does: "Build your profile", argument: "", browses: false },
   {
     id: "search",
-    does: "Find companies in the news building what you have built, their openings, and who to write to",
+    does: "Search the news for companies and contacts to reach out to",
     argument: "[project]",
     browses: true,
   },
