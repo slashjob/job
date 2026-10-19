@@ -62,9 +62,10 @@ export function LinkCard({
   return (
     <Card soft>
       <Linked href={href}>
-        <div className="flex items-baseline gap-3">
-          <h3 className="line-clamp-2 min-w-0 flex-1 font-display text-lg font-medium leading-snug sm:line-clamp-1">
+        <div className="flex items-baseline gap-1.5">
+          <h3 className="line-clamp-2 min-w-0 font-display text-lg font-medium leading-snug sm:line-clamp-1">
             <TitleLink href={href}>{title}</TitleLink>
+            {stamp && ","}
           </h3>
           {stamp}
         </div>
