@@ -10,11 +10,6 @@ const Found = z.object({
   source: z.string().trim().min(1).nullable().optional(),
   published: z.string().nullable().optional(),
   summary: z.string().trim().min(1).nullable().optional(),
-  image: z
-    .string()
-    .regex(/^https?:\/\/.*\./, "a URL, starting http")
-    .nullable()
-    .optional(),
 });
 
 const Held = z.object({
@@ -55,7 +50,7 @@ const articleId = (url: string) => createHash("sha256").update(url).digest("hex"
 export function add(payload: unknown) {
   const found = z.array(Found).parse(payload);
   const insert = db().prepare(
-    "INSERT OR IGNORE INTO news(article_id,title,url,source,published,summary,image) VALUES(?,?,?,?,?,?,?)",
+    "INSERT OR IGNORE INTO news(article_id,title,url,source,published,summary) VALUES(?,?,?,?,?,?)",
   );
   let added = 0;
   db().transaction(() => {
@@ -67,7 +62,6 @@ export function add(payload: unknown) {
         article.source ?? null,
         article.published ?? null,
         article.summary ?? null,
-        article.image ?? null,
       ).changes;
   })();
   return { added, seen: found.length - added };

@@ -7,7 +7,7 @@ import { printRows } from "../lib/core/table.ts";
 import { addContacts, companies, contacts } from "../lib/company.ts";
 import { instructions, openings, prospect } from "../lib/fit.ts";
 import { add, judge, pending, projects } from "../lib/news.ts";
-import { insert, undescribed } from "../lib/search.ts";
+import { insert } from "../lib/search.ts";
 import { fail, action } from "./kit.ts";
 
 const located = (named: string) => {
@@ -46,12 +46,11 @@ company's openings and people.
   cli/search.ts insert --company 3 --file -      store the openings found at company 3
   cli/search.ts contacts --company 3 --file -    store the people worth writing to there
   cli/search.ts contacts --company 3             the people stored for company 3
-  cli/search.ts undescribed                      kept postings with no description yet
   cli/search.ts instructions                     the work history, profile facts and prose fit is judged against
   cli/search.ts openings --unbuilt               openings kept, with no resume yet
   cli/search.ts show KEY [KEY ...]               an opening's full text
 
-An article is {title, url, source, published, summary, image}; only title and
+An article is {title, url, source, published, summary}; only title and
 url are required. One already held, by url, is skipped.
 
 A verdict is {article_id, verdict: "noise"} or {article_id, verdict: "lead",
@@ -138,18 +137,6 @@ program
       if (!options.file) return printRows(contacts(at), options.json);
       const { added, updated } = addContacts(at, read(options.file));
       console.log(`${added} added  ${updated} updated`);
-    }),
-  );
-
-program
-  .command("undescribed")
-  .description("postings with no description, which fit cannot be judged on")
-  .action(
-    runs(() => {
-      const held = undescribed();
-      if (!held.length) return console.log("every posting has a description");
-      console.log(`${held.length} postings have no description:`);
-      for (const row of held) console.log(`  ${row.key}  ${row.company} — ${row.title}  ${row.url ?? ""}`);
     }),
   );
 

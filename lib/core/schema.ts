@@ -259,7 +259,6 @@ export const TABLES = {
         takes: "a timestamp",
       }),
       summary: z.string().nullable(),
-      image: col(z.string().nullable(), { sql: url("image"), takes: "a URL, starting http" }),
       found_on: col(z.string(), {
         sql: "DEFAULT (date('now')) CHECK (found_on IS date(found_on))",
         takes: "a date, as YYYY-MM-DD",

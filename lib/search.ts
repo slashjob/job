@@ -55,9 +55,3 @@ export function insert(payload: unknown, at: number, website: string | null): In
     skipped,
   };
 }
-
-export const undescribed = () =>
-  query(
-    TABLES.postings.pick({ key: true, company: true, title: true, url: true }),
-    "SELECT key, company, title, url FROM postings WHERE description IS NULL OR trim(description)=''",
-  );

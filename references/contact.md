@@ -126,9 +126,9 @@ make room.
 
 ## Hand it over
 
-Type it into the box and stop, with the tab left open. Under the opening sentence, the message as
-typed, so they can ask for a change without leaving the conversation; a change is retyped in the
-same box.
+An email stays in chat. Anything else is typed into the box and left there, the tab open, with the
+message as typed under the opening sentence, so they can ask for a change without leaving the
+conversation; a change is retyped in the same box.
 
 ## Adding a quirk
 

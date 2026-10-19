@@ -86,7 +86,6 @@ export const TABLES = {
     source: z.string().nullable(),
     published: z.string().nullable(),
     summary: z.string().nullable(),
-    image: z.string().nullable(),
     found_on: z.string(),
     status: z.enum(["new", "lead", "noise"]),
     company_id: z.number().nullable(),

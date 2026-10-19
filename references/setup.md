@@ -24,9 +24,8 @@ path, or `NULL`, and anything they must do themselves comes with the exact keys 
   pressing.
 - **What to do with all that.** One piece of prose in `instructions.text`, written in their words
   and read over the profile rather than repeating it. Nothing forces a question here, so **ask all
-  of it**: the work they want, strongest first, in the words a job board would use for it — every
-  opening at a company is judged off this prose, so it has to name the roles plainly enough to tell
-  one from another —
+  of it**: the work they want, strongest first, named plainly enough to tell one role from another —
+  every opening at a company is judged off this prose —
   seniority, the years a posting may ask for before it stops fitting, what makes an opening better,
   what puts them off, and what makes them skip it outright — and **how those relate**, which is the
   judgement a list cannot hold. Keep the slopes they describe: "7+ years only when the rest is a
@@ -58,9 +57,9 @@ each named as the question a form would ask.
 
 **3. Check the prose covers the search.** There is no filter table: `instructions.text` and
 `identity` are the only two places a preference can live. The news is searched off the projects;
-what the search keeps — the places, what to leave out — is typed off these two. Read the prose back with that call in
-mind. If you cannot fill an argument from it, that is a missing sentence, not a missing feature: ask
-for it, and add it to the prose in their words.
+which openings it keeps — the roles, the places, what to leave out — is judged off these two. Read
+the prose back as that judgement would: an opening you could not keep or drop from it is a missing
+sentence, not a missing feature. Ask for it, and add it to the prose in their words.
 
 **4. Do a dry run.** Search for one project — `references/searching.md` is the how — then list
 `cli/search.ts companies`. It costs nothing, so the point is only to see whether the projects and

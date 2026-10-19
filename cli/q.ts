@@ -13,7 +13,7 @@ new Command("cli/q.ts")
   .description(
     `Run SQL against the job database.
 
-  cli/q.ts "SELECT * FROM triage WHERE status='new'"
+  cli/q.ts "SELECT * FROM triage WHERE resume IS NULL"
   cli/q.ts --json "SELECT * FROM triage LIMIT 5"
   cli/q.ts -f some.sql          run a file
   cli/q.ts --schema             print the schema

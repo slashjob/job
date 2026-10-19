@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "private": true,
   "type": "module",
-  "description": "A Claude Code skill that scans job boards, scores openings, tailors resumes, and applies.",
+  "description": "A Claude Code skill that finds companies building what you have built, their openings and who to write to there, then tailors resumes and fills applications.",
   "license": "MIT",
   "engines": {
     "node": ">=22.18"

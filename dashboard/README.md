@@ -22,12 +22,12 @@ resume for each one, and fill in the applications.
 ## What you get
 
 - **No commands.** Each job has a button for its next step.
-- **Jobs that need you come first.** Each job shows why it was ranked where it was, next to the resume
-  written for it.
+- **Companies building what you've built.** Each one shows the news that turned it up, its jobs, and
+  who to write to there.
 
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/job-dark.png">
-    <img alt="A job with its ranking, the posting, and its resume" src="docs/job-light.png">
+    <img alt="A job with the posting and its resume" src="docs/job-light.png">
   </picture>
 
 - **Edit your profile directly.** It shows which application questions you haven't answered yet,

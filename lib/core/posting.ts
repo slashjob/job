@@ -41,8 +41,6 @@ export const Posting = z.object({
 
 export type Posting = z.infer<typeof Posting>;
 
-export const posting = (input: unknown): Posting => Posting.parse(input);
-
 export const POSTING_COLUMNS = Object.keys(Posting.shape) as (keyof Posting)[];
 
 const undeclared = POSTING_COLUMNS.filter((name) => !(name in TABLES.postings.shape));

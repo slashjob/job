@@ -36,5 +36,5 @@ corrects** — a wrong number or anything else about a project in its `about`, a
 exist means "none", not "never asked".
 
 **Never write run notes or daily summaries to disk.** The database is the record, and a question
-about the search — what went quiet, which companies reject fastest — is **answered with a query**, in
+about the search — which project the news matches most, which companies have no opening yet — is **answered with a query**, in
 the conversation.

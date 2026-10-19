@@ -13,7 +13,7 @@ stored.
 
 **Search Google News in the browser**:
 `https://news.google.com/search?q=<terms>+when:7d&hl=en-US&gl=US&ceid=US:en`. Read each results page
-as JSON with `browser_evaluate` — headline, source, time, link, image — and store every article with
+as JSON with `browser_evaluate` — headline, source, time, link — and store every article with
 `cli/search.ts articles`. Judging decides what is noise, not the search.
 
 **Terms come off `cli/search.ts projects`, fresh each run, never saved.** Each is the product or
@@ -97,7 +97,7 @@ empty or wrong.
    matching drifts toward rating what they have as important and what they lack as minor. A weight
    the JD does not state is a guess, and a guess never makes a missing requirement decisive: that
    error costs an application they should have made.
-4. **Apply the hard stops first.** One of theirs is a zero regardless of how well the rest reads, and
+4. **Apply the hard stops first.** One of theirs drops an opening regardless of how well the rest reads, and
    no amount of good elsewhere trades against it.
 
 **Drop on sight, without storing:** the expired, the reposted staffing listing, the role plainly in

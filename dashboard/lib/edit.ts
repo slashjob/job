@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import { z } from "zod";
 
-import { db, one, rows } from "./db.ts";
+import { db, one } from "./db.ts";
 import { MODELS } from "./queries.ts";
 import { TABLES, bare, type Table } from "./schema.ts";
 import { CAREER, absolute } from "./skill.ts";

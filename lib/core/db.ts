@@ -8,7 +8,7 @@ import { ACTIVE, DB, MAIN, absolute } from "./paths.ts";
 import { ROOT } from "./root.ts";
 import { align } from "./schema.ts";
 
-export { absolute, CAREER, DB, DOWNLOADS, PATHS } from "./paths.ts";
+export { CAREER, DOWNLOADS, PATHS } from "./paths.ts";
 
 const held = globalThis as { db?: Database.Database; ddl?: string };
 
