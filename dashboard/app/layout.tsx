@@ -69,7 +69,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             >
               <main
                 id="content"
-                className="mx-auto w-full min-w-0 max-w-[104rem] flex-1 px-4 py-6 md:px-6 md:py-7 pointer-fine:pb-[var(--dock-clear)]"
+                className="mx-auto w-full min-w-0 max-w-[104rem] flex-1 px-4 py-6 md:px-6 md:py-7 pointer-fine:pt-[var(--nav-clear)] pointer-fine:pb-[var(--dock-clear)]"
               >
                 {children}
               </main>

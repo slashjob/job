@@ -130,6 +130,7 @@ html {
   --nav: 2.75rem;
   --dock-tall: 40rem;
   --dock-clear: 6rem;
+  --nav-clear: calc(var(--nav) + 1.5rem);
   --float: 0.75rem;
   --hit: 2.5rem;
   --lit-hi: #ec8a60;
