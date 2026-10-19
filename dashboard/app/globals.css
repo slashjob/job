@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@custom-variant summoned (&:hover, &:focus-within, &:has([aria-expanded="true"]), &[data-held]);
+
 @plugin "daisyui/theme" {
   name: "readout";
   default: true;
@@ -83,6 +85,7 @@
   --color-mark-content: oklch(21% 0.04 45);
   --animate-blink: blink 1.2s ease-in-out infinite;
   --animate-arrive: arrive 0.5s ease-out 1;
+  --animate-beacon: beacon 9s linear infinite;
 
   @keyframes blink {
     0%,
@@ -91,6 +94,12 @@
     }
     50% {
       opacity: 1;
+    }
+  }
+
+  @keyframes beacon {
+    to {
+      background-position-x: 150%;
     }
   }
 
@@ -125,6 +134,8 @@ html {
   --lit-hi: #ec8a60;
   --lit-lo: #cc5f38;
   --glow: #e27042;
+  --glow-amber: #f2a64a;
+  --glow-rose: #e0566a;
 }
 
 [data-theme="night"] {
@@ -218,6 +229,20 @@ html {
 
 @utility halo {
   box-shadow: 0 0 2.5rem -0.75rem color-mix(in oklab, var(--color-mark) 45%, transparent);
+}
+
+@utility beacon {
+  background: linear-gradient(
+      90deg,
+      var(--lit-lo),
+      var(--glow),
+      var(--glow-amber),
+      var(--lit-hi),
+      var(--glow-rose),
+      var(--lit-lo)
+    )
+    0 0 / 300% 100%;
+  filter: blur(1.25rem);
 }
 
 @utility tnum {

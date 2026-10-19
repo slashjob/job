@@ -185,63 +185,75 @@ export default function Dock({
 
       <aside
         aria-label="Chat"
-        className="sticky bottom-0 z-30 bg-base-200 px-4 pb-4 before:pointer-events-none before:absolute
-          before:inset-x-0 before:bottom-full before:h-8 before:bg-linear-to-t before:from-base-200
-          md:px-6 md:pb-6"
+        data-held={Boolean(chat || opened || said) || undefined}
+        className="group/dock sticky bottom-0 z-30 pointer-fine:fixed pointer-fine:inset-x-0"
       >
-        <Measure ref={dock} className="flex">
-          <div
-            className={`relative flex max-h-[min(var(--dock-tall),calc(100dvh-var(--nav)-3rem))] min-w-0 flex-1
-              flex-col overflow-hidden rounded-box border bg-base-100 halo
-              ${waiting ? "border-mark" : "border-mark/30"}`}
-          >
-            {chat || opened ? (
-              <>
-                <div className={`flex shrink-0 items-center p-1.5 ${opened ? "gap-1" : ""}`}>
-                  {opened ? (
-                    <div className={`${MARKED} px-3 py-2 text-sm`}>
-                      <span className="flex self-center">
-                        <Mark standing={chat?.standing} />
-                      </span>
-                      {heading}
-                    </div>
-                  ) : (
-                    <>
-                      <Tip tip="Job actions">
-                        <Ghost
-                          onClick={summon}
-                          onPointerDown={(event) => event.preventDefault()}
-                          aria-label={waiting ? "Job actions, waiting on you" : "Job actions"}
-                        >
-                          <Wordmark size={16} working={busy} waiting={waiting} />
-                        </Ghost>
-                      </Tip>
-                      <Row roomy onClick={unfold} aria-expanded={false} className={`${BARE} pl-1`}>
+        <div
+          className="relative bg-base-200 px-4 pb-4 transition-transform duration-200 ease-out
+            before:pointer-events-none before:absolute before:inset-x-0 before:bottom-full before:h-8
+            before:bg-linear-to-t before:from-base-200 before:transition-opacity before:duration-200 md:px-6 md:pb-6
+            pointer-fine:translate-y-full pointer-fine:delay-300 pointer-fine:before:opacity-0 pointer-fine:before:delay-300
+            pointer-fine:group-summoned/dock:translate-y-0 pointer-fine:group-summoned/dock:delay-0
+            pointer-fine:group-summoned/dock:before:opacity-100 pointer-fine:group-summoned/dock:before:delay-0"
+        >
+          <Measure ref={dock} className="relative flex">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 -top-3 bottom-0 rounded-box beacon motion-safe:animate-beacon"
+            />
+            <div
+              className={`relative flex max-h-[min(var(--dock-tall),calc(100dvh-var(--nav)-3rem))] min-w-0 flex-1
+                flex-col overflow-hidden rounded-box border bg-base-100
+                ${waiting ? "border-mark" : "border-mark/30"}`}
+            >
+              {chat || opened ? (
+                <>
+                  <div className={`flex shrink-0 items-center p-1.5 ${opened ? "gap-1" : ""}`}>
+                    {opened ? (
+                      <div className={`${MARKED} px-3 py-2 text-sm`}>
+                        <span className="flex self-center">
+                          <Mark standing={chat?.standing} />
+                        </span>
                         {heading}
-                      </Row>
-                    </>
-                  )}
+                      </div>
+                    ) : (
+                      <>
+                        <Tip tip="Job actions">
+                          <Ghost
+                            onClick={summon}
+                            onPointerDown={(event) => event.preventDefault()}
+                            aria-label={waiting ? "Job actions, waiting on you" : "Job actions"}
+                          >
+                            <Wordmark size={16} working={busy} waiting={waiting} />
+                          </Ghost>
+                        </Tip>
+                        <Row roomy onClick={unfold} aria-expanded={false} className={`${BARE} pl-1`}>
+                          {heading}
+                        </Row>
+                      </>
+                    )}
+                    {opened && (
+                      <Tip tip="Clear chat">
+                        <Ghost tone="grave" onClick={wipe} aria-label="Clear chat" icon={<Glyph icon={X} />} />
+                      </Tip>
+                    )}
+                  </div>
                   {opened && (
-                    <Tip tip="Clear chat">
-                      <Ghost tone="grave" onClick={wipe} aria-label="Clear chat" icon={<Glyph icon={X} />} />
-                    </Tip>
+                    <Conversation
+                      className="min-h-0 flex-1"
+                      lines={lines}
+                      working={working}
+                      asking={asking}
+                      onStop={stop}
+                    />
                   )}
-                </div>
-                {opened && (
-                  <Conversation
-                    className="min-h-0 flex-1"
-                    lines={lines}
-                    working={working}
-                    asking={asking}
-                    onStop={stop}
-                  />
-                )}
-              </>
-            ) : (
-              <Conversation lines={lines} asking={asking} />
-            )}
-          </div>
-        </Measure>
+                </>
+              ) : (
+                <Conversation lines={lines} asking={asking} />
+              )}
+            </div>
+          </Measure>
+        </div>
       </aside>
     </DockContext.Provider>
   );

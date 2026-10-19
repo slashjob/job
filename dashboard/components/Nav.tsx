@@ -37,55 +37,54 @@ export default function Nav({
   const jobs = here.startsWith("/jobs");
   const profile = here.startsWith("/profile");
   return (
-    <nav
-      aria-label="Sections"
-      className="sticky top-0 z-40 border-b border-base-300 bg-base-100 transition-transform duration-200 ease-out
-        pointer-fine:fixed pointer-fine:inset-x-0 pointer-fine:-translate-y-full
-        pointer-fine:delay-300 pointer-fine:hover:delay-0 pointer-fine:has-focus-visible:delay-0
-        pointer-fine:after:absolute pointer-fine:after:inset-x-0 pointer-fine:after:top-full pointer-fine:after:h-6
-        pointer-fine:hover:translate-y-0 pointer-fine:hover:after:h-2
-        pointer-fine:has-focus-visible:translate-y-0 pointer-fine:has-focus-visible:after:h-2
-        pointer-fine:has-aria-expanded:translate-y-0 pointer-fine:has-aria-expanded:delay-0"
-    >
-      <div className="mx-auto flex h-[var(--nav)] max-w-[104rem] items-center justify-center px-2 sm:px-4 md:px-6">
-        <NavGroup>
-          <li>
-            <Tip centered tip="Jobs">
-              <GhostLink
-                href="/jobs"
-                on={jobs}
-                aria-label="Jobs"
-                aria-current={jobs ? "page" : undefined}
-                icon={<Glyph icon={Briefcase} size="lg" />}
-              />
-            </Tip>
-          </li>
-          <li>
-            <Tip centered tip="Profile">
-              <GhostLink
-                href="/profile"
-                on={profile}
-                aria-label="Profile"
-                aria-current={profile ? "page" : undefined}
-                icon={<Glyph icon={User} size="lg" />}
-              />
-            </Tip>
-          </li>
-          <NavDivider />
-          <li>
-            <ThemeToggle />
-          </li>
-          <li>
-            <Tip centered tip="Usage and model">
-              <Usage usage={limits} models={models} model={model} />
-            </Tip>
-          </li>
-          <li>
-            <Tip centered tip="Database">
-              <Store store={store} />
-            </Tip>
-          </li>
-        </NavGroup>
+    <nav aria-label="Sections" className="group/nav sticky top-0 z-40 pointer-fine:fixed pointer-fine:inset-x-0">
+      <div
+        className="border-b border-base-300 bg-base-100 transition-transform duration-200 ease-out
+          pointer-fine:-translate-y-full pointer-fine:delay-300
+          pointer-fine:group-hover/nav:translate-y-0 pointer-fine:group-hover/nav:delay-0
+          pointer-fine:group-has-focus-visible/nav:translate-y-0 pointer-fine:group-has-focus-visible/nav:delay-0
+          pointer-fine:group-has-aria-expanded/nav:translate-y-0 pointer-fine:group-has-aria-expanded/nav:delay-0"
+      >
+        <div className="mx-auto flex h-[var(--nav)] max-w-[104rem] items-center justify-center px-2 sm:px-4 md:px-6">
+          <NavGroup>
+            <li>
+              <Tip centered tip="Jobs">
+                <GhostLink
+                  href="/jobs"
+                  on={jobs}
+                  aria-label="Jobs"
+                  aria-current={jobs ? "page" : undefined}
+                  icon={<Glyph icon={Briefcase} size="lg" />}
+                />
+              </Tip>
+            </li>
+            <li>
+              <Tip centered tip="Profile">
+                <GhostLink
+                  href="/profile"
+                  on={profile}
+                  aria-label="Profile"
+                  aria-current={profile ? "page" : undefined}
+                  icon={<Glyph icon={User} size="lg" />}
+                />
+              </Tip>
+            </li>
+            <NavDivider />
+            <li>
+              <ThemeToggle />
+            </li>
+            <li>
+              <Tip centered tip="Usage and model">
+                <Usage usage={limits} models={models} model={model} />
+              </Tip>
+            </li>
+            <li>
+              <Tip centered tip="Database">
+                <Store store={store} />
+              </Tip>
+            </li>
+          </NavGroup>
+        </div>
       </div>
     </nav>
   );
