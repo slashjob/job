@@ -129,6 +129,8 @@ export const NavGroup = ({ children, fill }: { children: ReactNode; fill?: boole
   <ul className={`flex items-center gap-0.5 sm:gap-1 ${fill ? "strip min-w-0 flex-1" : "shrink-0"}`}>{children}</ul>
 );
 
+export const NavDivider = () => <li aria-hidden className="mx-1 h-4 w-px bg-base-300 sm:mx-2" />;
+
 const GHOST_TONES = {
   quiet: "text-soft hover:bg-base-200 hover:text-base-content",
   grave: "text-error hover:bg-error hover:text-error-content",

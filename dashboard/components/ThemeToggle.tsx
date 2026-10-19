@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import Glyph from "./Glyph";
-import { Ghost } from "@/components/ui";
+import { Ghost, Tip } from "@/components/ui";
 
 type Theme = "readout" | "night";
 
@@ -28,11 +28,14 @@ export default function ThemeToggle() {
   }, [theme]);
 
   const next = theme === "night" ? "readout" : "night";
+  const label = next === "night" ? "Switch to dark theme" : "Switch to light theme";
   return (
-    <Ghost
-      onClick={() => setTheme(next)}
-      aria-label={next === "night" ? "Switch to dark theme" : "Switch to light theme"}
-      icon={<Glyph icon={theme === "night" ? Sun : Moon} size="lg" />}
-    />
+    <Tip tip={label}>
+      <Ghost
+        onClick={() => setTheme(next)}
+        aria-label={label}
+        icon={<Glyph icon={theme === "night" ? Sun : Moon} size="lg" />}
+      />
+    </Tip>
   );
 }
