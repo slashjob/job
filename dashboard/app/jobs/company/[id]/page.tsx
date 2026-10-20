@@ -1,6 +1,5 @@
 import { Briefcase, Newspaper, Users, type LucideIcon } from "lucide-react";
 import { notFound } from "next/navigation";
-import Actions from "@/components/Actions";
 import Glyph from "@/components/Glyph";
 import Linked from "@/components/Linked";
 import { Back, Group, Measure, Out } from "@/components/ui";
@@ -8,6 +7,7 @@ import { jobHref } from "@/lib/links";
 import { company, type Contact } from "@/lib/queries";
 import { JobRow, PassCompany } from "../../jobs";
 import Articles from "./Articles";
+import Ways from "./Ways";
 
 export const dynamic = "force-dynamic";
 
@@ -20,18 +20,14 @@ const Heading = ({ icon, children }: { icon: LucideIcon; children: string }) => 
 
 const host = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 
-const Person = ({ person }: { person: Contact }) => (
+const Person = ({ person, company }: { person: Contact; company: string }) => (
   <div className="px-3 py-2.5">
     <div className="flex flex-wrap items-baseline gap-x-3">
       <h3 className="font-medium">{person.name}</h3>
       {person.title && <span className="text-sm text-soft">{person.title}</span>}
     </div>
     <p className="mt-0.5 text-sm text-soft">{person.why}</p>
-    <p className="mt-1.5 flex flex-wrap gap-x-4 text-sm">
-      {person.email && <Out href={`mailto:${person.email}`}>{person.email}</Out>}
-      {person.x && <Out href={person.x}>X</Out>}
-      {person.linkedin && <Out href={person.linkedin}>LinkedIn</Out>}
-    </p>
+    <Ways person={person} company={company} />
   </div>
 );
 
@@ -53,10 +49,7 @@ export default async function CompanyPage({ params }: PageProps<"/jobs/company/[
             </p>
           )}
         </div>
-        <span className="flex shrink-0 items-center gap-1.5">
-          <Actions ids={["contact"]} argument={found.name} />
-          <PassCompany company={found} />
-        </span>
+        <PassCompany company={found} />
       </header>
 
       {found.articles.length > 0 && (
@@ -82,7 +75,7 @@ export default async function CompanyPage({ params }: PageProps<"/jobs/company/[
       {found.people.length > 0 && (
         <Group id="contacts" heading={<Heading icon={Users}>Contacts</Heading>} count={found.people.length} items="rows">
           {found.people.map((person) => (
-            <Person key={person.id} person={person} />
+            <Person key={person.id} person={person} company={found.name} />
           ))}
         </Group>
       )}

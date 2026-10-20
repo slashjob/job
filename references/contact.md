@@ -62,6 +62,9 @@ Under the opening sentence: the person, their title, why them, the way to reach 
 was found, or that the address is a guess; anyone else worth weighing, a line each. **Then stop.** Whether to write, to whom, and
 which way, is decided with the user before anything is drafted.
 
+**An invocation that already names the person and the way has decided both**: skip the
+recommendation and go to **Writing it**, asking only what **About what** still leaves open.
+
 ## Writing it
 
 | Way | Where the message goes |

@@ -83,12 +83,7 @@ const Full = ({ company }: { company: Company }) => {
           </span>
         </>
       }
-      tools={
-        <>
-          <Actions ids={["contact"]} argument={company.name} />
-          <CompanyMenu company={company} />
-        </>
-      }
+      tools={<CompanyMenu company={company} />}
     >
       {building && <p className="mt-2 leading-relaxed">{building}</p>}
       {shown.length > 0 && (
