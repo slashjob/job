@@ -55,14 +55,8 @@ export function JobMenu({ job }: { job: Job }) {
 }
 
 export function CompanyMenu({ company }: { company: Pick<Company, "id" | "name"> }) {
-  const actionOption = useActionOption();
   const pass = usePass();
-  return (
-    <OptionsButton
-      what={company.name}
-      options={[actionOption("contact", company.name), deleteOption("Delete company", () => pass(company.id))]}
-    />
-  );
+  return <DeleteMenu what={company.name} label="Delete company" onPick={() => pass(company.id)} />;
 }
 
 export function PassCompany({ company }: { company: Pick<Company, "id" | "name"> }) {
